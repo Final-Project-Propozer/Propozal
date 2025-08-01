@@ -1,4 +1,4 @@
-package com.propozal.backend;
+package com.propozal;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
