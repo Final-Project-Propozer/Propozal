@@ -1,4 +1,4 @@
-package com.propozal.backend;
+package com.propozal;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
