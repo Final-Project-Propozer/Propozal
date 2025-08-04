@@ -1,6 +1,8 @@
 package com.propozal.backend.controller;
 
+import com.propozal.backend.dto.request.LoginRequest;
 import com.propozal.backend.dto.request.SignupRequest;
+import com.propozal.backend.dto.response.LoginResponse;
 import com.propozal.backend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -35,5 +37,10 @@ public class UserController {
         response.put("message", exists ? "이미 가입된 이메일입니다." : "사용 가능한 이메일입니다.");
 
         return ResponseEntity.ok().body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+        return ResponseEntity.ok(userService.loginUser(request));
     }
 }
