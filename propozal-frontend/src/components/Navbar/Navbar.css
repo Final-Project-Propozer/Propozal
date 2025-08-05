@@ -1,0 +1,65 @@
+/* src/components/Navbar.css */
+
+.custom-navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* src/components/Navbar/Navbar.css */
+
+.logo {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  margin-left: 24px; /* 왼쪽에서 살짝 떨어지게 */
+}
+
+.logo .pro {
+  color: #588157;
+}
+
+.logo .pozal {
+  color: #000000;
+}
+
+.login-btn {
+  margin-right: 24px; /* 오른쪽 끝에서 떨어지게 */
+}
+
+.login-btn:hover {
+  background-color: #198754 !important;
+  color: #fff !important;
+  border-color: #000000 !important;
+  transition: all 0.3s ease;
+}
+
+.nav-tab-group {
+  display: flex;
+  gap: 10px; /* ✅ 각 메뉴 간 간격 설정 */
+}
+
+.nav-tab-group .nav-link {
+  padding: 6px 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+  text-decoration: none;
+  color: #333;
+}
+
+.nav-tab-group .nav-link:hover {
+  background-color: #f8f9fa;
+}
+
+/* 로그인 버튼은 기존대로 유지되지만 필요시 간격 조정 */
+.login-btn {
+  margin-left: 10px;
+}
+
+
+
