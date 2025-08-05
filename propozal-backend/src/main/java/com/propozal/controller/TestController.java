@@ -1,7 +1,7 @@
-package com.propozal.backend.controller;
+package com.propozal.controller;
 
-import com.propozal.backend.domain.User;
-import com.propozal.backend.repository.UserRepository;
+import com.propozal.domain.User;
+import com.propozal.repository.UserRepository;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

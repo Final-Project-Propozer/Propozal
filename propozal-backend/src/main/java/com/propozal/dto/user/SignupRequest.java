@@ -1,6 +1,6 @@
-package com.propozal.backend.dto.request;
+package com.propozal.dto.user;
 
-import com.propozal.backend.domain.Role;
+import com.propozal.domain.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

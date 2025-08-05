@@ -1,4 +1,4 @@
-package com.propozal.backend.jwt;
+package com.propozal.jwt;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.*;

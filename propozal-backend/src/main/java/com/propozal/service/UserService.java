@@ -1,11 +1,11 @@
-package com.propozal.backend.service;
+package com.propozal.service;
 
-import com.propozal.backend.domain.User;
-import com.propozal.backend.dto.request.LoginRequest;
-import com.propozal.backend.dto.request.SignupRequest;
-import com.propozal.backend.dto.response.LoginResponse;
-import com.propozal.backend.jwt.JwtUtil;
-import com.propozal.backend.repository.UserRepository;
+import com.propozal.domain.User;
+import com.propozal.dto.user.LoginRequest;
+import com.propozal.dto.user.SignupRequest;
+import com.propozal.dto.user.LoginResponse;
+import com.propozal.jwt.JwtUtil;
+import com.propozal.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

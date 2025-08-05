@@ -1,4 +1,4 @@
-package com.propozal.backend.domain;
+package com.propozal.domain;
 
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,11 +1,11 @@
-package com.propozal.backend.controller;
+package com.propozal.controller;
 
-import com.propozal.backend.dto.request.LoginRequest;
-import com.propozal.backend.dto.request.SignupRequest;
-import com.propozal.backend.dto.response.LoginResponse;
-import com.propozal.backend.dto.response.UserInfoResponse;
-import com.propozal.backend.security.CustomUserDetails;
-import com.propozal.backend.service.UserService;
+import com.propozal.dto.user.LoginRequest;
+import com.propozal.dto.user.SignupRequest;
+import com.propozal.dto.user.LoginResponse;
+import com.propozal.dto.user.UserInfoResponse;
+import com.propozal.jwt.CustomUserDetails;
+import com.propozal.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

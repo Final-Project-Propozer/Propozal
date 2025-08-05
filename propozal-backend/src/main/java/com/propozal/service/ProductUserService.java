@@ -1,9 +1,11 @@
 package com.propozal.service;
 
 import com.propozal.domain.Product;
-import com.propozal.backend.domain.User;
+import com.propozal.domain.User;
 import com.propozal.dto.category.CategoryDto;
 import com.propozal.dto.product.ProductUserResponseDto;
+import com.propozal.exception.CustomException;
+import com.propozal.exception.ErrorCode;
 import com.propozal.repository.FavoriteProductRepository;
 import com.propozal.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ public class ProductUserService {
     private final ProductRepository productRepository;
     private final FavoriteProductRepository favoriteProductRepository;
 
+    //전체 목록 조회
     @Transactional(readOnly = true)
     public List<ProductUserResponseDto> getAllProducts(User user) {
         List<Product> products = productRepository.findAll();
@@ -51,6 +54,18 @@ public class ProductUserService {
                         .nameLv3(product.getCategoryLv3().getName())
                         .build())
                 .build()).collect(Collectors.toList());
+    }
+
+    //제품 상세 조회
+    @Transactional(readOnly = true)
+    public ProductUserResponseDto getProductDetail(Long id, User user) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        boolean isFavorite = favoriteProductRepository.existsByUserIdAndProductId(user.getId(), product.getId());
+
+        return new ProductUserResponseDto();
+
     }
 
 }

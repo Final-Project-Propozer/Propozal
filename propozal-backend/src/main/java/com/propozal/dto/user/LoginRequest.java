@@ -1,4 +1,4 @@
-package com.propozal.backend.dto.request;
+package com.propozal.dto.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

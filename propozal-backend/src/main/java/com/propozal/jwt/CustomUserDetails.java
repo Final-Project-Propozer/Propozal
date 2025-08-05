@@ -1,6 +1,6 @@
-package com.propozal.backend.security;
+package com.propozal.jwt;
 
-import com.propozal.backend.domain.User;
+import com.propozal.domain.User;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

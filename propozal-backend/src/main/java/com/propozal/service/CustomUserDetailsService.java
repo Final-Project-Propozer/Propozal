@@ -1,8 +1,8 @@
-package com.propozal.backend.service;
+package com.propozal.service;
 
-import com.propozal.backend.domain.User;
-import com.propozal.backend.repository.UserRepository;
-import com.propozal.backend.security.CustomUserDetails;
+import com.propozal.domain.User;
+import com.propozal.repository.UserRepository;
+import com.propozal.jwt.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

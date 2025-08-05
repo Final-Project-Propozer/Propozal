@@ -1,6 +1,6 @@
-package com.propozal.backend.dto.response;
+package com.propozal.dto.user;
 
-import com.propozal.backend.domain.User;
+import com.propozal.domain.User;
 import lombok.Builder;
 import lombok.Getter;
 

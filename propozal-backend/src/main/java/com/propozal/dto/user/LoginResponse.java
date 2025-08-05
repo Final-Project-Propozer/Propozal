@@ -1,4 +1,4 @@
-package com.propozal.backend.dto.response;
+package com.propozal.dto.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

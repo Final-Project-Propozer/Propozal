@@ -1,7 +1,7 @@
-package com.propozal.backend.config;
+package com.propozal.config;
 
-import com.propozal.backend.jwt.JwtAuthenticationFilter;
-import com.propozal.backend.jwt.JwtUtil;
+import com.propozal.jwt.JwtAuthenticationFilter;
+import com.propozal.jwt.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

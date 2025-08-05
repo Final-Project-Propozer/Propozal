@@ -1,6 +1,5 @@
-package com.propozal.backend.jwt;
+package com.propozal.jwt;
 
-import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

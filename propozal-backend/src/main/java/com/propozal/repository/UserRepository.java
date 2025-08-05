@@ -1,6 +1,6 @@
-package com.propozal.backend.repository;
+package com.propozal.repository;
 
-import com.propozal.backend.domain.User;
+import com.propozal.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

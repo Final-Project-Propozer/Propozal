@@ -1,4 +1,4 @@
-package com.propozal.backend.domain;
+package com.propozal.domain;
 
 public enum Role {
     ADMIN,
