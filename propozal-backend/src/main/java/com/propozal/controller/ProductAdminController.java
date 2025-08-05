@@ -16,16 +16,16 @@ import org.springframework.web.bind.annotation.RestController;
 import com.propozal.dto.product.ProductCreateRequestDto;
 import com.propozal.dto.product.ProductResponseDto;
 import com.propozal.dto.product.ProductUpdateRequestDto;
-import com.propozal.service.ProductService;
+import com.propozal.service.ProductAdminService;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/admin/products")
 @RequiredArgsConstructor
-public class ProductController {
+public class ProductAdminController {
 
-    private final ProductService productService;
+    private final ProductAdminService productService;
 
     @PostMapping("/insert")
     @PreAuthorize("hasRole('ADMIN')")
