@@ -3,9 +3,12 @@ package com.propozal.backend.controller;
 import com.propozal.backend.dto.request.LoginRequest;
 import com.propozal.backend.dto.request.SignupRequest;
 import com.propozal.backend.dto.response.LoginResponse;
+import com.propozal.backend.dto.response.UserInfoResponse;
+import com.propozal.backend.security.CustomUserDetails;
 import com.propozal.backend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -42,5 +45,11 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(userService.loginUser(request));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserInfoResponse> getMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        UserInfoResponse response = UserInfoResponse.from(userDetails.getUser());
+        return ResponseEntity.ok(response);
     }
 }
