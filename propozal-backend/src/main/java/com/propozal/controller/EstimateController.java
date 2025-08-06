@@ -4,6 +4,7 @@ import java.net.URI;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -80,5 +81,13 @@ public class EstimateController {
 
         Estimate updatedEstimate = estimateService.deleteEstimateItem(estimateId, itemId);
         return ResponseEntity.ok(EstimateDetailResponse.from(updatedEstimate));
+    }
+
+    @GetMapping("/{estimateId}")
+    public ResponseEntity<EstimateDetailResponse> getEstimate(
+            @PathVariable("estimateId") Long estimateId) {
+
+        Estimate estimate = estimateService.findEstimateById(estimateId);
+        return ResponseEntity.ok(EstimateDetailResponse.from(estimate));
     }
 }

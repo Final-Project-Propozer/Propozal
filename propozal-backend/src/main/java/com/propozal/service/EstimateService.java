@@ -143,4 +143,10 @@ public class EstimateService {
 
         return estimateRepository.save(estimate);
     }
+
+    @Transactional(readOnly = true)
+    public Estimate findEstimateById(Long estimateId) {
+        return estimateRepository.findById(estimateId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 견적서를 찾을 수 없습니다. ID: " + estimateId));
+    }
 }
