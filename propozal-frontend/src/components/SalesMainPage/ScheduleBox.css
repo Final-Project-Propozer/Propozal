@@ -1,0 +1,34 @@
+.schedule-box-wrapper {
+  display: flex;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.schedule-date {
+  background-color: #e9ecef;
+  padding: 1rem;
+  font-weight: 600;
+  color: #495057;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.schedule-detail {
+  background-color: #ffffff;
+  padding: 1rem 1.2rem;
+  flex: 1;
+}
+
+.schedule-time {
+  font-weight: bold;
+  color: #198754;
+  margin-bottom: 0.5rem;
+}
+
+.schedule-desc {
+  color: #333;
+}
