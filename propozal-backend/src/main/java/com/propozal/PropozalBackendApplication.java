@@ -1,9 +1,10 @@
-package com.propozal.backend;
+package com.propozal;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+
+import io.github.cdimascio.dotenv.Dotenv;
 
 @EnableJpaAuditing
 @SpringBootApplication
@@ -20,9 +21,3 @@ public class PropozalBackendApplication {
 	}
 
 }
-
-/*DB_HOST=localhost
-DB_PORT=3307
-DB_NAME=propozal_db
-DB_USERNAME=propozer_hyejin
-DB_PASSWORD=propozal04 */

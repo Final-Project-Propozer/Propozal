@@ -1,15 +1,18 @@
-package com.propozal.backend.dto.estimate;
+package com.propozal.dto.estimate;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import java.math.BigDecimal;
-import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -38,15 +41,16 @@ public class EstimateCreateRequest {
     @NoArgsConstructor
     public static class ItemRequest {
 
-        @NotBlank(message = "상품명은 필수입니다.")
-        private String productName;
+        @NotNull(message = "상품 ID는 필수입니다.")
+        private Long productId;
 
         @NotNull(message = "수량은 필수입니다.")
         @Positive(message = "수량은 1 이상이어야 합니다.")
         private Integer quantity;
 
-        @NotNull(message = "단가는 필수입니다.")
-        @Positive(message = "단가는 0보다 커야 합니다.")
-        private BigDecimal unitPrice;
+        @NotNull(message = "할인율은 필수입니다.")
+        @Min(value = 0, message = "할인율은 0 이상이어야 합니다.")
+        @Max(value = 1, message = "할인율은 1 이하이어야 합니다.")
+        private BigDecimal discountRate;
     }
 }

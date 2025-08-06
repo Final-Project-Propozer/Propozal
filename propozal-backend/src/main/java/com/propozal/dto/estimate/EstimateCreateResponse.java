@@ -1,9 +1,11 @@
-package com.propozal.backend.dto.estimate;
+package com.propozal.dto.estimate;
 
-import com.propozal.backend.domain.Estimate;
-import lombok.Getter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
+import com.propozal.domain.Estimate;
+
+import lombok.Getter;
 
 @Getter
 public class EstimateCreateResponse {
