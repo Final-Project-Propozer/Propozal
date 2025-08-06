@@ -61,7 +61,9 @@ public class Estimate extends BaseTimeEntity {
     private List<EstimateItem> estimateItems = new ArrayList<>();
 
     @Builder
-    public Estimate(Long userId, String customerName, String customerEmail, String customerPhone, String customerCompanyName, String customerPosition, BigDecimal totalAmount, boolean vatIncluded, String specialTerms, Integer dealStatus, LocalDate expirationDate, List<EstimateItem> estimateItems) {
+    public Estimate(Long userId, String customerName, String customerEmail, String customerPhone,
+            String customerCompanyName, String customerPosition, BigDecimal totalAmount, boolean vatIncluded,
+            String specialTerms, Integer dealStatus, LocalDate expirationDate, List<EstimateItem> estimateItems) {
         this.userId = userId;
         this.customerName = customerName;
         this.customerEmail = customerEmail;
@@ -73,7 +75,7 @@ public class Estimate extends BaseTimeEntity {
         this.specialTerms = specialTerms;
         this.dealStatus = dealStatus;
         this.expirationDate = expirationDate;
-        
+
         if (estimateItems != null) {
             estimateItems.forEach(item -> item.setEstimate(this));
             this.estimateItems = estimateItems;
@@ -82,6 +84,7 @@ public class Estimate extends BaseTimeEntity {
 
     /**
      * 견적서에 새로운 품목을 추가하고 총액을 업데이트합니다.
+     * 
      * @param newItem 추가할 견적 품목
      */
     public void addItem(EstimateItem newItem) {
@@ -97,7 +100,8 @@ public class Estimate extends BaseTimeEntity {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public void updateCustomerInfo(String customerName, String customerEmail, String customerPhone, String customerCompanyName, String customerPosition, String specialTerms) {
+    public void updateCustomerInfo(String customerName, String customerEmail, String customerPhone,
+            String customerCompanyName, String customerPosition, String specialTerms) {
         // 요청으로 들어온 값이 null이 아닐 경우에만 필드를 업데이트합니다.
         if (customerName != null) {
             this.customerName = customerName;
@@ -117,5 +121,10 @@ public class Estimate extends BaseTimeEntity {
         if (specialTerms != null) {
             this.specialTerms = specialTerms;
         }
+    }
+
+    public void removeItem(EstimateItem item) {
+        this.estimateItems.remove(item);
+        recalculateTotalAmount();
     }
 }

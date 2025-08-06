@@ -34,7 +34,7 @@ public class EstimateService {
      */
     @Transactional
     public Estimate createDraftEstimate() {
-        
+
         LocalDate expiration = LocalDate.now().plusMonths(6);
 
         Estimate newEstimate = Estimate.builder()
@@ -57,7 +57,7 @@ public class EstimateService {
 
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new EntityNotFoundException("해당 상품을 찾을 수 없습니다. ID: " + request.getProductId()));
-        
+
         BigDecimal unitPrice = product.getBasePrice();
         BigDecimal discountRate = request.getDiscountRate();
 
@@ -87,7 +87,7 @@ public class EstimateService {
                 .vatAmount(vatAmount)
                 .subtotal(subtotal)
                 .build();
-        
+
         estimate.addItem(newItem);
 
         return estimateRepository.save(estimate);
@@ -97,7 +97,7 @@ public class EstimateService {
     public Estimate updateEstimateItem(Long estimateId, Long itemId, EstimateItemUpdateRequest request) {
         Estimate estimate = estimateRepository.findById(estimateId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 견적서를 찾을 수 없습니다. ID: " + estimateId));
-        
+
         EstimateItem item = estimateItemRepository.findById(itemId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 품목을 찾을 수 없습니다. ID: " + itemId));
 
@@ -105,7 +105,7 @@ public class EstimateService {
             throw new IllegalArgumentException("해당 견적서에 속한 품목이 아닙니다.");
         }
         item.update(request.getQuantity(), request.getDiscountRate());
-        
+
         estimate.recalculateTotalAmount();
 
         return estimateRepository.save(estimate);
@@ -122,8 +122,24 @@ public class EstimateService {
                 request.getCustomerPhone(),
                 request.getCustomerCompanyName(),
                 request.getCustomerPosition(),
-                request.getSpecialTerms()
-        );
+                request.getSpecialTerms());
+
+        return estimateRepository.save(estimate);
+    }
+
+    @Transactional
+    public Estimate deleteEstimateItem(Long estimateId, Long itemId) {
+        Estimate estimate = estimateRepository.findById(estimateId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 견적서를 찾을 수 없습니다. ID: " + estimateId));
+
+        EstimateItem item = estimateItemRepository.findById(itemId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 품목을 찾을 수 없습니다. ID: " + itemId));
+
+        if (!item.getEstimate().getId().equals(estimate.getId())) {
+            throw new IllegalArgumentException("해당 견적서에 속한 품목이 아닙니다.");
+        }
+
+        estimate.removeItem(item);
 
         return estimateRepository.save(estimate);
     }

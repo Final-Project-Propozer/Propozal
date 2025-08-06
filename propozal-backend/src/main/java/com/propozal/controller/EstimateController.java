@@ -3,6 +3,7 @@ package com.propozal.controller;
 import java.net.URI;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -69,6 +70,15 @@ public class EstimateController {
             @Valid @RequestBody EstimateCustomerUpdateRequest request) {
 
         Estimate updatedEstimate = estimateService.updateCustomerInfo(estimateId, request);
+        return ResponseEntity.ok(EstimateDetailResponse.from(updatedEstimate));
+    }
+
+    @DeleteMapping("/{estimateId}/items/{itemId}")
+    public ResponseEntity<EstimateDetailResponse> deleteEstimateItem(
+            @PathVariable("estimateId") Long estimateId,
+            @PathVariable("itemId") Long itemId) {
+
+        Estimate updatedEstimate = estimateService.deleteEstimateItem(estimateId, itemId);
         return ResponseEntity.ok(EstimateDetailResponse.from(updatedEstimate));
     }
 }
