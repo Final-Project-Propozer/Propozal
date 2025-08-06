@@ -3,6 +3,7 @@ package com.propozal.controller;
 import java.net.URI;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.propozal.domain.Estimate;
+import com.propozal.dto.estimate.EstimateCustomerUpdateRequest;
 import com.propozal.dto.estimate.EstimateDetailResponse;
 import com.propozal.dto.estimate.EstimateDraftResponse;
 import com.propozal.dto.estimate.EstimateItemAddRequest;
@@ -21,7 +23,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/estimate") 
+@RequestMapping("/api/estimate")
 @RequiredArgsConstructor
 public class EstimateController {
 
@@ -45,7 +47,7 @@ public class EstimateController {
      */
     @PostMapping("/{estimateId}/items")
     public ResponseEntity<EstimateDetailResponse> addItemToEstimate(
-            @PathVariable Long estimateId,
+            @PathVariable("estimateId") Long estimateId,
             @Valid @RequestBody EstimateItemAddRequest request) {
 
         Estimate updatedEstimate = estimateService.addItemToEstimate(estimateId, request);
@@ -54,10 +56,19 @@ public class EstimateController {
 
     @PutMapping("/{estimateId}/items/{itemId}")
     public ResponseEntity<EstimateDetailResponse> updateEstimateItem(
-            @PathVariable Long estimateId,
-            @PathVariable Long itemId,
+            @PathVariable("estimateId") Long estimateId,
+            @PathVariable("itemId") Long itemId,
             @Valid @RequestBody EstimateItemUpdateRequest request) {
         Estimate updatedEstimate = estimateService.updateEstimateItem(estimateId, itemId, request);
+        return ResponseEntity.ok(EstimateDetailResponse.from(updatedEstimate));
+    }
+
+    @PatchMapping("/{estimateId}")
+    public ResponseEntity<EstimateDetailResponse> updateCustomerInfo(
+            @PathVariable("estimateId") Long estimateId,
+            @Valid @RequestBody EstimateCustomerUpdateRequest request) {
+
+        Estimate updatedEstimate = estimateService.updateCustomerInfo(estimateId, request);
         return ResponseEntity.ok(EstimateDetailResponse.from(updatedEstimate));
     }
 }
