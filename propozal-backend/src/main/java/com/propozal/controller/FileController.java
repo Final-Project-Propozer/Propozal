@@ -1,5 +1,6 @@
 package com.propozal.controller;
 
+import com.propozal.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,11 +13,25 @@ import java.io.IOException;
 @RequestMapping("/api/files")
 public class FileController {
 
-    private final com.propozal.service.S3Service s3Service;
+    private final S3Service s3Service;
 
-    @PostMapping("/upload")
-    public ResponseEntity<String> upload(@RequestParam("file") MultipartFile file) throws IOException {
-        String url = s3Service.uploadFile(file.getOriginalFilename(), file);
+    // 파일 업로드
+    @PostMapping("/upload/{folder}")
+    public ResponseEntity<String> upload(
+            @PathVariable String folder,
+            @RequestParam("file") MultipartFile file
+    ) throws IOException {
+        String key = s3Service.uploadFile(folder, file.getOriginalFilename(), file);
+        return ResponseEntity.ok(key);
+    }
+
+    // PreSignedURL 생성(파일 불러오기)
+    @GetMapping("/download/{folder}/{fileName}")
+    public ResponseEntity<String> download(
+            @PathVariable String folder,
+            @PathVariable String fileName
+    ) {
+        String url = s3Service.generatePresignedUrl(folder, fileName);
         return ResponseEntity.ok(url);
     }
 }
