@@ -34,4 +34,18 @@ public class ProductUserController {
         User user = userDetails.getUser();
         return productUserService.getProductDetail(id, user);
     }
+
+    @GetMapping("/search")
+    public Page<ProductUserResponseDto> searchProducts(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Long categoryLv1Id,
+            @RequestParam(required = false) Long categoryLv2Id,
+            @RequestParam(required = false) Long categoryLv3Id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        User user = userDetails.getUser();
+        return productUserService.getFilteredProducts(user,  keyword, categoryLv1Id, categoryLv2Id, categoryLv3Id, page, size);
+    }
 }
