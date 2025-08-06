@@ -49,3 +49,4 @@ propozal-backend/.env
 *.jar
 *.war
 *.ear
+.env

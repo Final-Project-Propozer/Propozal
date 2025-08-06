@@ -41,14 +41,14 @@ public class CategoryAdminController {
 
     @PatchMapping("/{id}/update")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<CategoryResponseDto> updateCategory(@PathVariable Long id,
+    public ResponseEntity<CategoryResponseDto> updateCategory(@PathVariable ("id") Long id,
                                                               @RequestBody CategoryUpdateRequestDto request) {
         return ResponseEntity.ok(categoryService.updateCategory(id, request));
     }
 
     @DeleteMapping("/{id}/delete")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteCategory(@PathVariable ("id") Long id) {
         categoryService.deleteCategory(id);
         return ResponseEntity.noContent().build();
     }
