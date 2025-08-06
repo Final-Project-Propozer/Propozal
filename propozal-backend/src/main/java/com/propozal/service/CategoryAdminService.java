@@ -34,7 +34,7 @@ public class CategoryAdminService {
 
         Category category = Category.builder()
                 .name(request.getName())
-                .type(request.getType())
+                .level(request.getLevel())
                 .parent(parent)
                 .build();
 
@@ -55,7 +55,7 @@ public class CategoryAdminService {
                 .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
         category.setName(request.getName());
-        category.setType(request.getType());
+        category.setLevel(request.getLevel());
 
         if (request.getParentId() != null) {
             Category parent = categoryRepository.findById(request.getParentId())
@@ -86,7 +86,7 @@ public class CategoryAdminService {
         CategoryResponseDto res = new CategoryResponseDto();
         res.setId(category.getId());
         res.setName(category.getName());
-        res.setType(category.getType());
+        res.setLevel(category.getLevel());
         res.setParentId(category.getParent() != null ? category.getParent().getId() : null);
         return res;
     }

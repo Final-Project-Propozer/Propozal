@@ -34,14 +34,27 @@ public class ProductAdminService {
             throw new CustomException(ErrorCode.PRODUCT_ALREADY_EXISTS);
         }
 
-        Category category = categoryRepository.findById(request.getCategoryId())
+        Category categoryLv3 = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
+        Category categoryLv2 = categoryLv3.getParent();
+        if (categoryLv2 == null) {
+            throw new CustomException(ErrorCode.CATEGORY_NOT_FOUND); // Lv2 없으면 잘못된 소분류
+        }
+
+        Category categoryLv1 = categoryLv2.getParent();
+        if (categoryLv1 == null) {
+            throw new CustomException(ErrorCode.CATEGORY_NOT_FOUND); // Lv1 없으면 잘못된 중분류
+        }
+
         Product product = Product.builder()
+                .code(request.getCode())
                 .name(request.getName())
                 .description(request.getDescription())
                 .basePrice(request.getPrice())
-                .categoryLv3(category)
+                .categoryLv1(categoryLv1)
+                .categoryLv2(categoryLv2)
+                .categoryLv3(categoryLv3)
                 .imageUrl(request.getImageUrl())
                 .maxDiscountRate(BigDecimal.ZERO)
                 .isVatApplicable(true)
@@ -72,6 +85,8 @@ public class ProductAdminService {
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
 
         product.setName(request.getName());
+        product.setCode(request.getCode());
+
         product.setDescription(request.getDescription());
         product.setBasePrice(request.getPrice());
         product.setImageUrl(request.getImageUrl());
@@ -97,6 +112,7 @@ public class ProductAdminService {
         ProductResponseDto res = new ProductResponseDto();
         res.setId(product.getId());
         res.setName(product.getName());
+        res.setCode(product.getCode());
         res.setDescription(product.getDescription());
         res.setPrice(product.getBasePrice());
         res.setCategoryId(product.getCategoryLv3() != null ? product.getCategoryLv3().getId() : null);
