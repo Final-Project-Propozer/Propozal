@@ -9,6 +9,10 @@ import com.propozal.exception.ErrorCode;
 import com.propozal.repository.FavoriteProductRepository;
 import com.propozal.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,20 +29,21 @@ public class ProductUserService {
 
     //전체 목록 조회
     @Transactional(readOnly = true)
-    public List<ProductUserResponseDto> getAllProducts(User user) {
-        List<Product> products = productRepository.findAll();
+    public Page<ProductUserResponseDto> getAllProducts(User user, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("code"));
+        Page<Product> productPage = productRepository.findAll(pageable);
 
-        List<Long> productIds = products.stream().map(Product::getId).collect(Collectors.toList());
+        List<Long> productIds = productPage.getContent().stream()
+                .map(Product::getId)
+                .collect(Collectors.toList());
 
-        //현재 사용자가 즐겨찾기한 제품 ID만 한꺼번에 추출
         Set<Long> favoriteProductIds = favoriteProductRepository
                 .findAllByUserIdAndProductIdIn(user.getId(), productIds)
                 .stream()
                 .map(fp -> fp.getProduct().getId())
                 .collect(Collectors.toSet());
 
-        // 제품 목록을 ProductResponse DTO 리스트로 변환
-        return products.stream().map(product -> ProductUserResponseDto.builder()
+        return productPage.map(product -> ProductUserResponseDto.builder()
                 .id(product.getId())
                 .name(product.getName())
                 .code(product.getCode())
@@ -46,15 +51,16 @@ public class ProductUserService {
                 .basePrice(product.getBasePrice())
                 .isFavorite(favoriteProductIds.contains(product.getId()))
                 .category(CategoryDto.builder()
-                        .idLv1(product.getCategoryLv1().getId())
-                        .nameLv1(product.getCategoryLv1().getName())
-                        .idLv2(product.getCategoryLv2().getId())
-                        .nameLv2(product.getCategoryLv2().getName())
-                        .idLv3(product.getCategoryLv3().getId())
-                        .nameLv3(product.getCategoryLv3().getName())
+                        .idLv1(product.getCategoryLv1() != null ? product.getCategoryLv1().getId() : null)
+                        .nameLv1(product.getCategoryLv1() != null ? product.getCategoryLv1().getName() : null)
+                        .idLv2(product.getCategoryLv2() != null ? product.getCategoryLv2().getId() : null)
+                        .nameLv2(product.getCategoryLv2() != null ? product.getCategoryLv2().getName() : null)
+                        .idLv3(product.getCategoryLv3() != null ? product.getCategoryLv3().getId() : null)
+                        .nameLv3(product.getCategoryLv3() != null ? product.getCategoryLv3().getName() : null)
                         .build())
-                .build()).collect(Collectors.toList());
+                .build());
     }
+
 
     //제품 상세 조회
     @Transactional(readOnly = true)
@@ -73,12 +79,13 @@ public class ProductUserService {
                 .isFavorite(isFavorite)
                 .description(product.getDescription())
                 .category(CategoryDto.builder()
-                        .idLv1(product.getCategoryLv1().getId())
-                        .nameLv1(product.getCategoryLv1().getName())
-                        .idLv2(product.getCategoryLv2().getId())
-                        .nameLv2(product.getCategoryLv2().getName())
-                        .idLv3(product.getCategoryLv3().getId())
-                        .nameLv3(product.getCategoryLv3().getName()).build())
+                        .idLv1(product.getCategoryLv1() != null ? product.getCategoryLv1().getId() : null)
+                        .nameLv1(product.getCategoryLv1() != null ? product.getCategoryLv1().getName() : null)
+                        .idLv2(product.getCategoryLv2() != null ? product.getCategoryLv2().getId() : null)
+                        .nameLv2(product.getCategoryLv2() != null ? product.getCategoryLv2().getName() : null)
+                        .idLv3(product.getCategoryLv3() != null ? product.getCategoryLv3().getId() : null)
+                        .nameLv3(product.getCategoryLv3() != null ? product.getCategoryLv3().getName() : null)
+                        .build())
                 .build();
 
     }
