@@ -64,7 +64,22 @@ public class ProductUserService {
 
         boolean isFavorite = favoriteProductRepository.existsByUserIdAndProductId(user.getId(), product.getId());
 
-        return new ProductUserResponseDto();
+        return ProductUserResponseDto.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .code(product.getCode())
+                .imageUrl(product.getImageUrl())
+                .basePrice(product.getBasePrice())
+                .isFavorite(isFavorite)
+                .description(product.getDescription())
+                .category(CategoryDto.builder()
+                        .idLv1(product.getCategoryLv1().getId())
+                        .nameLv1(product.getCategoryLv1().getName())
+                        .idLv2(product.getCategoryLv2().getId())
+                        .nameLv2(product.getCategoryLv2().getName())
+                        .idLv3(product.getCategoryLv3().getId())
+                        .nameLv3(product.getCategoryLv3().getName()).build())
+                .build();
 
     }
 

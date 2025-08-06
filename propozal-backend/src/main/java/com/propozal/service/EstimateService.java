@@ -95,7 +95,6 @@ public class EstimateService {
 
     @Transactional
     public Estimate updateEstimateItem(Long estimateId, Long itemId, EstimateItemUpdateRequest request) {
-        // 1. 견적서와 품목이 존재하는지, 서로 연관 관계가 맞는지 확인
         Estimate estimate = estimateRepository.findById(estimateId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 견적서를 찾을 수 없습니다. ID: " + estimateId));
         
@@ -107,7 +106,6 @@ public class EstimateService {
         }
         item.update(request.getQuantity(), request.getDiscountRate());
         
-        // 4. 견적서 전체 금액 재계산 (Entity 내부 메서드 호출)
         estimate.recalculateTotalAmount();
 
         return estimateRepository.save(estimate);
@@ -115,11 +113,9 @@ public class EstimateService {
 
     @Transactional
     public Estimate updateCustomerInfo(Long estimateId, EstimateCustomerUpdateRequest request) {
-        // 1. 기존 견적서를 조회합니다.
         Estimate estimate = estimateRepository.findById(estimateId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 견적서를 찾을 수 없습니다. ID: " + estimateId));
 
-        // 2. Entity 내부 메서드를 호출하여 고객 정보를 업데이트합니다.
         estimate.updateCustomerInfo(
                 request.getCustomerName(),
                 request.getCustomerEmail(),
@@ -129,7 +125,6 @@ public class EstimateService {
                 request.getSpecialTerms()
         );
 
-        // 3. 변경된 견적서를 저장하고 반환합니다.
         return estimateRepository.save(estimate);
     }
 }

@@ -42,7 +42,7 @@ public class CategoryAdminController {
     @PatchMapping("/{id}/update")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CategoryResponseDto> updateCategory(@PathVariable Long id,
-                                                              @RequestBody CategoryUpdateRequestDto request) {
+            @RequestBody CategoryUpdateRequestDto request) {
         return ResponseEntity.ok(categoryService.updateCategory(id, request));
     }
 
