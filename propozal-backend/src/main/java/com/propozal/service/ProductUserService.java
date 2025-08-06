@@ -8,11 +8,13 @@ import com.propozal.exception.CustomException;
 import com.propozal.exception.ErrorCode;
 import com.propozal.repository.FavoriteProductRepository;
 import com.propozal.repository.ProductRepository;
+import com.propozal.repository.ProductSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -88,6 +90,51 @@ public class ProductUserService {
                         .build())
                 .build();
 
+    }
+
+    //제품 필터 조회
+    @Transactional(readOnly = true)
+    public Page<ProductUserResponseDto> getFilteredProducts(
+            User user,
+            String keyword,
+            Long categoryLv1Id,
+            Long categoryLv2Id,
+            Long categoryLv3Id,
+            int page,
+            int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("code"));
+
+        Specification<Product> spec = ProductSpecification.withfilters(keyword, categoryLv1Id, categoryLv2Id, categoryLv3Id);
+
+        Page<Product> products = productRepository.findAll(spec, pageable);
+
+        List<Long> productIds = products.getContent().stream()
+                .map(Product::getId)
+                .collect(Collectors.toList());
+
+        Set<Long> favoriteProductIds = favoriteProductRepository
+                .findAllByUserIdAndProductIdIn(user.getId(), productIds)
+                .stream()
+                .map(fp -> fp.getProduct().getId())
+                .collect(Collectors.toSet());
+
+        return products.map(product -> ProductUserResponseDto.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .code(product.getCode())
+                .imageUrl(product.getImageUrl())
+                .basePrice(product.getBasePrice())
+                .isFavorite(favoriteProductIds.contains(product.getId()))
+                .description(product.getDescription())
+                .category(CategoryDto.builder()
+                        .idLv1(product.getCategoryLv1() != null ? product.getCategoryLv1().getId() : null)
+                        .nameLv1(product.getCategoryLv1() != null ? product.getCategoryLv1().getName() : null)
+                        .idLv2(product.getCategoryLv2() != null ? product.getCategoryLv2().getId() : null)
+                        .nameLv2(product.getCategoryLv2() != null ? product.getCategoryLv2().getName() : null)
+                        .idLv3(product.getCategoryLv3() != null ? product.getCategoryLv3().getId() : null)
+                        .nameLv3(product.getCategoryLv3() != null ? product.getCategoryLv3().getName() : null)
+                        .build())
+                .build());
     }
 
 }

@@ -24,14 +24,14 @@ public class ApprovalController {
     // 승인 대기 목록 조회
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PendingApprovalListResponseDto> getPendingApprovals(@RequestParam Long companyId) {
+    public ResponseEntity<PendingApprovalListResponseDto> getPendingApprovals(@RequestParam("companyId") Long companyId) {
         return ResponseEntity.ok(approvalService.getPendingApprovals(companyId));
     }
 
     // 승인
     @PostMapping("/{userId}/approve")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> approveUser(@PathVariable Long userId) {
+    public ResponseEntity<Void> approveUser(@PathVariable("userId") Long userId) {
         approvalService.approveUser(userId);
         return ResponseEntity.ok().build();
     }
@@ -39,7 +39,7 @@ public class ApprovalController {
     // 거부
     @PostMapping("/{userId}/reject")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> rejectUser(@PathVariable Long userId) {
+    public ResponseEntity<Void> rejectUser(@PathVariable("userId") Long userId) {
         approvalService.rejectUser(userId);
         return ResponseEntity.ok().build();
     }
