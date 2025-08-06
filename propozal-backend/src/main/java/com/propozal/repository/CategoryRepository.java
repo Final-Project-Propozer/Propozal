@@ -1,8 +1,8 @@
 package com.propozal.repository;
 
-import com.propozal.domain.Product;
+import com.propozal.domain.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ProductRepository extends JpaRepository<Product, Long> {
+public interface CategoryRepository extends JpaRepository<Category, Long> {
     boolean existsByName(String name);
 }

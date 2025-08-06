@@ -1,4 +1,4 @@
-package com.propozal.backend.controller;
+package com.propozal.controller;
 
 import java.net.URI;
 
@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.propozal.backend.domain.Estimate;
-import com.propozal.backend.dto.estimate.EstimateDetailResponse;
-import com.propozal.backend.dto.estimate.EstimateDraftResponse;
-import com.propozal.backend.dto.estimate.EstimateItemAddRequest;
-import com.propozal.backend.dto.estimate.EstimateItemUpdateRequest;
-import com.propozal.backend.service.EstimateService;
+import com.propozal.domain.Estimate;
+import com.propozal.dto.estimate.EstimateDetailResponse;
+import com.propozal.dto.estimate.EstimateDraftResponse;
+import com.propozal.dto.estimate.EstimateItemAddRequest;
+import com.propozal.dto.estimate.EstimateItemUpdateRequest;
+import com.propozal.service.EstimateService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

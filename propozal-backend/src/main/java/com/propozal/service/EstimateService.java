@@ -1,4 +1,4 @@
-package com.propozal.backend.service;
+package com.propozal.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -7,15 +7,15 @@ import java.time.LocalDate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.propozal.backend.domain.Estimate;
-import com.propozal.backend.domain.EstimateItem;
-import com.propozal.backend.domain.Product;
-import com.propozal.backend.dto.estimate.EstimateCustomerUpdateRequest;
-import com.propozal.backend.dto.estimate.EstimateItemAddRequest;
-import com.propozal.backend.dto.estimate.EstimateItemUpdateRequest;
-import com.propozal.backend.repository.EstimateItemRepository;
-import com.propozal.backend.repository.EstimateRepository;
-import com.propozal.backend.repository.ProductRepository;
+import com.propozal.domain.Estimate;
+import com.propozal.domain.EstimateItem;
+import com.propozal.domain.Product;
+import com.propozal.dto.estimate.EstimateCustomerUpdateRequest;
+import com.propozal.dto.estimate.EstimateItemAddRequest;
+import com.propozal.dto.estimate.EstimateItemUpdateRequest;
+import com.propozal.repository.EstimateItemRepository;
+import com.propozal.repository.EstimateRepository;
+import com.propozal.repository.ProductRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,7 @@
 package com.propozal.domain;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,33 +12,33 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "products")
-public class Product extends BaseTimeEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Product {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_lv1_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "category_lv1_id")
     private Category categoryLv1;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_lv2_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "category_lv2_id")
     private Category categoryLv2;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_lv3_id")
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "category_lv3_id")
     private Category categoryLv3;
 
-    @Column(unique = true, nullable = false, length = 50)
+    @Column(nullable = false, unique = true, length = 50)
     private String code;
 
     @Column(nullable = false, length = 255)
@@ -46,18 +47,25 @@ public class Product extends BaseTimeEntity {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(length = 255)
+    @Column(name = "image_url", length = 255)
     private String imageUrl;
 
-    @Column(nullable = false, precision = 15, scale = 2)
+    @Column(name = "base_price", nullable = false)
     private BigDecimal basePrice;
 
-    @Column(nullable = false, precision = 5, scale = 2)
-    private BigDecimal maxDiscountRate = BigDecimal.ZERO;
+    @Column(name = "max_discount_rate", nullable = false)
+    private BigDecimal maxDiscountRate;
 
-    @Column(nullable = false)
-    private boolean isVatApplicable = true;
+    @Column(name = "is_vat_applicable", nullable = false)
+    private Boolean isVatApplicable;
 
-    @Column(nullable = false)
-    private boolean isDeleted = false;
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    public boolean isVatApplicable() {
+        return this.isVatApplicable != null && this.isVatApplicable;
+    }
 }
