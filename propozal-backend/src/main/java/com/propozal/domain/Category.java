@@ -29,8 +29,8 @@ public class Category {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(length = 10)
-    private String type;
+    @Column(name="level", length = 10)
+    private String level;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")

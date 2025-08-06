@@ -64,4 +64,8 @@ public class Product {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    public boolean isVatApplicable() {
+        return this.isVatApplicable != null && this.isVatApplicable;
+    }
 }
