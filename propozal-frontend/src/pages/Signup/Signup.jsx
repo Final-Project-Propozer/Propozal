@@ -1,42 +1,3 @@
-// // src/pages/Signup.jsx
-//
-// import React from 'react';
-// import { Form, Button, Container, Row, Col } from 'react-bootstrap';
-//
-// const Signup = () => {
-//   return (
-//     <Container className="pt-5">
-//       <Row className="justify-content-center">
-//         <Col md={6}>
-//           <h3 className="text-center mb-4">회원가입</h3>
-//           <Form>
-//             <Form.Group controlId="formName" className="mb-3">
-//               <Form.Label>이름</Form.Label>
-//               <Form.Control type="text" placeholder="홍길동" />
-//             </Form.Group>
-//
-//             <Form.Group controlId="formEmail" className="mb-3">
-//               <Form.Label>이메일 주소</Form.Label>
-//               <Form.Control type="email" placeholder="you@example.com" />
-//             </Form.Group>
-//
-//             <Form.Group controlId="formPassword" className="mb-4">
-//               <Form.Label>비밀번호</Form.Label>
-//               <Form.Control type="password" placeholder="비밀번호 입력" />
-//             </Form.Group>
-//
-//             <Button variant="success" type="submit" className="w-100">
-//               회원가입
-//             </Button>
-//           </Form>
-//         </Col>
-//       </Row>
-//     </Container>
-//   );
-// };
-//
-// export default Signup;
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 // import './signup.css';
@@ -68,9 +29,10 @@ const SignupPage = () => {
      className="signup-wrapper02"
      style={{
        padding: "2rem",
+       marginTop: '30px',
        maxWidth: "600px",
-       margin: "0 auto",
-//        marginTop: "80px",
+//        margin: "0 auto",
+       margin: "30px auto",
        border: "2px solid #d6d2cb", // 따뜻한 회색 테두리
        borderRadius: "12px",
 //        boxShadow: "0 4px 10px rgba(0, 0, 0, 0.05)", // 부드러운 그림자 추가
