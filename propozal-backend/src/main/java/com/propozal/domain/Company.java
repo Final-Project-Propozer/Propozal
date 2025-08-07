@@ -20,7 +20,7 @@ public class Company {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY) @JoinColumn(name = "admin_user_id", nullable = false, unique = true)
+    @Column(name = "admin_user_id", nullable = false, unique = true)
     private Long adminUserId;
 
     @Column(name = "business_number", nullable = false, length = 50)
