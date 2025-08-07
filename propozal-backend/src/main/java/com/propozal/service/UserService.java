@@ -1,6 +1,7 @@
 package com.propozal.service;
 
 import com.propozal.domain.User;
+import com.propozal.dto.user.PendingUserResponse;
 import com.propozal.dto.user.LoginRequest;
 import com.propozal.dto.user.SignupRequest;
 import com.propozal.dto.user.LoginResponse;
@@ -10,7 +11,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -63,5 +68,19 @@ public class UserService {
         String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
 
         return new LoginResponse(accessToken, refreshToken);
+    }
+
+    public List<PendingUserResponse> getPendingUsers() {
+        return userRepository.findByIsActiveFalse()
+                .stream()
+                .map(PendingUserResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void approveUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."));
+        user.setActive(true);
     }
 }
