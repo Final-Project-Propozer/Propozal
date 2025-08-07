@@ -1,8 +1,9 @@
 package com.propozal.controller;
 
+import com.propozal.dto.user.PendingUserResponse;
 import com.propozal.dto.user.LoginRequest;
-import com.propozal.dto.user.SignupRequest;
 import com.propozal.dto.user.LoginResponse;
+import com.propozal.dto.user.SignupRequest;
 import com.propozal.dto.user.UserInfoResponse;
 import com.propozal.jwt.CustomUserDetails;
 import com.propozal.service.UserService;
@@ -12,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -50,6 +52,21 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserInfoResponse> getMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
         UserInfoResponse response = UserInfoResponse.from(userDetails.getUser());
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/pending")
+    public ResponseEntity<List<PendingUserResponse>> getPendingUsers() {
+        return ResponseEntity.ok(userService.getPendingUsers());
+    }
+
+    @PostMapping("/{id}/approve")
+    public ResponseEntity<?> approveUser(@PathVariable Long id) {
+        userService.approveUser(id);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "유저 승인이 완료되었습니다.");
+
         return ResponseEntity.ok(response);
     }
 }
