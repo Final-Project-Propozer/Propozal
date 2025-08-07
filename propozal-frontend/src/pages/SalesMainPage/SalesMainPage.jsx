@@ -12,7 +12,8 @@ const SalesMainPage = () => {
       <SalesNavbar />
 
       <main>
-        <Container className="pt-0 pb-0">
+{/*         <Container className="pt-0 pb-0"> */}
+    <Container className="pt-0 pb-0" style={{ marginTop: '30px' }}>
           <MainIconGroup />
           <ScheduleListGroup />
         </Container>
