@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.propozal.domain.Estimate;
 import com.propozal.domain.EstimateItem;
 import com.propozal.domain.Product;
+import com.propozal.dto.email.EstimateSendRequest;
 import com.propozal.dto.estimate.EstimateCustomerUpdateRequest;
 import com.propozal.dto.estimate.EstimateItemAddRequest;
 import com.propozal.dto.estimate.EstimateItemUpdateRequest;
@@ -27,11 +28,8 @@ public class EstimateService {
     private final EstimateRepository estimateRepository;
     private final ProductRepository productRepository;
     private final EstimateItemRepository estimateItemRepository;
+    private final EmailService emailService;
 
-    /**
-     * 빈 초안(Draft) 상태의 견적서를 생성
-     * 로그인 기능 구현 전까지는 임시로 userId를 1로 설정
-     */
     @Transactional
     public Estimate createDraftEstimate() {
 
@@ -148,5 +146,19 @@ public class EstimateService {
     public Estimate findEstimateById(Long estimateId) {
         return estimateRepository.findById(estimateId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 견적서를 찾을 수 없습니다. ID: " + estimateId));
+    }
+
+    public void sendEstimateByEmail(Long estimateId, EstimateSendRequest request) {
+        Estimate estimate = findEstimateById(estimateId);
+
+        String recipientEmail = (request != null && request.getRecipientEmail() != null)
+                ? request.getRecipientEmail()
+                : estimate.getCustomerEmail();
+
+        if (recipientEmail == null || recipientEmail.isBlank()) {
+            throw new IllegalArgumentException("수신자 이메일 주소가 없습니다.");
+        }
+
+        emailService.sendEstimateEmail(estimate, recipientEmail);
     }
 }

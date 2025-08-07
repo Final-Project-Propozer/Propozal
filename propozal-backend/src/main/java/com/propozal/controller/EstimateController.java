@@ -14,15 +14,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.propozal.domain.Estimate;
+import com.propozal.dto.email.EstimateSendRequest;
 import com.propozal.dto.estimate.EstimateCustomerUpdateRequest;
 import com.propozal.dto.estimate.EstimateDetailResponse;
 import com.propozal.dto.estimate.EstimateDraftResponse;
 import com.propozal.dto.estimate.EstimateItemAddRequest;
 import com.propozal.dto.estimate.EstimateItemUpdateRequest;
+import com.propozal.service.EmailService;
 import com.propozal.service.EstimateService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/estimate")
@@ -30,23 +34,17 @@ import lombok.RequiredArgsConstructor;
 public class EstimateController {
 
     private final EstimateService estimateService;
+    private final EmailService emailService;
 
-    /**
-     * 빈 견적서를 생성하는 API
-     */
     @PostMapping
     public ResponseEntity<EstimateDraftResponse> createDraftEstimate() {
         Estimate createdEstimate = estimateService.createDraftEstimate();
         EstimateDraftResponse response = EstimateDraftResponse.from(createdEstimate);
 
-        // [수정] Location 헤더 경로도 단수형으로 수정
         return ResponseEntity.created(URI.create("/api/estimate/" + response.getId()))
                 .body(response);
     }
 
-    /**
-     * 기존 견적서에 품목을 추가하는 API
-     */
     @PostMapping("/{estimateId}/items")
     public ResponseEntity<EstimateDetailResponse> addItemToEstimate(
             @PathVariable("estimateId") Long estimateId,
@@ -89,5 +87,14 @@ public class EstimateController {
 
         Estimate estimate = estimateService.findEstimateById(estimateId);
         return ResponseEntity.ok(EstimateDetailResponse.from(estimate));
+    }
+
+    @PostMapping("/{estimateId}/sendmail")
+    public ResponseEntity<?> sendEstimateByEmail(
+            @PathVariable("estimateId") Long estimateId,
+            @RequestBody(required = false) @Valid EstimateSendRequest request) {
+
+        estimateService.sendEstimateByEmail(estimateId, request);
+        return ResponseEntity.ok(Map.of("message", "견적서가 성공적으로 전송되었습니다."));
     }
 }
