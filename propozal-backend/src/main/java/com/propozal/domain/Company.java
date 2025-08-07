@@ -1,19 +1,13 @@
 package com.propozal.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "companies")
@@ -26,8 +20,8 @@ public class Company {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY) @JoinColumn(name = "admin_user_id", nullable = false, unique = true)
-    private User adminUser;
+    @Column(name = "admin_user_id", nullable = false, unique = true)
+    private Long adminUserId;
 
     @Column(name = "business_number", nullable = false, length = 50)
     private String businessNumber;
@@ -44,9 +38,35 @@ public class Company {
     @Column(name = "contact_phone", nullable = false, length = 20)
     private String contactPhone;
 
-    private String businessType;
-    private String businessItem;
-    private String bankName;
-    private String accountNumber;
-    private String accountHolder;
+    @Column(name = "business_type", length = 100)
+    private String businessType; // 업태
+
+    @Column(name = "business_item", length = 100)
+    private String businessItem; // 업종
+
+    @Column(name = "bank_name", length = 100)
+    private String bankName; // 은행명
+
+    @Column(name = "account_number", length = 50)
+    private String accountNumber; // 계좌번호
+
+    @Column(name = "account_holder", length = 100)
+    private String accountHolder; // 예금주
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt; // 생성 시간
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt; // 수정 시간
+
+    @PrePersist // 엔티티 저장/수정 시 자동으로 시간 갱신
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate // 엔티티 저장/수정 시 자동으로 시간 갱신
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }

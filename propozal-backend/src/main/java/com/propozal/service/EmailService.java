@@ -1,14 +1,16 @@
 package com.propozal.service;
 
-import com.propozal.domain.Estimate;
-import jakarta.mail.internet.MimeMessage;
-import lombok.RequiredArgsConstructor;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
+
+import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -20,17 +22,18 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String fromEmail;
 
-    public void sendEstimateEmail(Estimate estimate, String recipientEmail) {
+    public void sendEstimateEmail(String recipientEmail, String subject, Map<String, Object> templateModel) {
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "UTF-8");
 
             helper.setTo(recipientEmail);
             helper.setFrom(fromEmail);
-            helper.setSubject("[PropoZal] " + estimate.getCustomerCompanyName() + "님께서 요청하신 견적서입니다.");
+            helper.setSubject(subject);
 
             Context context = new Context();
-            context.setVariable("estimate", estimate);
+            context.setVariables(templateModel);
+
             String html = templateEngine.process("estimate-email", context);
             helper.setText(html, true);
 

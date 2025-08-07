@@ -1,6 +1,7 @@
 package com.propozal.controller;
 
 import java.net.URI;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,12 +26,12 @@ import com.propozal.service.EstimateService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
-import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/estimate")
 @RequiredArgsConstructor
+@Slf4j
 public class EstimateController {
 
     private final EstimateService estimateService;
@@ -94,7 +95,28 @@ public class EstimateController {
             @PathVariable("estimateId") Long estimateId,
             @RequestBody(required = false) @Valid EstimateSendRequest request) {
 
-        estimateService.sendEstimateByEmail(estimateId, request);
-        return ResponseEntity.ok(Map.of("message", "견적서가 성공적으로 전송되었습니다."));
+        try {
+            log.debug("이메일 발송 요청 시작 - estimateId: {}, request: {}", estimateId, request);
+
+            estimateService.sendEstimateByEmail(estimateId, request);
+
+            log.debug("이메일 발송 완료 - estimateId: {}", estimateId);
+
+            Map<String, String> response = Map.of("message", "견적서가 성공적으로 전송되었습니다.");
+            log.debug("응답 데이터: {}", response);
+
+            ResponseEntity<?> responseEntity = ResponseEntity.ok(response);
+            log.debug("ResponseEntity 생성 완료: {}", responseEntity.getStatusCode());
+
+            return responseEntity;
+
+        } catch (Exception e) {
+            log.error("이메일 발송 실패 - estimateId: {}, error: {}", estimateId, e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of(
+                    "error", "Internal Server Error",
+                    "message", "이메일 발송에 실패했습니다.",
+                    "timestamp", java.time.LocalDateTime.now().toString(),
+                    "status", 500));
+        }
     }
 }
