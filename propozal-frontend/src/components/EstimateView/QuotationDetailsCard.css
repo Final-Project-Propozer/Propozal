@@ -1,0 +1,12 @@
+.quotation-details-card {
+  border-radius: 12px;
+  font-family: 'Noto Sans KR', sans-serif;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+}
+
+.quotation-details-card .card-title {
+  color: #588174;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
