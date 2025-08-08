@@ -1,0 +1,12 @@
+.estimate-card {
+  border-radius: 12px;
+  font-family: 'Noto Sans KR', sans-serif;
+  background-color: #fdfdfd;
+  border: 1px solid #e0e0e0;
+}
+
+.estimate-card .card-title {
+  color: #588174;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
