@@ -24,7 +24,6 @@ import com.propozal.dto.estimate.EstimateDraftResponse;
 import com.propozal.dto.estimate.EstimateItemAddRequest;
 import com.propozal.dto.estimate.EstimateItemUpdateRequest;
 import com.propozal.jwt.CustomUserDetails;
-import com.propozal.service.EmailService;
 import com.propozal.service.EstimateService;
 
 import jakarta.validation.Valid;
@@ -38,7 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 public class EstimateController {
 
     private final EstimateService estimateService;
-    private final EmailService emailService;
 
     @PostMapping
     public ResponseEntity<EstimateDraftResponse> createDraftEstimate(

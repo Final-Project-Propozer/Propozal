@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +29,6 @@ import com.propozal.repository.EstimateConfirmationTokenRepository;
 import com.propozal.repository.EstimateItemRepository;
 import com.propozal.repository.EstimateRepository;
 import com.propozal.repository.ProductRepository;
-import com.propozal.repository.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -37,11 +37,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EstimateService {
 
+        @Value("${app.base-url}")
+        private String appBaseUrl;
+
         private final EstimateRepository estimateRepository;
         private final ProductRepository productRepository;
         private final EstimateItemRepository estimateItemRepository;
         private final EmailService emailService;
-        private final UserRepository userRepository;
         private final EmployeeProfileRepository employeeProfileRepository;
         private final CompanyRepository companyRepository;
         private final EstimateConfirmationTokenRepository tokenRepository;
@@ -180,9 +182,8 @@ public class EstimateService {
                 String approveToken = createConfirmationToken(estimate, EstimateConfirmationToken.ActionType.ACCEPT);
                 String rejectToken = createConfirmationToken(estimate, EstimateConfirmationToken.ActionType.REJECT);
 
-                String baseUrl = "http://localhost:8080";
-                String approveUrl = baseUrl + "/estimate/response?token=" + approveToken;
-                String rejectUrl = baseUrl + "/estimate/response?token=" + rejectToken;
+                String approveUrl = appBaseUrl + "/estimate/response?token=" + approveToken;
+                String rejectUrl = appBaseUrl + "/estimate/response?token=" + rejectToken;
 
                 Map<String, Object> templateModel = new HashMap<>();
                 templateModel.put("estimate", estimate);
@@ -196,8 +197,8 @@ public class EstimateService {
                 totalAmountInfo.put("vatAmount", BigDecimal.ZERO);
                 templateModel.put("totalAmountInfo", totalAmountInfo);
 
-                templateModel.put("approveUrl", "http://propozal.com/approve?token=temp_approve_token");
-                templateModel.put("rejectUrl", "http://propozal.com/reject?token=temp_reject_token");
+                templateModel.put("approveUrl", approveUrl);
+                templateModel.put("rejectUrl", rejectUrl);
 
                 String subject = "[PropoZal] " + estimate.getCustomerCompanyName() + " 님께서 요청하신 견적서입니다.";
 
