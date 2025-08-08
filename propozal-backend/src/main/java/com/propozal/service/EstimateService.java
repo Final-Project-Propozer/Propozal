@@ -3,8 +3,10 @@ package com.propozal.service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,17 +14,21 @@ import org.springframework.transaction.annotation.Transactional;
 import com.propozal.domain.Company;
 import com.propozal.domain.EmployeeProfile;
 import com.propozal.domain.Estimate;
+import com.propozal.domain.EstimateConfirmationToken;
 import com.propozal.domain.EstimateItem;
 import com.propozal.domain.Product;
+import com.propozal.domain.User;
 import com.propozal.dto.email.EstimateSendRequest;
 import com.propozal.dto.estimate.EstimateCustomerUpdateRequest;
 import com.propozal.dto.estimate.EstimateItemAddRequest;
 import com.propozal.dto.estimate.EstimateItemUpdateRequest;
 import com.propozal.repository.CompanyRepository;
 import com.propozal.repository.EmployeeProfileRepository;
+import com.propozal.repository.EstimateConfirmationTokenRepository;
 import com.propozal.repository.EstimateItemRepository;
 import com.propozal.repository.EstimateRepository;
 import com.propozal.repository.ProductRepository;
+import com.propozal.repository.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -35,16 +41,18 @@ public class EstimateService {
         private final ProductRepository productRepository;
         private final EstimateItemRepository estimateItemRepository;
         private final EmailService emailService;
+        private final UserRepository userRepository;
         private final EmployeeProfileRepository employeeProfileRepository;
         private final CompanyRepository companyRepository;
+        private final EstimateConfirmationTokenRepository tokenRepository;
 
         @Transactional
-        public Estimate createDraftEstimate() {
+        public Estimate createDraftEstimate(User user) {
 
                 LocalDate expiration = LocalDate.now().plusMonths(6);
 
                 Estimate newEstimate = Estimate.builder()
-                                .userId(1L) // 임시 사용자 ID
+                                .user(user)
                                 .customerName("")
                                 .totalAmount(BigDecimal.ZERO)
                                 .dealStatus(1)
@@ -151,11 +159,11 @@ public class EstimateService {
                 return estimateRepository.save(estimate);
         }
 
-        @Transactional(readOnly = true)
+        @Transactional
         public void sendEstimateByEmail(Long estimateId, EstimateSendRequest request) {
                 Estimate estimate = this.findEstimateById(estimateId);
 
-                EmployeeProfile senderProfile = employeeProfileRepository.findByUserId(estimate.getUserId())
+                EmployeeProfile senderProfile = employeeProfileRepository.findByUserId(estimate.getUser().getId())
                                 .orElseThrow(() -> new EntityNotFoundException("발신자의 프로필 정보를 찾을 수 없습니다."));
 
                 Company company = companyRepository.findById(senderProfile.getCompany().getId())
@@ -168,6 +176,13 @@ public class EstimateService {
                 if (recipientEmail == null || recipientEmail.isBlank()) {
                         throw new IllegalArgumentException("수신자 이메일 주소가 없습니다.");
                 }
+
+                String approveToken = createConfirmationToken(estimate, EstimateConfirmationToken.ActionType.ACCEPT);
+                String rejectToken = createConfirmationToken(estimate, EstimateConfirmationToken.ActionType.REJECT);
+
+                String baseUrl = "http://localhost:8080";
+                String approveUrl = baseUrl + "/estimate/response?token=" + approveToken;
+                String rejectUrl = baseUrl + "/estimate/response?token=" + rejectToken;
 
                 Map<String, Object> templateModel = new HashMap<>();
                 templateModel.put("estimate", estimate);
@@ -193,5 +208,46 @@ public class EstimateService {
         public Estimate findEstimateById(Long estimateId) {
                 return estimateRepository.findById(estimateId)
                                 .orElseThrow(() -> new EntityNotFoundException("해당 견적서를 찾을 수 없습니다. ID: " + estimateId));
+        }
+
+        private String createConfirmationToken(Estimate estimate, EstimateConfirmationToken.ActionType actionType) {
+                String tokenValue = UUID.randomUUID().toString();
+                EstimateConfirmationToken token = EstimateConfirmationToken.builder()
+                                .estimate(estimate)
+                                .actionType(actionType)
+                                .token(tokenValue)
+                                .expiresAt(LocalDateTime.now().plusDays(7)) // 토큰 유효기간 7일
+                                .build();
+                tokenRepository.save(token);
+                return tokenValue;
+        }
+
+        @Transactional
+        public String processEstimateResponse(String tokenValue) {
+                EstimateConfirmationToken token = tokenRepository.findByToken(tokenValue)
+                                .orElseThrow(() -> new EntityNotFoundException("유효하지 않은 토큰입니다."));
+
+                if (token.isUsed()) {
+                        return "이미 처리된 요청입니다.";
+                }
+                if (token.getExpiresAt().isBefore(LocalDateTime.now())) {
+                        return "만료된 요청입니다.";
+                }
+
+                Estimate estimate = token.getEstimate();
+                if (token.getActionType() == EstimateConfirmationToken.ActionType.ACCEPT) {
+                        estimate.setDealStatus(2); // 2: 거래 성사
+                } else {
+                        estimate.setDealStatus(0); // 0: 거래 취소
+                }
+                token.useToken();
+
+                // 변경 감지로 인해 save 호출은 선택사항이지만, 명시적으로 호출
+                estimateRepository.save(estimate);
+                tokenRepository.save(token);
+
+                return (token.getActionType() == EstimateConfirmationToken.ActionType.ACCEPT)
+                                ? "견적서가 성공적으로 승인되었습니다."
+                                : "견적서가 거절되었습니다. 소중한 의견 감사합니다.";
         }
 }

@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -15,12 +16,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.propozal.domain.Estimate;
+import com.propozal.domain.User;
 import com.propozal.dto.email.EstimateSendRequest;
 import com.propozal.dto.estimate.EstimateCustomerUpdateRequest;
 import com.propozal.dto.estimate.EstimateDetailResponse;
 import com.propozal.dto.estimate.EstimateDraftResponse;
 import com.propozal.dto.estimate.EstimateItemAddRequest;
 import com.propozal.dto.estimate.EstimateItemUpdateRequest;
+import com.propozal.jwt.CustomUserDetails;
 import com.propozal.service.EmailService;
 import com.propozal.service.EstimateService;
 
@@ -38,8 +41,13 @@ public class EstimateController {
     private final EmailService emailService;
 
     @PostMapping
-    public ResponseEntity<EstimateDraftResponse> createDraftEstimate() {
-        Estimate createdEstimate = estimateService.createDraftEstimate();
+    public ResponseEntity<EstimateDraftResponse> createDraftEstimate(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        User loggedInUser = userDetails.getUser();
+
+        Estimate createdEstimate = estimateService.createDraftEstimate(loggedInUser);
+
         EstimateDraftResponse response = EstimateDraftResponse.from(createdEstimate);
 
         return ResponseEntity.created(URI.create("/api/estimate/" + response.getId()))
