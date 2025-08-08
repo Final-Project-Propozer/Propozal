@@ -1,12 +1,13 @@
 package com.propozal.dto.estimate;
 
-import com.propozal.domain.Estimate;
-import lombok.Getter;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.propozal.domain.Estimate;
+
+import lombok.Getter;
 
 @Getter
 public class EstimateDetailResponse {
@@ -34,7 +35,7 @@ public class EstimateDetailResponse {
 
     private EstimateDetailResponse(Estimate estimate, List<EstimateItemResponse> items) {
         this.id = estimate.getId();
-        this.userId = estimate.getUserId();
+        this.userId = estimate.getUser().getId();
         this.customerName = estimate.getCustomerName();
         this.customerEmail = estimate.getCustomerEmail();
         this.customerPhone = estimate.getCustomerPhone();
