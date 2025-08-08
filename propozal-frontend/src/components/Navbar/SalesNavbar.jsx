@@ -41,7 +41,7 @@ const SalesNavbar = () => {
         <div className="collapse navbar-collapse" id="mainNav">
           <ul className="navbar-nav ms-auto align-items-center nav-tab-group">
             <li className="nav-item">
-              <Link className="nav-link" to="/">홈</Link>
+              <Link className="nav-link" to="/sales"> 세일즈 홈</Link>
             </li>
             <li className="nav-item">
               <Link className="nav-link" to="#">견적서</Link>
@@ -50,7 +50,7 @@ const SalesNavbar = () => {
               <Link className="nav-link" to="#">제품 탐색</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="#">스케줄 관리</Link>
+              <Link className="nav-link" to="/schedule/list">스케줄 관리</Link>
             </li>
             <li className="nav-item">
               <Link className="btn btn-outline-dark rounded-pill px-3 py-1 login-btn" to="/login">

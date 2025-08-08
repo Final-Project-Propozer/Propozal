@@ -1,0 +1,35 @@
+.custom-back-button {
+  font-size: 1rem;
+  padding: 0.5rem 1.2rem;
+  border: 2px solid #198754;
+  background-color: #fff;
+  color: #198754;
+  transition: background-color 0.2s ease;
+  border-radius: 50rem;
+  font-weight: 600;
+}
+
+.custom-back-button:hover {
+  background-color: #f4f4f2;
+}
+
+.custom-add-button {
+  font-size: 1rem;
+  padding: 0.5rem 1.2rem;
+  background-color: #198754;
+  color: white;
+  border: 2px solid #333333;
+  border-radius: 50rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.custom-add-button:hover {
+  background-color: #BBDFBC;
+  border: 2px solid #198754;
+  color: #333;
+}
+
+.schedule-card {
+  background-color: #fff;
+}

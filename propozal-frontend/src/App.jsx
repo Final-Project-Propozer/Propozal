@@ -10,6 +10,12 @@ import EstimateView from './pages/EstimateView/EstimateView'; // ✅ 견적서 �
 import EstimatePage from './pages/EstimateCreate/EstimatePage'; // ✅ 견적서 생성 페이지 추가
 import AdminTestPage from "./pages/AdminTestPage";
 import PasswordResetForm from './components/PasswordResetForm/PasswordResetForm';
+import ScheduleCreatePage from './pages/Schedule/ScheduleCreatePage';
+import ScheduleEditPage from './pages/Schedule/ScheduleEditPage';
+import ScheduleDetailPage from './pages/Schedule/ScheduleDetailPage';
+import ScheduleListPage from './pages/Schedule/ScheduleListPage';
+
+// import ProductDetailPage from './pages/ProductDetailPage';
 
 const App = () => {
   return (
@@ -26,6 +32,13 @@ const App = () => {
       <Route path="/estimate/view" element={<EstimateView />} />
       <Route path="/estimate/create" element={<EstimatePage />} /> {/* ✅ 견적서 생성 페이지 */}
       <Route path="/admin/test" element={<AdminTestPage />} />
+      <Route path="/schedule/create" element={<ScheduleCreatePage />} />
+      <Route path="/schedule/edit" element={<ScheduleEditPage />} />
+      <Route path="/schedule/detail" element={<ScheduleDetailPage />} />
+      <Route path="/schedule/list" element={<ScheduleListPage />} />
+
+{/*       <Route path="/product/detail" element={<ProductDetailPage />} /> */}
+
     </Routes>
   );
 };
