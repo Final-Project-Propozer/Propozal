@@ -1,0 +1,62 @@
+pipeline {
+  agent any
+
+  environment {
+    IMAGE_NAME = 'propozal-backend'
+    CONTAINER_NAME = 'propozal-backend'
+    PROJECT_DIR = 'backend'
+    EXPOSE_PORT = '8080'
+  }
+
+  stages {
+
+    stage('Checkout') {
+      steps {
+        echo "📦 Git Checkout"
+        git credentialsId: 'github-token', url: 'https://github.com/Final-Project-Propozer/Propozal.git', branch: 'main'
+      }
+    }
+
+    stage('Build Docker Image') {
+      steps {
+        echo "🔧 Docker Build"
+        dir("${propozal-backend}") {
+          sh "docker build -t ${IMAGE_NAME} ."
+        }
+      }
+    }
+
+    stage('Stop Previous Container') {
+      steps {
+        echo "🧹 Old Container Cleanup"
+        sh """
+          docker stop ${CONTAINER_NAME} || true
+          docker rm ${CONTAINER_NAME} || true
+        """
+      }
+    }
+
+    stage('Run New Container') {
+      steps {
+        echo "🚀 Run New Container"
+        dir("${PROJECT_DIR}") {
+          sh """
+            docker run -d --name ${CONTAINER_NAME} \
+            --env-file .env \
+            -p ${EXPOSE_PORT}:${EXPOSE_PORT} \
+            ${IMAGE_NAME}
+          """
+        }
+      }
+    }
+  }
+
+  post {
+    success {
+      echo '✅ Backend Build & Deployment Success!'
+    }
+    failure {
+      echo '❌ Build Failed'
+    }
+  }
+}
