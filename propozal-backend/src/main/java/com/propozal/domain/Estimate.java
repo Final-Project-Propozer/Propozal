@@ -8,10 +8,13 @@ import java.util.List;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -29,8 +32,9 @@ public class Estimate extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(nullable = false)
     private String customerName;
@@ -61,10 +65,11 @@ public class Estimate extends BaseTimeEntity {
     private List<EstimateItem> estimateItems = new ArrayList<>();
 
     @Builder
-    public Estimate(Long userId, String customerName, String customerEmail, String customerPhone,
-                    String customerCompanyName, String customerPosition, BigDecimal totalAmount, boolean vatIncluded,
-                    String specialTerms, Integer dealStatus, LocalDate expirationDate, List<EstimateItem> estimateItems) {
-        this.userId = userId;
+    public Estimate(User user, String customerName, String customerEmail, String customerPhone,
+            String customerCompanyName, String customerPosition, BigDecimal totalAmount, boolean vatIncluded,
+            String specialTerms, Integer dealStatus, LocalDate expirationDate, List<EstimateItem> estimateItems) {
+        this.user = user;
+
         this.customerName = customerName;
         this.customerEmail = customerEmail;
         this.customerPhone = customerPhone;
@@ -101,7 +106,7 @@ public class Estimate extends BaseTimeEntity {
     }
 
     public void updateCustomerInfo(String customerName, String customerEmail, String customerPhone,
-                                   String customerCompanyName, String customerPosition, String specialTerms) {
+            String customerCompanyName, String customerPosition, String specialTerms) {
         // 요청으로 들어온 값이 null이 아닐 경우에만 필드를 업데이트합니다.
         if (customerName != null) {
             this.customerName = customerName;
@@ -126,5 +131,9 @@ public class Estimate extends BaseTimeEntity {
     public void removeItem(EstimateItem item) {
         this.estimateItems.remove(item);
         recalculateTotalAmount();
+    }
+
+    public void setDealStatus(Integer dealStatus) {
+        this.dealStatus = dealStatus;
     }
 }
