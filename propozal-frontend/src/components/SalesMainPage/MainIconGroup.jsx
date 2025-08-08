@@ -18,7 +18,7 @@ const iconData = [
   {
     icon: <FaCalendarAlt size={40} />,
     title: "스케줄 조회",
-    link: "/view-schedule",
+    link: "/schedule/list",
   },
 ];
 

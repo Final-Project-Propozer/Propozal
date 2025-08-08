@@ -13,7 +13,7 @@ const PasswordReset = () => {
         justifyContent: 'center',
         padding: '3rem 1rem',
         backgroundColor: '#ffffff', // 따뜻한 배경색
-        minHeight: '80vh',
+        minHeight: 'auto',
       }}
     >
       <Card
