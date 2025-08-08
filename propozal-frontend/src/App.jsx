@@ -9,6 +9,7 @@ import SalesMainPage from './pages/SalesMainPage/SalesMainPage';
 import EstimateView from './pages/EstimateView/EstimateView'; // ✅ 견적서 조회 페이지
 import EstimatePage from './pages/EstimateCreate/EstimatePage'; // ✅ 견적서 생성 페이지 추가
 import AdminTestPage from "./pages/AdminTestPage";
+import PasswordResetForm from './components/PasswordResetForm/PasswordResetForm';
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
       <Route path="/" element={<Layout><Home /></Layout>} />
       <Route path="/signup" element={<Layout><Signup /></Layout>} />
       {/* <Route path="/estimate" element={<Layout><EstimateDetail /></Layout>} /> */}
+      <Route path="/password-reset" element={<Layout><PasswordResetForm /></Layout>} />
 
       {/* 레이아웃이 필요 없는 페이지들 */}
       <Route path="/login" element={<Login />} />
