@@ -1,0 +1,45 @@
+.quotation-footer {
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.special-terms-card {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+}
+
+.terms-text {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.contact-text {
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.company-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.company-logo,
+.company-seal {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 6px;
+}
+
+.company-name {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.company-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px; /* 요소 간 간격 */
+  margin-top: 2rem; /* 한 줄 간격 */
+}
