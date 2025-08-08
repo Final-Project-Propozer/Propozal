@@ -8,7 +8,7 @@ const InfoSection = () => {
       <Container>
         <Row className="text-center mb-5">
           <Col>
-            <h2 style={{ fontWeight: 'bold' }}>Propozal Helps Your Sales Teams</h2>
+            <h2 style={{ fontWeight: 'bold' }}>당신의 세일즈 플로우, Propozal이 함께 합니다.</h2>
           </Col>
         </Row>
 
