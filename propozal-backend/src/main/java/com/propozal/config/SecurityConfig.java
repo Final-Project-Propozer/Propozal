@@ -31,13 +31,15 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/send-verification", "/api/auth/verify-email").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/estimate/response").permitAll() // 견적서의 응답 처리를 위한 URL 허용
                         .requestMatchers("/api/users/me").hasAnyRole("ADMIN", "SALESPERSON")
-                        .anyRequest().authenticated())
+                        .anyRequest().authenticated()
+                )
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint((request, response, authException) -> response
-                                .sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")))
+                        .authenticationEntryPoint((request, response, authException) ->
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"))
+                )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtil, userDetailsService),
                         UsernamePasswordAuthenticationFilter.class)
                 .build();
