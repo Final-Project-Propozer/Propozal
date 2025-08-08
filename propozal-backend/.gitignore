@@ -40,7 +40,7 @@ out/
 *.log
 
 # Secret files
-.env
+../.env
 
 # Compiled Java class files
 *.class
