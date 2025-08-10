@@ -1,0 +1,80 @@
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.custom-checkbox input[type="checkbox"] {
+  width: 30px;
+  height: 30px;
+  border: 2px solid #3a5a40;
+  accent-color: #3a5a40;
+}
+
+/* 공통 input wrapper */
+.custom-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.custom-input-wrapper input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+/* 아이콘 공통 스타일 */
+.input-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #3a5a40;
+  pointer-events: none;
+  font-size: 18px;
+}
+
+/* 버튼 호버 효과 */
+.submit-btn {
+  background-color: #198754;
+  color: #fff;
+  transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+  background-color: #BDDFBC;
+  color: #000;
+  border: 2px solid #3a5a40;
+}
+
+/* 기본 시계 아이콘 제거 (WebKit 기반 브라우저용) */
+input[type="time"]::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
+}
+
+.custom-back-button {
+  font-size: 1rem;
+  padding: 0.5rem 1.2rem;
+  border: 2px solid #344e41;
+  background-color: #198754;
+  color: #fff;
+  transition: background-color 0.2s ease;
+}
+
+.custom-back-button:hover {
+  background-color: #f4f4f2;
+  color: #344e41;
+}
+
+.custom-edit-button {
+  background-color: white;
+  color: #3a86ff;
+  border: 2px solid #3a86ff;
+  padding: 0.5rem 1.2rem;
+}
+
+.custom-delete-button {
+  background-color: white;
+  color: #e63946;
+  border: 2px solid #e63946;
+  padding: 0.5rem 1.2rem;
+}
+
