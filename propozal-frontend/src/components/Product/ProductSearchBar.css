@@ -1,0 +1,16 @@
+.search-input-wrapper {
+  position: relative;
+}
+
+.search-input {
+  padding-right: 2.5rem; /* 아이콘 공간 확보 */
+}
+
+.search-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  pointer-events: none; /* 클릭 방지 */
+}
