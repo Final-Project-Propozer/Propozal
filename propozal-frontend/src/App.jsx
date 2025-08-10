@@ -14,8 +14,10 @@ import ScheduleCreatePage from './pages/Schedule/ScheduleCreatePage';
 import ScheduleEditPage from './pages/Schedule/ScheduleEditPage';
 import ScheduleDetailPage from './pages/Schedule/ScheduleDetailPage';
 import ScheduleListPage from './pages/Schedule/ScheduleListPage';
-
-// import ProductDetailPage from './pages/ProductDetailPage';
+import ProductDetailPage from './pages/Product/ProductDetailPage';
+import ProductPageLayout from './pages/Product/ProductPageLayout';
+import ProductFavorite from './pages/Product/ProductFavorite';
+import EstimateListPage from './pages/EstimateView/EstimateListPage';
 
 const App = () => {
   return (
@@ -36,8 +38,10 @@ const App = () => {
       <Route path="/schedule/edit" element={<ScheduleEditPage />} />
       <Route path="/schedule/detail" element={<ScheduleDetailPage />} />
       <Route path="/schedule/list" element={<ScheduleListPage />} />
-
-{/*       <Route path="/product/detail" element={<ProductDetailPage />} /> */}
+      <Route path="/product/detail" element={<ProductDetailPage />} />
+      <Route path="/products" element={<ProductPageLayout />} />
+      <Route path="/products/favorites" element={<ProductFavorite />} />
+      <Route path="/estimate/list" element={<EstimateListPage />} />
 
     </Routes>
   );
