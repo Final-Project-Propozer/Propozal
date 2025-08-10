@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>응답 처리 결과</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f4f4f2;
+      }
+      .message-box {
+        padding: 40px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+      h1 {
+        color: #3a5a40;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="message-box">
+      <h1 th:text="${message}">처리 중...</h1>
+      <p>PropoZal을 이용해주셔서 감사합니다.</p>
+    </div>
+  </body>
+</html>

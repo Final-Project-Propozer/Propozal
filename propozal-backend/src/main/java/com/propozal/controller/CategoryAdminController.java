@@ -52,4 +52,5 @@ public class CategoryAdminController {
         categoryService.deleteCategory(id);
         return ResponseEntity.noContent().build();
     }
+
 }

@@ -40,8 +40,7 @@ public class EstimateAdminService {
                 searchDto.getUserId(),
                 searchDto.getCustomerName(),
                 searchDto.getCustomerCompanyName(),
-                searchDto.getPageable()
-        );
+                searchDto.getPageable());
         return estimates.map(this::convertToDto);
     }
 
@@ -64,7 +63,7 @@ public class EstimateAdminService {
     private EstimateAdminDto convertToDto(Estimate estimate) {
         return EstimateAdminDto.builder()
                 .id(estimate.getId())
-                .userId(estimate.getUserId())
+                .userId(estimate.getUser().getId())
                 .customerName(estimate.getCustomerName())
                 .customerEmail(estimate.getCustomerEmail())
                 .customerPhone(estimate.getCustomerPhone())
@@ -120,7 +119,9 @@ public class EstimateAdminService {
             addTableRow(table, "총 금액", "₩" + estimate.getTotalAmount().toPlainString(), headerFont, valueFont);
             addTableRow(table, "VAT 포함", estimate.isVatIncluded() ? "포함" : "미포함", headerFont, valueFont);
             addTableRow(table, "거래 상태", getDealStatusText(estimate.getDealStatus()), headerFont, valueFont);
-            addTableRow(table, "유효 일자", estimate.getExpirationDate() != null ? estimate.getExpirationDate().toString() : "미정", headerFont, valueFont);
+            addTableRow(table, "유효 일자",
+                    estimate.getExpirationDate() != null ? estimate.getExpirationDate().toString() : "미정", headerFont,
+                    valueFont);
 
             document.add(table);
 
@@ -164,10 +165,14 @@ public class EstimateAdminService {
 
     private String getDealStatusText(Integer dealStatus) {
         switch (dealStatus) {
-            case 0: return "거래 취소";
-            case 1: return "거래 대기";
-            case 2: return "거래 성사";
-            default: return "알 수 없음";
+            case 0:
+                return "거래 취소";
+            case 1:
+                return "거래 대기";
+            case 2:
+                return "거래 성사";
+            default:
+                return "알 수 없음";
         }
     }
 }

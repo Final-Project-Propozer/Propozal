@@ -1,0 +1,71 @@
+/* 전체 배경 영역 */
+.hero-wrapper {
+  background-color: #588174;
+  color: white;
+  padding-top: 50px;
+  padding-bottom: 20px;
+}
+
+/* 텍스트 영역 */
+.hero-text {
+  text-align: left;
+  margin-left: 3rem;
+}
+
+@media (max-width: 768px) {
+  .hero-text {
+    margin-left: 0.01rem;
+  }
+}
+
+.hero-text h1 {
+  font-weight: 600;
+  font-size: 1.8rem;
+}
+
+.hero-slogan {
+  font-weight: 600;
+  font-size: 2.2rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.2;
+}
+
+.hero-description {
+  font-size: 1.25rem;
+}
+
+/* 버튼 공통 스타일 */
+.custom-button {
+  padding: 10px 28px;
+  font-size: 1.25rem;
+  font-weight: bold;
+  border-radius: 50px;
+
+}
+
+/* 로그인 버튼 스타일 */
+.login-button {
+  background-color: #F4F4F2;
+  color: #3A5A40;
+  border: 2.5px solid #3A5A40;
+}
+
+/* 회원가입 버튼 스타일 */
+.signup-button {
+  background-color: transparent;
+  color: #F4F4F2;
+  border: 2.5px solid #F4F4F2;
+}
+
+/* 호버 시 버튼 배경 연두색으로 변경 */
+.login-button:hover,
+.signup-button:hover {
+  background-color: #BDDFBC;
+  color: #344E41;
+  border-color: #344E41;
+}
+
+/* CSS 파일에서 정의 */
+.highlighted-text {
+  font-weight: 600; /* 보통보다 살짝 강조되는 수준 */
+}

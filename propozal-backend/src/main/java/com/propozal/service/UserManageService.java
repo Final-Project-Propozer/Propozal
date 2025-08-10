@@ -1,5 +1,6 @@
 package com.propozal.service;
 
+import com.propozal.domain.EmailVerification;
 import com.propozal.domain.EmployeeProfile;
 import com.propozal.domain.User;
 import com.propozal.dto.user.UserDetailResponseDto;
@@ -7,6 +8,7 @@ import com.propozal.dto.user.UserListResponseDto;
 import com.propozal.dto.user.UserUpdateRequestDto;
 import com.propozal.exception.CustomException;
 import com.propozal.exception.ErrorCode;
+import com.propozal.repository.EmailVerificationRepository;
 import com.propozal.repository.EmployeeProfileRepository;
 import com.propozal.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ public class UserManageService {
 
     private final UserRepository userRepository;
     private final EmployeeProfileRepository employeeProfileRepository;
+    private final EmailVerificationRepository emailVerificationRepository;
 
     // 회사별 전체 회원 조회
     public List<UserListResponseDto> getUsersByCompany(Long companyId) {
@@ -80,5 +83,24 @@ public class UserManageService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         user.setActive(false);
+    }
+
+    // 이메일 인증 토큰 검증 및 사용자 isVerified 변경
+    @Transactional
+    public void verifyEmailToken(String token) {
+        EmailVerification emailVerification = emailVerificationRepository.findByToken(token)
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_TOKEN));
+
+        if (emailVerification.isUsed()) {
+            throw new CustomException(ErrorCode.TOKEN_ALREADY_USED);
+        }
+
+        emailVerification.setUsed(true);
+        emailVerificationRepository.save(emailVerification);
+
+        User user = userRepository.findById(emailVerification.getUserId())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        user.setVerified(true);
+        userRepository.save(user);
     }
 }
