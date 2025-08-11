@@ -7,6 +7,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.util.Map;
 
@@ -15,6 +19,7 @@ import java.util.Map;
 public class EmailService {
 
     private final JavaMailSender mailSender;
+    private final SpringTemplateEngine templateEngine;
 
     @Value("${spring.mail.username}")
     private String fromEmail;
@@ -57,15 +62,11 @@ public class EmailService {
      * EstimateService에서 사용
      */
     public void sendEstimateEmail(String recipientEmail, String subject, Map<String, Object> templateModel) {
-        StringBuilder htmlBody = new StringBuilder("<h2>견적서</h2>");
-        templateModel.forEach((key, value) -> {
-            htmlBody.append("<p><b>")
-                    .append(key)
-                    .append(":</b> ")
-                    .append(value)
-                    .append("</p>");
-        });
+        Context context = new Context();
+        context.setVariables(templateModel);
 
-        sendHtmlMail(recipientEmail, subject, htmlBody.toString());
+        String htmlBody = templateEngine.process("estimate-email", context);
+
+        sendHtmlMail(recipientEmail, subject, htmlBody);
     }
 }
