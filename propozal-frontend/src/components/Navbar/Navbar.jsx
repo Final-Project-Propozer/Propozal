@@ -41,13 +41,13 @@ const Navbar = () => {
         <div className="collapse navbar-collapse" id="mainNav">
           <ul className="navbar-nav ms-auto align-items-center nav-tab-group">
             <li className="nav-item">
-              <Link className="nav-link" to="/">Home</Link>
+              <Link className="nav-link" to="/">홈</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="#">Pricing</Link>
+              <Link className="nav-link" to="#">메뉴1</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="#">Contact Us</Link>
+              <Link className="nav-link" to="#">메뉴2</Link>
             </li>
             <li className="nav-item">
               <Link className="btn btn-outline-dark rounded-pill px-3 py-1 login-btn" to="/login">
