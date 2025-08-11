@@ -1,6 +1,7 @@
 package com.propozal.controller;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ import com.propozal.dto.estimate.EstimateDetailResponse;
 import com.propozal.dto.estimate.EstimateDraftResponse;
 import com.propozal.dto.estimate.EstimateItemAddRequest;
 import com.propozal.dto.estimate.EstimateItemUpdateRequest;
+import com.propozal.dto.estimate.EstimateVersionResponse;
 import com.propozal.jwt.CustomUserDetails;
 import com.propozal.service.EstimateService;
 
@@ -124,5 +126,24 @@ public class EstimateController {
                     "timestamp", java.time.LocalDateTime.now().toString(),
                     "status", 500));
         }
+    }
+
+    @PostMapping("/{estimateId}/versions")
+    public ResponseEntity<?> saveVersion(
+            @PathVariable("estimateId") Long estimateId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody(required = false) Map<String, String> payload) { // 메모를 받기 위해 Body 추가
+
+        String memo = (payload != null) ? payload.get("memo") : "임시 저장";
+        estimateService.saveVersion(estimateId, userDetails.getUser().getId(), memo);
+        return ResponseEntity.ok(Map.of("message", "견적서가 임시 저장되었습니다."));
+    }
+
+    @GetMapping("/{estimateId}/versions")
+    public ResponseEntity<List<EstimateVersionResponse>> getEstimateVersions(
+            @PathVariable("estimateId") Long estimateId) {
+
+        List<EstimateVersionResponse> versions = estimateService.getEstimateVersions(estimateId);
+        return ResponseEntity.ok(versions);
     }
 }

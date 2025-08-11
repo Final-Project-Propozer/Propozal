@@ -5,30 +5,37 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.propozal.domain.Company;
 import com.propozal.domain.EmployeeProfile;
 import com.propozal.domain.Estimate;
 import com.propozal.domain.EstimateConfirmationToken;
 import com.propozal.domain.EstimateItem;
+import com.propozal.domain.EstimateVersion;
 import com.propozal.domain.Product;
 import com.propozal.domain.User;
 import com.propozal.dto.email.EstimateSendRequest;
 import com.propozal.dto.estimate.EstimateCustomerUpdateRequest;
 import com.propozal.dto.estimate.EstimateItemAddRequest;
 import com.propozal.dto.estimate.EstimateItemUpdateRequest;
+import com.propozal.dto.estimate.EstimateVersionResponse;
 import com.propozal.repository.CompanyRepository;
 import com.propozal.repository.EmployeeProfileRepository;
 import com.propozal.repository.EstimateConfirmationTokenRepository;
 import com.propozal.repository.EstimateItemRepository;
 import com.propozal.repository.EstimateRepository;
+import com.propozal.repository.EstimateVersionRepository;
 import com.propozal.repository.ProductRepository;
+import com.propozal.repository.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +48,9 @@ public class EstimateService {
         private String appBaseUrl;
 
         private final EstimateRepository estimateRepository;
+        private final EstimateVersionRepository versionRepository;
+        private final ObjectMapper objectMapper;
+        private final UserRepository userRepository;
         private final ProductRepository productRepository;
         private final EstimateItemRepository estimateItemRepository;
         private final EmailService emailService;
@@ -250,5 +260,40 @@ public class EstimateService {
                 return (token.getActionType() == EstimateConfirmationToken.ActionType.ACCEPT)
                                 ? "견적서가 성공적으로 승인되었습니다."
                                 : "견적서가 거절되었습니다. 소중한 의견 감사합니다.";
+        }
+
+        @Transactional
+        public void saveVersion(Long estimateId, Long userId, String memo) {
+                Estimate estimate = estimateRepository.findById(estimateId)
+                                .orElseThrow(() -> new EntityNotFoundException("견적서를 찾을 수 없습니다."));
+                User user = userRepository.findById(userId)
+                                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+
+                try {
+                        String estimateJson = objectMapper.writeValueAsString(estimate);
+
+                        EstimateVersion version = EstimateVersion.builder()
+                                        .estimate(estimate)
+                                        .estimateData(estimateJson)
+                                        .savedBy(user.getName())
+                                        .memo(memo)
+                                        .build();
+
+                        versionRepository.save(version);
+
+                } catch (Exception e) {
+                        throw new RuntimeException("견적서 버전 저장에 실패했습니다.", e);
+                }
+        }
+
+        /**
+         * [신규] 특정 견적서의 버전 목록 조회
+         */
+        @Transactional(readOnly = true)
+        public List<EstimateVersionResponse> getEstimateVersions(Long estimateId) {
+                return versionRepository.findByEstimateIdOrderBySavedAtDesc(estimateId)
+                                .stream()
+                                .map(EstimateVersionResponse::new)
+                                .collect(Collectors.toList());
         }
 }
