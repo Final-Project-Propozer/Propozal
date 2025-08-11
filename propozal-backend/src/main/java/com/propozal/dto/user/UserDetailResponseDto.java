@@ -7,7 +7,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class UserDetailResponseDto {
     private Long userId;
-    private String password;
     private String email;
     private String name;
     private String department;

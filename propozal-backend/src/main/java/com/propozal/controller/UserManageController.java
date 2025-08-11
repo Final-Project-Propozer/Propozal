@@ -33,7 +33,7 @@ public class UserManageController {
         return ResponseEntity.ok(userManageService.getUsersByCompany(companyId));
     }
 
-    // 회원 상세 조회
+    // 회원 정보 상세 조회
     @GetMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDetailResponseDto> getUserDetail(@PathVariable("userId") Long userId) {

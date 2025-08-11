@@ -28,7 +28,7 @@ public class ApprovalController {
         return ResponseEntity.ok(approvalService.getPendingApprovals(companyId));
     }
 
-    // 승인
+    // 회원 가입 승인
     @PostMapping("/{userId}/approve")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> approveUser(@PathVariable("userId") Long userId) {
@@ -36,7 +36,7 @@ public class ApprovalController {
         return ResponseEntity.ok().build();
     }
 
-    // 거부
+    // 회원 가입 거부
     @PostMapping("/{userId}/reject")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> rejectUser(@PathVariable("userId") Long userId) {
