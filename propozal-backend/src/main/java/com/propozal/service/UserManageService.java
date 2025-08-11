@@ -11,7 +11,9 @@ import com.propozal.exception.ErrorCode;
 import com.propozal.repository.EmailVerificationRepository;
 import com.propozal.repository.EmployeeProfileRepository;
 import com.propozal.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,7 +51,6 @@ public class UserManageService {
 
         return new UserDetailResponseDto(
                 user.getId(),
-                "********", // 비밀번호 마스킹
                 user.getEmail(),
                 user.getName(),
                 profile.getDepartment(),

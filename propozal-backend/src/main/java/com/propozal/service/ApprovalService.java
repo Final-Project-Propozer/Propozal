@@ -7,9 +7,12 @@ import com.propozal.dto.approval.PendingApprovalUserDto;
 import com.propozal.exception.CustomException;
 import com.propozal.exception.ErrorCode;
 import com.propozal.repository.EmployeeProfileRepository;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
@@ -20,6 +23,7 @@ public class ApprovalService {
     private final EmployeeProfileRepository employeeProfileRepository;
 
     // 승인 대기 목록 조회
+    @Transactional
     public PendingApprovalListResponseDto getPendingApprovals(Long companyId) {
         List<EmployeeProfile> pendingProfiles =
                 employeeProfileRepository.findByCompanyIdAndApprovalStatus(companyId, ApprovalStatus.PENDING);
@@ -44,6 +48,7 @@ public class ApprovalService {
         EmployeeProfile profile = employeeProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_PROFILE_NOT_FOUND));
         profile.setApprovalStatus(ApprovalStatus.APPROVED);
+        employeeProfileRepository.save(profile);
     }
 
     // 거부 처리
@@ -52,5 +57,6 @@ public class ApprovalService {
         EmployeeProfile profile = employeeProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_PROFILE_NOT_FOUND));
         profile.setApprovalStatus(ApprovalStatus.REJECTED);
+        employeeProfileRepository.save(profile);
     }
 }
