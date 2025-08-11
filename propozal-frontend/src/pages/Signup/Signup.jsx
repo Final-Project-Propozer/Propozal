@@ -224,11 +224,15 @@ const SignupPage = () => {
         </div>
 
         {/* 소셜 로그인 */}
+        {/* 소셜 로그인 */}
         <button type="button" className="btn btn-outline-dark w-100 mb-2">
+          <img
+            src="/google.png"
+            alt="Google"
+            style={{ width: "20px", marginRight: "10px", verticalAlign: "middle" }}
+          />
           Google로 시작하기
         </button>
-
-
 
         <button
           type="button"
@@ -241,15 +245,21 @@ const SignupPage = () => {
           }}
           onMouseEnter={(e) => {
             e.target.style.backgroundColor = "#FEE500";
-            e.target.style.border = "1px solid #000000"; // hover 시 약간 어두운 노란색
+            e.target.style.border = "1px solid #000000";
           }}
           onMouseLeave={(e) => {
             e.target.style.backgroundColor = "#FEE500";
-             e.target.style.border = "1px solid #FEE500";// 원래 색상으로 복원
+            e.target.style.border = "1px solid #FEE500";
           }}
         >
+          <img
+            src="/kakao.png"
+            alt="Kakao"
+            style={{ width: "25px", marginRight: "10px", verticalAlign: "middle" }}
+          />
           카카오로 시작하기
         </button>
+
 
       </form>
     </div>

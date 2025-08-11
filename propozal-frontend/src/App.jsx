@@ -18,6 +18,7 @@ import ProductDetailPage from './pages/Product/ProductDetailPage';
 import ProductPageLayout from './pages/Product/ProductPageLayout';
 import ProductFavorite from './pages/Product/ProductFavorite';
 import EstimateListPage from './pages/EstimateView/EstimateListPage';
+import ApprovalPendingPage from './pages/Signup/ApprovalPendingPage';
 
 const App = () => {
   return (
@@ -42,6 +43,7 @@ const App = () => {
       <Route path="/products" element={<ProductPageLayout />} />
       <Route path="/products/favorites" element={<ProductFavorite />} />
       <Route path="/estimate/list" element={<EstimateListPage />} />
+      <Route path="/signup/pending" element={<ApprovalPendingPage />} />
 
     </Routes>
   );
