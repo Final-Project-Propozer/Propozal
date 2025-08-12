@@ -1,5 +1,7 @@
 package com.propozal.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -26,13 +28,17 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class EmployeeProfile {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY) @JoinColumn(name = "user_id", nullable = false, unique = true)
+    @JsonBackReference
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "company_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id")
     private Company company;
 
     @Enumerated(EnumType.STRING)
@@ -48,5 +54,7 @@ public class EmployeeProfile {
     @Column(name = "phone_number", length = 20)
     private String phoneNumber;
 
-    public enum ApprovalStatus { PENDING, APPROVED, REJECTED }
+    public enum ApprovalStatus {
+        PENDING, APPROVED, REJECTED
+    }
 }
