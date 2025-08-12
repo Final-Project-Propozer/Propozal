@@ -33,7 +33,7 @@ export default function LoginPage() {
       {/* 우측 로그인 영역 */}
       <div className="right-panel">
         <div className="login-content">
-          <h3 class="highlight">로그인</h3>
+          <h3 className="highlight">로그인</h3>
           <form className="w-100" style={{ maxWidth: "100%", maxInlineSize: "400px" }}>
             <div className="mb-3">
               <label htmlFor="email" className="form-label">이메일 주소</label>
