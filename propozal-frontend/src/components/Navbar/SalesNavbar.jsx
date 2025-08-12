@@ -53,6 +53,9 @@ const SalesNavbar = () => {
               <Link className="nav-link" to="/schedule/list">스케줄 관리</Link>
             </li>
             <li className="nav-item">
+              <Link className="nav-link" to="/customer/list">고객관리</Link>
+            </li>
+            <li className="nav-item">
               <Link className="btn btn-outline-dark rounded-pill px-3 py-1 login-btn" to="/login">
                 나의 프로필
               </Link>

@@ -19,6 +19,9 @@ import ProductPageLayout from './pages/Product/ProductPageLayout';
 import ProductFavorite from './pages/Product/ProductFavorite';
 import EstimateListPage from './pages/EstimateView/EstimateListPage';
 import ApprovalPendingPage from './pages/Signup/ApprovalPendingPage';
+import CustomerRegister from './pages/Customer/CustomerRegister';
+import CustomerDetail from './pages/Customer/CustomerDetail';
+import CustomerList from './pages/Customer/CustomerList';
 
 const App = () => {
   return (
@@ -44,6 +47,9 @@ const App = () => {
       <Route path="/products/favorites" element={<ProductFavorite />} />
       <Route path="/estimate/list" element={<EstimateListPage />} />
       <Route path="/signup/pending" element={<ApprovalPendingPage />} />
+      <Route path="/customer/register" element={<CustomerRegister />} />
+      <Route path="/customer/detail" element={<CustomerDetail />} />
+      <Route path="/customer/list" element={<CustomerList />} />
 
     </Routes>
   );
