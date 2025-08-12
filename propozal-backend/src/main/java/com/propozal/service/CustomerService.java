@@ -35,19 +35,12 @@ public class CustomerService {
 
     @Transactional
     public CustomerDetailResponseDto createCustomer(CustomerCreateRequestDto req) {
+        
         if (req.getCustomerType() == null) {
             throw new CustomException(ErrorCode.INVALID_REQUEST);
         }
         if (req.getName() == null || req.getName().isBlank()) {
             throw new CustomException(ErrorCode.INVALID_REQUEST);
-        }
-
-        // COMPANY일 때만 필수로 처리하고 싶다면 아래 체크 추가 (정책에 따라)
-        if (req.getCustomerType() == CustomerType.COMPANY) {
-            if (req.getCeoName() == null || req.getBusinessAddress() == null) {
-                // 필요한 항목 더 묶어서 체크 가능
-                throw new CustomException(ErrorCode.INVALID_REQUEST);
-            }
         }
 
         Customer entity = Customer.builder()
