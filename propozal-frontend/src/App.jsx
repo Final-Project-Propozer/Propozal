@@ -10,6 +10,8 @@ import EstimateView from './pages/EstimateView/EstimateView'; // ✅ 견적서 �
 import EstimatePage from './pages/EstimateCreate/EstimatePage'; // ✅ 견적서 생성 페이지 추가
 import AdminTestPage from "./pages/AdminTestPage";
 import PasswordResetForm from './components/PasswordResetForm/PasswordResetForm';
+//관리자
+import AdminDashboard from './pages/Admin/AdminDashboard/AdminDashboard';
 
 const App = () => {
   return (
@@ -17,6 +19,8 @@ const App = () => {
       {/* 공통 레이아웃이 필요한 페이지들 */}
       <Route path="/" element={<Layout><Home /></Layout>} />
       <Route path="/signup" element={<Layout><Signup /></Layout>} />
+      <Route path="/" element={<Home />} />
+      <Route path="/dashboard" element={<AdminDashboard />} />
       {/* <Route path="/estimate" element={<Layout><EstimateDetail /></Layout>} /> */}
       <Route path="/password-reset" element={<Layout><PasswordResetForm /></Layout>} />
 
@@ -26,6 +30,7 @@ const App = () => {
       <Route path="/estimate/view" element={<EstimateView />} />
       <Route path="/estimate/create" element={<EstimatePage />} /> {/* ✅ 견적서 생성 페이지 */}
       <Route path="/admin/test" element={<AdminTestPage />} />
+      <Route path="/dashboard" element={<AdminDashboard />} />
     </Routes>
   );
 };
