@@ -72,4 +72,11 @@ public class ScheduleService {
         Schedule s = repo.findById(id).orElseThrow();
         repo.delete(s);
     }
+
+    @Transactional(readOnly = true)
+    public Page<ScheduleResponse> upcoming(Long userId, Pageable pageable) {
+        LocalDateTime now = LocalDateTime.now();
+        return repo.findUpcoming(now, userId, pageable)
+                .map(ScheduleResponse::from);
+    }
 }

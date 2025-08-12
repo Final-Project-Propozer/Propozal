@@ -27,7 +27,7 @@ public class ScheduleController {
     @PostMapping
     public ResponseEntity<ScheduleResponse> create(
             @Valid @RequestBody ScheduleCreateRequest req,
-            @AuthenticationPrincipal(expression = "id") Long userId
+            @AuthenticationPrincipal(expression = "user.id") Long userId
     ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(req, userId));
     }
@@ -51,7 +51,7 @@ public class ScheduleController {
     public ScheduleResponse update(
             @PathVariable("id") Long id,
             @RequestBody ScheduleUpdateRequest req,
-            @AuthenticationPrincipal(expression = "id") Long userId
+            @AuthenticationPrincipal(expression = "user.id") Long userId
     ) {
         return service.update(id, req, userId);
     }
@@ -59,9 +59,17 @@ public class ScheduleController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(
-            @PathVariable("id") Long id,                         // ✅ 이름 명시
-            @AuthenticationPrincipal(expression = "id") Long userId
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal(expression = "user.id") Long userId
     ) {
         service.delete(id, userId);
+    }
+
+    @GetMapping("/upcoming")
+    public Page<ScheduleResponse> upcoming(
+            @RequestParam(required = false) Long userId,
+            @PageableDefault(size = 20, sort = "startDatetime", direction = Sort.Direction.ASC) Pageable pageable
+    ) {
+        return service.upcoming(userId, pageable);
     }
 }

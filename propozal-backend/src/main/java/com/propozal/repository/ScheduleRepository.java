@@ -21,4 +21,15 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             @Param("userId") Long userId,
             Pageable pageable
     );
+
+    @Query("""
+        select s from Schedule s
+        where (:userId is null or s.userId = :userId)
+          and s.endDatetime > :now
+        """)
+    Page<Schedule> findUpcoming(
+            @Param("now") LocalDateTime now,
+            @Param("userId") Long userId,
+            Pageable pageable
+    );
 }
