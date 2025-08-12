@@ -3,6 +3,8 @@ package com.propozal.domain;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -27,6 +29,7 @@ public class EstimateItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "estimate_id", nullable = false)
     private Estimate estimate;
@@ -53,7 +56,8 @@ public class EstimateItem {
     }
 
     @Builder
-    public EstimateItem(Product product, int quantity, BigDecimal unitPrice, BigDecimal discountRate, BigDecimal vatAmount, BigDecimal subtotal) {
+    public EstimateItem(Product product, int quantity, BigDecimal unitPrice, BigDecimal discountRate,
+            BigDecimal vatAmount, BigDecimal subtotal) {
         this.product = product;
         this.quantity = quantity;
         this.unitPrice = unitPrice;
@@ -65,12 +69,12 @@ public class EstimateItem {
     public void update(int quantity, BigDecimal discountRate) {
         this.quantity = quantity;
         this.discountRate = discountRate;
-        
+
         // 소계(subtotal) 재계산
         BigDecimal supplyPrice = this.unitPrice.multiply(BigDecimal.valueOf(quantity));
         BigDecimal discountAmount = supplyPrice.multiply(discountRate);
         this.subtotal = supplyPrice.subtract(discountAmount);
-        
+
         // 부가세(vatAmount) 재계산
         if (this.product != null && this.product.isVatApplicable()) {
             this.vatAmount = this.subtotal.multiply(new BigDecimal("0.1")).setScale(0, RoundingMode.DOWN);
