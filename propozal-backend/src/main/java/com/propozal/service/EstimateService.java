@@ -23,10 +23,12 @@ import com.propozal.domain.EstimateItem;
 import com.propozal.domain.EstimateVersion;
 import com.propozal.domain.Product;
 import com.propozal.domain.User;
+import com.propozal.dto.detail.EstimateDetailDto;
 import com.propozal.dto.email.EstimateSendRequest;
 import com.propozal.dto.estimate.EstimateCustomerUpdateRequest;
 import com.propozal.dto.estimate.EstimateItemAddRequest;
 import com.propozal.dto.estimate.EstimateItemUpdateRequest;
+import com.propozal.dto.estimate.EstimateSimpleResponse;
 import com.propozal.dto.estimate.EstimateVersionResponse;
 import com.propozal.repository.CompanyRepository;
 import com.propozal.repository.EmployeeProfileRepository;
@@ -270,7 +272,8 @@ public class EstimateService {
                                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
 
                 try {
-                        String estimateJson = objectMapper.writeValueAsString(estimate);
+                        EstimateDetailDto detailDto = new EstimateDetailDto(estimate);
+                        String estimateJson = objectMapper.writeValueAsString(detailDto);
 
                         EstimateVersion version = EstimateVersion.builder()
                                         .estimate(estimate)
@@ -286,14 +289,37 @@ public class EstimateService {
                 }
         }
 
-        /**
-         * [신규] 특정 견적서의 버전 목록 조회
-         */
         @Transactional(readOnly = true)
         public List<EstimateVersionResponse> getEstimateVersions(Long estimateId) {
                 return versionRepository.findByEstimateIdOrderBySavedAtDesc(estimateId)
                                 .stream()
                                 .map(EstimateVersionResponse::new)
                                 .collect(Collectors.toList());
+        }
+
+        @Transactional(readOnly = true)
+        public List<EstimateSimpleResponse> getDraftEstimates(Long userId) {
+                // dealStatus가 1인 (작성 중) 견적서만 조회
+                return estimateRepository.findByUserIdAndDealStatusOrderByUpdatedAtDesc(userId, 1)
+                                .stream()
+                                .map(EstimateSimpleResponse::new)
+                                .collect(Collectors.toList());
+        }
+
+        @Transactional(readOnly = true)
+        public List<EstimateSimpleResponse> getCompletedEstimates(Long userId) {
+                // dealStatus가 1이 아닌 (발송, 승인, 거절 등) 모든 견적서를 조회
+                return estimateRepository.findByUserIdAndDealStatusNotOrderByUpdatedAtDesc(userId, 1)
+                                .stream()
+                                .map(EstimateSimpleResponse::new)
+                                .collect(Collectors.toList());
+        }
+
+        @Transactional(readOnly = true)
+        public String loadVersionData(Long versionId) {
+                EstimateVersion version = versionRepository.findById(versionId)
+                                .orElseThrow(() -> new EntityNotFoundException("해당 버전을 찾을 수 없습니다. ID: " + versionId));
+
+                return version.getEstimateData();
         }
 }
