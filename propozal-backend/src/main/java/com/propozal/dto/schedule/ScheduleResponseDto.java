@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor @Builder
-public class ScheduleResponse {
+public class ScheduleResponseDto {
     private Long id;
     private Long userId;
     private ScheduleType scheduleType;
@@ -19,8 +19,8 @@ public class ScheduleResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static ScheduleResponse from(Schedule s) {
-        return ScheduleResponse.builder()
+    public static ScheduleResponseDto from(Schedule s) {
+        return ScheduleResponseDto.builder()
                 .id(s.getId())
                 .userId(s.getUserId())
                 .scheduleType(s.getScheduleType())

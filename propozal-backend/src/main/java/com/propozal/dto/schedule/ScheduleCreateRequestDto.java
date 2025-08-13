@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor @Builder
-public class ScheduleCreateRequest {
+public class ScheduleCreateRequestDto {
     private String title;
     private String description;
     private ScheduleType scheduleType;  // MEETING, CALL, VISIT

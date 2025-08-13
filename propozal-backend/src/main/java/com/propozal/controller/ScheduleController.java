@@ -1,8 +1,8 @@
 package com.propozal.controller;
 
-import com.propozal.dto.schedule.ScheduleCreateRequest;
-import com.propozal.dto.schedule.ScheduleResponse;
-import com.propozal.dto.schedule.ScheduleUpdateRequest;
+import com.propozal.dto.schedule.ScheduleCreateRequestDto;
+import com.propozal.dto.schedule.ScheduleResponseDto;
+import com.propozal.dto.schedule.ScheduleUpdateRequestDto;
 import com.propozal.service.ScheduleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,15 +25,15 @@ public class ScheduleController {
     private final ScheduleService service;
 
     @PostMapping
-    public ResponseEntity<ScheduleResponse> create(
-            @Valid @RequestBody ScheduleCreateRequest req,
+    public ResponseEntity<ScheduleResponseDto> create(
+            @Valid @RequestBody ScheduleCreateRequestDto req,
             @AuthenticationPrincipal(expression = "user.id") Long userId
     ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(req, userId));
     }
 
     @GetMapping
-    public Page<ScheduleResponse> list(
+    public Page<ScheduleResponseDto> list(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
             @RequestParam(required = false) Long userId,
@@ -43,14 +43,14 @@ public class ScheduleController {
     }
 
     @GetMapping("/{id}")
-    public ScheduleResponse get(@PathVariable("id") Long id) {
+    public ScheduleResponseDto get(@PathVariable("id") Long id) {
         return service.get(id);
     }
 
     @PatchMapping("/{id}")
-    public ScheduleResponse update(
+    public ScheduleResponseDto update(
             @PathVariable("id") Long id,
-            @RequestBody ScheduleUpdateRequest req,
+            @RequestBody ScheduleUpdateRequestDto req,
             @AuthenticationPrincipal(expression = "user.id") Long userId
     ) {
         return service.update(id, req, userId);
@@ -66,7 +66,7 @@ public class ScheduleController {
     }
 
     @GetMapping("/upcoming")
-    public Page<ScheduleResponse> upcoming(
+    public Page<ScheduleResponseDto> upcoming(
             @RequestParam(required = false) Long userId,
             @PageableDefault(size = 20, sort = "startDatetime", direction = Sort.Direction.ASC) Pageable pageable
     ) {

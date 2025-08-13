@@ -1,9 +1,9 @@
 package com.propozal.service;
 
 import com.propozal.domain.Schedule;
-import com.propozal.dto.schedule.ScheduleCreateRequest;
-import com.propozal.dto.schedule.ScheduleResponse;
-import com.propozal.dto.schedule.ScheduleUpdateRequest;
+import com.propozal.dto.schedule.ScheduleCreateRequestDto;
+import com.propozal.dto.schedule.ScheduleResponseDto;
+import com.propozal.dto.schedule.ScheduleUpdateRequestDto;
 import com.propozal.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,7 +19,7 @@ public class ScheduleService {
     private final ScheduleRepository repo;
 
     @Transactional
-    public ScheduleResponse create(ScheduleCreateRequest req, Long currentUserId) {
+    public ScheduleResponseDto create(ScheduleCreateRequestDto req, Long currentUserId) {
         LocalDateTime start = req.getStartDatetime();
         LocalDateTime end = (req.getEndDatetime() == null) ? start.plusMinutes(30) : req.getEndDatetime();
 
@@ -35,23 +35,23 @@ public class ScheduleService {
         s.setStartDatetime(start);
         s.setEndDatetime(end);
 
-        return ScheduleResponse.from(repo.save(s));
+        return ScheduleResponseDto.from(repo.save(s));
     }
 
     @Transactional(readOnly = true)
-    public Page<ScheduleResponse> list(LocalDateTime from, LocalDateTime to, Long userId, Pageable pageable) {
+    public Page<ScheduleResponseDto> list(LocalDateTime from, LocalDateTime to, Long userId, Pageable pageable) {
         return repo.findInRange(from, to, userId, pageable)
-                .map(ScheduleResponse::from);
+                .map(ScheduleResponseDto::from);
     }
 
     @Transactional(readOnly = true)
-    public ScheduleResponse get(Long id) {
+    public ScheduleResponseDto get(Long id) {
         Schedule s = repo.findById(id).orElseThrow();
-        return ScheduleResponse.from(s);
+        return ScheduleResponseDto.from(s);
     }
 
     @Transactional
-    public ScheduleResponse update(Long id, ScheduleUpdateRequest req, Long currentUserId) {
+    public ScheduleResponseDto update(Long id, ScheduleUpdateRequestDto req, Long currentUserId) {
         Schedule s = repo.findById(id).orElseThrow();
 
         if (req.getTitle() != null)         s.setTitle(req.getTitle());
@@ -64,7 +64,7 @@ public class ScheduleService {
             throw new IllegalArgumentException("end_datetime must be after start_datetime");
         }
 
-        return ScheduleResponse.from(s);
+        return ScheduleResponseDto.from(s);
     }
 
     @Transactional
@@ -74,9 +74,9 @@ public class ScheduleService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ScheduleResponse> upcoming(Long userId, Pageable pageable) {
+    public Page<ScheduleResponseDto> upcoming(Long userId, Pageable pageable) {
         LocalDateTime now = LocalDateTime.now();
         return repo.findUpcoming(now, userId, pageable)
-                .map(ScheduleResponse::from);
+                .map(ScheduleResponseDto::from);
     }
 }
