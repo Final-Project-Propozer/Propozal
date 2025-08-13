@@ -41,6 +41,7 @@ out/
 
 # Secret files
 ../.env
+propozal-backend/.env
 
 # Compiled Java class files
 *.class
