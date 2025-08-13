@@ -41,25 +41,6 @@ public class UserController {
         return ResponseEntity.ok(userService.socialLogin(provider, authCode));
     }
 
-    @PostMapping("/password-reset/request")
-    public ResponseEntity<?> requestPasswordReset(@RequestParam String email) {
-        userService.requestPasswordReset(email);
-        return ResponseEntity.ok().body("{\"message\": \"비밀번호 재설정 메일 발송\"}");
-    }
-
-    @GetMapping("/password-reset/verify")
-    public ResponseEntity<?> verifyPasswordResetToken(@RequestParam String token) {
-        userService.verifyPasswordResetToken(token);
-        return ResponseEntity.ok().body("{\"message\": \"토큰 검증 완료\"}");
-    }
-
-    @PostMapping("/password-reset/confirm")
-    public ResponseEntity<?> resetPassword(@RequestParam String token,
-                                           @RequestParam String newPassword) {
-        userService.resetPassword(token, newPassword);
-        return ResponseEntity.ok().body("{\"message\": \"비밀번호 변경 완료\"}");
-    }
-
     @GetMapping("/pending-approvals")
     public ResponseEntity<List<User>> getPendingApprovals() {
         return ResponseEntity.ok(userService.getPendingApprovals());
