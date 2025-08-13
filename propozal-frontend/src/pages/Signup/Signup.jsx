@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../../api/axiosInstance";  // ✅ axiosInstance로 변경
+import axios from "axios";  // ✅ 기본 axios 사용
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -38,8 +38,7 @@ const SignupPage = () => {
     setIsSubmitting(true);
 
     try {
-      // axiosInstance
-      await axiosInstance.post("/api/auth/signup", signupData);
+      await axios.post("http://localhost:8080/api/auth/signup", signupData);  // ✅ 기본 axios 사용
       alert("회원가입 성공!");
       navigate("/login");
     } catch (error) {
@@ -52,8 +51,7 @@ const SignupPage = () => {
 
   const handleEmailCheck = async () => {
     try {
-      // ✅ axios → axiosInstance
-      const res = await axiosInstance.get(`/api/auth/check-email?email=${email}`);
+      const res = await axios.get(`http://localhost:8080/api/auth/check-email?email=${email}`);  // ✅ 기본 axios 사용
 
       if (res.data === true) {
         alert("이미 사용 중인 이메일입니다.");
@@ -156,10 +154,10 @@ const SignupPage = () => {
           onMouseLeave={(e) => { e.target.style.backgroundColor = "#FEE500"; e.target.style.border = "1px solid #FEE500"; }}>
           <img src="/kakao.png" alt="Kakao" style={{ width: "25px", marginRight: "10px", verticalAlign: "middle" }} />
           카카오로 시작하기
-                </button>
-              </form>
-            </div>
-          );
-        };
+        </button>
+      </form>
+    </div>
+  );
+};
 
-        export default SignupPage;
+export default SignupPage;
