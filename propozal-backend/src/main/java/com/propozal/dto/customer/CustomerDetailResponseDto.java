@@ -10,12 +10,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class CustomerDetailResponseDto {
     private Long id;
-    private CustomerType customerType;
+    private CustomerType customerType; // "COMPANY" | "INDIVIDUAL"
     private String name;
     private String phone;
     private String email;
 
-    // COMPANY 전용 필드 (INDIVIDUAL일 때는 null 가능)
+    // COMPANY 전용 필드
     private String ceoName;
     private String businessAddress;
     private String industry;

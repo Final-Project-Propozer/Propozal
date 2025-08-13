@@ -8,7 +8,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class CustomerListResponseDto {
     private Long id;
-    private CustomerType customerType;
+    private CustomerType customerType; // "COMPANY" | "INDIVIDUAL"
     private String name;
     private String phone;
     private String email;

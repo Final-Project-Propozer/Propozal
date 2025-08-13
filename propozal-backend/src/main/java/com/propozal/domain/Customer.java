@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,10 +26,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Customer {
-
-    public enum CustomerType {
-        COMPANY, INDIVIDUAL
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -70,5 +67,9 @@ public class Customer {
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }
+    }
+    
+    public enum CustomerType {
+        COMPANY, INDIVIDUAL
     }
 }

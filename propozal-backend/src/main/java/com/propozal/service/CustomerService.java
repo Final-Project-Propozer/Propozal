@@ -1,7 +1,6 @@
 package com.propozal.service;
 
 import com.propozal.domain.Customer;
-import com.propozal.domain.Customer.CustomerType;
 import com.propozal.dto.customer.CustomerCreateRequestDto;
 import com.propozal.dto.customer.CustomerDetailResponseDto;
 import com.propozal.dto.customer.CustomerListResponseDto;
