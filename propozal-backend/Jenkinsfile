@@ -6,7 +6,7 @@ pipeline {
     CONTAINER    = 'propozal-backend'
     APP_PORT     = '8080'
     BACKEND_DIR  = 'propozal-backend'
-    ENV_FILE     = '/home/ubuntu/Propozal/propozal-backend/.env'
+    ENV_FILE     = '/srv/Propozal/propozal-backend/.env'
   }
 
   tools {
