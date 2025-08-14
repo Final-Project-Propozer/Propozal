@@ -9,6 +9,10 @@ pipeline {
     ENV_FILE     = '/home/ubuntu/Propozal/propozal-backend/.env'
   }
 
+  tools {
+    gradle 'gradle-8.10.2'
+  }
+
   stages {
     stage('Checkout') {
       steps {
