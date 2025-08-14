@@ -2,61 +2,70 @@ pipeline {
   agent any
 
   environment {
-    IMAGE_NAME = 'propozal-backend'
-    CONTAINER_NAME = 'propozal-backend'
-    PROJECT_DIR = 'backend'
-    EXPOSE_PORT = '8080'
+    IMAGE        = 'propozal-backend:latest'
+    CONTAINER    = 'propozal-backend'
+    APP_PORT     = '8080'
+    BACKEND_DIR  = 'propozal-backend'
+    ENV_FILE     = '/home/ubuntu/Propozal/propozal-backend/.env'
   }
 
   stages {
-
     stage('Checkout') {
       steps {
-        echo "📦 Git Checkout"
-        git credentialsId: 'github-token', url: 'https://github.com/Final-Project-Propozer/Propozal.git', branch: 'main'
+        echo '📦 Checkout from SCM (job branch setting respected)'
+        checkout scm
+      }
+    }
+
+    stage('Build Jar') {
+      steps {
+        echo '🔧 Gradle build (skip tests)'
+        dir("${BACKEND_DIR}") {
+          sh 'chmod +x ./gradlew || true'
+          sh './gradlew clean bootJar -x test'
+        }
       }
     }
 
     stage('Build Docker Image') {
       steps {
-        echo "🔧 Docker Build"
-        dir("${propozal-backend}") {
-          sh "docker build -t ${IMAGE_NAME} ."
-        }
+        echo "🐳 Docker build: ${IMAGE}"
+        sh 'docker build -t $IMAGE $BACKEND_DIR'
       }
     }
 
-    stage('Stop Previous Container') {
+    stage('Deploy Container') {
       steps {
-        echo "🧹 Old Container Cleanup"
-        sh """
-          docker stop ${CONTAINER_NAME} || true
-          docker rm ${CONTAINER_NAME} || true
-        """
+        echo '🧹 Stop & remove previous container (if any)'
+        sh '''
+          docker stop $CONTAINER || true
+          docker rm $CONTAINER || true
+        '''
+        echo '🚀 Run new container'
+        sh '''
+          docker run -d --name $CONTAINER \
+            --restart unless-stopped \
+            --env-file $ENV_FILE \
+            -p ${APP_PORT}:8081 \
+            $IMAGE
+        '''
       }
     }
 
-    stage('Run New Container') {
+    stage('Smoke Test') {
       steps {
-        echo "🚀 Run New Container"
-        dir("${PROJECT_DIR}") {
-          sh """
-            docker run -d --name ${CONTAINER_NAME} \
-            --env-file .env \
-            -p ${EXPOSE_PORT}:${EXPOSE_PORT} \
-            ${IMAGE_NAME}
-          """
-        }
+        echo '🩺 Smoke test'
+        sh '''
+          (curl -fsS http://127.0.0.1:${APP_PORT}/actuator/health || \
+           curl -fsS http://127.0.0.1:${APP_PORT}/api/schedule/upcoming) >/dev/null
+        '''
       }
     }
   }
 
   post {
-    success {
-      echo '✅ Backend Build & Deployment Success!'
-    }
-    failure {
-      echo '❌ Build Failed'
-    }
+    success { echo '✅ Backend Build & Deployment Success!' }
+    failure { echo '❌ Build Failed' }
+    always  { sh 'docker image prune -f || true' }
   }
 }
