@@ -5,7 +5,7 @@ pipeline {
     IMAGE       = 'propozal-backend:latest'
     CONTAINER   = 'propozal-backend'
     BACKEND_DIR = 'propozal-backend'
-    ENV_FILE    = '/var/lib/jenkins/propozal-backend/.env'
+    ENV_FILE    = '/srv/Propozal/propozal-backend/.env'
     HOST_PORT   = '8081'
   }
 
