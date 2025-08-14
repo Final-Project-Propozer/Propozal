@@ -45,6 +45,26 @@ export default function LoginPage() {
           alert("알 수 없는 사용자 권한입니다.");
         }
       }
+
+//     // 3️⃣ 사용자 정보 조회
+//     const userRes = await axiosInstance.get("/api/auth/me");
+//     const { role, active } = userRes.data; // verified 제거
+//
+//     // 4️⃣ 승인 여부 및 역할에 따라 분기
+//     const isActive = Boolean(active);
+//
+//     if (!isActive) {
+//       navigate("/signup/pending"); // 승인 대기 중
+//     } else {
+//       if (role === "SALESPERSON") {
+//         navigate("/sales"); // 영업사원 홈
+//       } else if (role === "ADMIN") {
+//         navigate("/admin/test"); // 관리자 테스트 페이지
+//       } else {
+//         alert("알 수 없는 사용자 권한입니다.");
+//       }
+//     }
+
     } catch (error) {
       console.error("로그인 실패:", error);
       alert("아이디 또는 비밀번호가 틀렸습니다.");

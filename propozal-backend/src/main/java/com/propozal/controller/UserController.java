@@ -4,9 +4,12 @@ import com.propozal.domain.User;
 import com.propozal.dto.user.LoginRequest;
 import com.propozal.dto.user.LoginResponse;
 import com.propozal.dto.user.SignupRequest;
+import com.propozal.dto.user.UserInfoResponse;
+import com.propozal.jwt.CustomUserDetails;
 import com.propozal.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -64,4 +67,17 @@ public class UserController {
         userService.verifyEmail(token);
         return ResponseEntity.ok("{\"message\": \"이메일 인증 완료\"}");
     }
+
+    // 로그인 시 추가한 코드
+    @GetMapping("/me")
+    public ResponseEntity<?> getMyPage(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).body("{\"message\": \"로그인이 필요합니다.\"}");
+        }
+
+        UserInfoResponse response = UserInfoResponse.from(userDetails.getUser());
+
+        return ResponseEntity.ok(response);
+    }
+
 }
