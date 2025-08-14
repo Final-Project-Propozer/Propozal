@@ -25,7 +25,7 @@ pipeline {
       steps {
         echo '🔧 Gradle build (skip tests)'
         dir("${BACKEND_DIR}") {
-          sh 'gradle clean bootJar -x test'
+          sh "${tool 'gradle-8.10.2'}/bin/gradle clean bootJar -x test"
         }
       }
     }
