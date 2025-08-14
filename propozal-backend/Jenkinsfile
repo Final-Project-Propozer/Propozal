@@ -2,16 +2,14 @@ pipeline {
   agent any
 
   environment {
-    IMAGE        = 'propozal-backend:latest'
-    CONTAINER    = 'propozal-backend'
-    APP_PORT     = '8080'
-    BACKEND_DIR  = 'propozal-backend'
-    ENV_FILE     = '/srv/Propozal/propozal-backend/.env'
+    IMAGE       = 'propozal-backend:latest'
+    CONTAINER   = 'propozal-backend'
+    BACKEND_DIR = 'propozal-backend'
+    ENV_FILE    = '/var/lib/jenkins/propozal-backend.env'
+    HOST_PORT   = '8081'
   }
 
-  tools {
-    gradle 'gradle-8.10.2'
-  }
+  tools { gradle 'gradle-8.10.2' }
 
   stages {
     stage('Checkout') {
@@ -49,7 +47,7 @@ pipeline {
           docker run -d --name $CONTAINER \
             --restart unless-stopped \
             --env-file $ENV_FILE \
-            -p ${APP_PORT}:8080 \
+            -p 127.0.0.1:${HOST_PORT}:8080 \
             $IMAGE
         '''
       }
@@ -59,8 +57,8 @@ pipeline {
       steps {
         echo '🩺 Smoke test'
         sh '''
-          (curl -fsS http://127.0.0.1:${APP_PORT}/actuator/health || \
-           curl -fsS http://127.0.0.1:${APP_PORT}/api/schedule/upcoming) >/dev/null
+          (curl -fsS http://127.0.0.1:${HOST_PORT}/actuator/health || \
+           curl -fsS http://127.0.0.1:${HOST_PORT}/api/schedule/upcoming) >/dev/null
         '''
       }
     }
