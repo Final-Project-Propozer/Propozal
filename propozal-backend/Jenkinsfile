@@ -21,8 +21,7 @@ pipeline {
       steps {
         echo '🔧 Gradle build (skip tests)'
         dir("${BACKEND_DIR}") {
-          sh 'chmod +x ./gradlew || true'
-          sh './gradlew clean bootJar -x test'
+          sh 'gradle clean bootJar -x test'
         }
       }
     }
