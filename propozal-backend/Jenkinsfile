@@ -1,6 +1,13 @@
 pipeline {
   agent any
 
+  options {
+    timeout(time: 30, unit: 'MINUTES')            // 전체 타임아웃
+    disableConcurrentBuilds()                     // 동시 실행 금지
+    durabilityHint('PERFORMANCE_OPTIMIZED')       // 재기동 복구 오버헤드 ↓
+    timestamps()
+  }
+
   environment {
     IMAGE       = 'propozal-backend:latest'
     CONTAINER   = 'propozal-backend'
@@ -20,10 +27,15 @@ pipeline {
     }
 
     stage('Build Jar') {
+      options { timeout(time: 20, unit: 'MINUTES') }   // 스테이지 타임아웃
       steps {
-        echo '🔧 Gradle build (skip tests)'
+        echo '🔧 Gradle build (skip tests, no daemon)'
         dir("${BACKEND_DIR}") {
-          sh "${tool 'gradle-8.10.2'}/bin/gradle clean bootJar -x test"
+          sh """
+            set -euo pipefail
+            ${tool 'gradle-8.10.2'}/bin/gradle --no-daemon --console=plain \\
+              --max-workers=2 clean bootJar -x test
+          """
         }
       }
     }
@@ -54,6 +66,7 @@ pipeline {
     }
 
     stage('Smoke Test') {
+      options { timeout(time: 2, unit: 'MINUTES') }
       steps {
         echo '🩺 Smoke test'
         sh '''
