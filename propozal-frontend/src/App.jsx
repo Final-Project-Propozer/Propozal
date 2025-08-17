@@ -35,14 +35,14 @@ const App = () => {
       {/* 레이아웃이 필요 없는 페이지들 */}
       <Route path="/login" element={<Login />} />
       <Route path="/sales" element={<SalesMainPage />} />
-      <Route path="/estimate/view" element={<EstimateView />} />
+      <Route path="/estimate/:id" element={<EstimateView />} />
       <Route path="/estimate/create" element={<EstimatePage />} /> {/* ✅ 견적서 생성 페이지 */}
       <Route path="/admin/test" element={<AdminTestPage />} />
       <Route path="/schedule/create" element={<ScheduleCreatePage />} />
       <Route path="/schedule/edit" element={<ScheduleEditPage />} />
       <Route path="/schedule/detail" element={<ScheduleDetailPage />} />
       <Route path="/schedule/list" element={<ScheduleListPage />} />
-      <Route path="/product/detail" element={<ProductDetailPage />} />
+      <Route path="/products/:productId" element={<ProductDetailPage />} />
       <Route path="/products" element={<ProductPageLayout />} />
       <Route path="/products/favorites" element={<ProductFavorite />} />
       <Route path="/estimate/list" element={<EstimateListPage />} />

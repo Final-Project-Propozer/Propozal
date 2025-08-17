@@ -1,132 +1,84 @@
-import React, { useState } from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Container, Row, Col, Button } from 'react-bootstrap';
+import axiosInstance from '../../api/axiosInstance';
+
 import SalesNavbar from '../../components/Navbar/SalesNavbar';
 import Footer from '../../components/Footer/Footer';
 import ProductSearchBar from '../../components/Product/ProductSearchBar';
 import CategoryFilterMenu from '../../components/Product/CategoryFilterMenu';
 import ProductList from '../../components/Product/ProductList';
 
-// 예시 제품 데이터
-const allProducts = [
-  {
-    image: '/lion_main.png',
-    name: '멋쟁이 사자 인형',
-    code: 'A12345678',
-    category: '완구',
-    price: 4000,
-  },
-  {
-    image: '/lion_main.png',
-    name: '고속 베어링',
-    code: 'B98765432',
-    category: '기계부품',
-    price: 12000,
-  },
-  {
-      image: '/lion_main.png',
-      name: '고속 베어링',
-      code: 'B98765432',
-      category: '기계부품',
-      price: 12000,
-    },
-  {
-      image: '/lion_main.png',
-      name: '고속 베어링',
-      code: 'B98765432',
-      category: '기계부품',
-      price: 12000,
-    },
-  {
-      image: '/lion_main.png',
-      name: '고속 베어링',
-      code: 'B98765432',
-      category: '기계부품',
-      price: 12000,
-    },
-  {
-      image: '/lion_main.png',
-      name: '고속 베어링',
-      code: 'B98765432',
-      category: '기계부품',
-      price: 12000,
-    },
-  {
-      image: '/lion_main.png',
-      name: '고속 베어링',
-      code: 'B98765432',
-      category: '기계부품',
-      price: 12000,
-    },
-  {
-      image: '/lion_main.png',
-      name: '고속 베어링',
-      code: 'B98765432',
-      category: '기계부품',
-      price: 12000,
-    },
-  {
-      image: '/lion_main.png',
-      name: '고속 베어링',
-      code: 'B98765432',
-      category: '기계부품',
-      price: 12000,
-    },
-  {
-      image: '/lion_main.png',
-      name: '고속 베어링',
-      code: 'B98765432',
-      category: '기계부품',
-      price: 12000,
-    },
-  {
-      image: '/lion_main.png',
-      name: '고속 베어링',
-      code: 'B98765432',
-      category: '기계부품',
-      price: 12000,
-    },
-  {
-      image: '/lion_main.png',
-      name: '고속 베어링',
-      code: 'B98765432',
-      category: '기계부품',
-      price: 12000,
-    },
-  {
-      image: '/lion_main.png',
-      name: '고속 베어링',
-      code: 'B98765432',
-      category: '기계부품',
-      price: 12000,
-    },
-  // 추가 제품들...
-];
-
 const ProductPageLayout = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState({
+    lv1: null,
+    lv2: null,
+    lv3: null
+  });
+  const [allProducts, setAllProducts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
-  // 카테고리 필터 토글
-  const handleCategoryChange = (category) => {
-    setSelectedCategories((prev) =>
-      prev.includes(category)
-        ? prev.filter((c) => c !== category)
-        : [...prev, category]
-    );
+  // ✅ 제품 목록 요청 (검색어 또는 카테고리 조건에 따라)
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const params = {
+        page: currentPage,
+        size: 8
+      };
+
+      if (searchTerm.trim()) {
+        params.keyword = searchTerm;
+      } else {
+        if (selectedCategories.lv1) params.categoryLv1Id = selectedCategories.lv1;
+        if (selectedCategories.lv2) params.categoryLv2Id = selectedCategories.lv2;
+        if (selectedCategories.lv3) params.categoryLv3Id = selectedCategories.lv3;
+      }
+
+      try {
+        const res = await axiosInstance.get('/api/products/search', { params });
+        setAllProducts(res.data.content);
+        setTotalPages(res.data.totalPages);
+      } catch (err) {
+        console.error('제품 목록 불러오기 실패:', err);
+        if (err.response?.status === 401) {
+          alert('로그인이 필요합니다. 다시 로그인해주세요.');
+          window.location.href = '/login';
+        }
+      }
+    };
+
+    fetchProducts();
+  }, [currentPage, searchTerm, selectedCategories]);
+
+  // ✅ 검색어 입력 시 카테고리 초기화
+  const handleSearchChange = (term) => {
+    setSearchTerm(term);
+    setSelectedCategories({ lv1: null, lv2: null, lv3: null });
+    setCurrentPage(0);
   };
 
-  // 필터링된 제품 목록
-  const filteredProducts = allProducts.filter((product) => {
-    const matchesSearch =
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.code.toLowerCase().includes(searchTerm.toLowerCase());
+  // ✅ 카테고리 선택 시 검색어 초기화
+  const handleCategoryChange = (level, value) => {
+    setSelectedCategories((prev) => {
+      const updated = { ...prev, [level]: value };
+      if (level === 'lv1') {
+        updated.lv2 = null;
+        updated.lv3 = null;
+      } else if (level === 'lv2') {
+        updated.lv3 = null;
+      }
+      return updated;
+    });
+    setSearchTerm('');
+    setCurrentPage(0);
+  };
 
-    const matchesCategory =
-      selectedCategories.length === 0 ||
-      selectedCategories.includes(product.category);
-
-    return matchesSearch && matchesCategory;
-  });
+  // ✅ 카테고리 필터 초기화
+  const handleClearFilters = () => {
+    setSelectedCategories({ lv1: null, lv2: null, lv3: null });
+    setCurrentPage(0);
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -139,17 +91,33 @@ const ProductPageLayout = () => {
             <Col xs={12} md={3} className="mb-4">
               <ProductSearchBar
                 searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
+                onSearchChange={handleSearchChange}
               />
               <CategoryFilterMenu
                 selectedCategories={selectedCategories}
                 onCategoryChange={handleCategoryChange}
+                onClearFilters={handleClearFilters}
               />
             </Col>
 
             {/* 오른쪽 제품 목록 */}
             <Col xs={12} md={9}>
-              <ProductList products={filteredProducts} />
+              <ProductList products={allProducts} />
+
+              {/* 페이지네이션 버튼 */}
+              <div className="d-flex justify-content-center mt-4">
+                {[...Array(totalPages)].map((_, idx) => (
+                  <Button
+                    key={idx}
+                    variant={idx === currentPage ? 'primary' : 'outline-secondary'}
+                    size="sm"
+                    className="mx-1"
+                    onClick={() => setCurrentPage(idx)}
+                  >
+                    {idx + 1}
+                  </Button>
+                ))}
+              </div>
             </Col>
           </Row>
         </Container>
