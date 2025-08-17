@@ -27,14 +27,14 @@ pipeline {
     }
 
     stage('Build Jar') {
-      options { timeout(time: 20, unit: 'MINUTES') }   // 스테이지 타임아웃
+      options { timeout(time: 20, unit: 'MINUTES') }
       steps {
         echo '🔧 Gradle build (skip tests, no daemon)'
         dir("${BACKEND_DIR}") {
-          sh """
-            set -euo pipefail
-            ${tool 'gradle-8.10.2'}/bin/gradle --no-daemon --console=plain \\
-              --max-workers=2 clean bootJar -x test
+          sh """#!/usr/bin/env bash
+          set -euo pipefail
+          GRADLE_BIN="${tool 'gradle-8.10.2'}/bin/gradle"
+          "\${GRADLE_BIN}" --no-daemon --console=plain --max-workers=2 clean bootJar -x test
           """
         }
       }
