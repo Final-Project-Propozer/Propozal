@@ -2,9 +2,9 @@ pipeline {
   agent any
 
   options {
-    timeout(time: 30, unit: 'MINUTES')            // 전체 타임아웃
-    disableConcurrentBuilds()                     // 동시 실행 금지
-    durabilityHint('PERFORMANCE_OPTIMIZED')       // 재기동 복구 오버헤드 ↓
+    timeout(time: 30, unit: 'MINUTES')
+    disableConcurrentBuilds()
+    durabilityHint('MAX_SURVIVABILITY')
     timestamps()
   }
 
@@ -16,18 +16,22 @@ pipeline {
     HOST_PORT   = '8081'
   }
 
-  tools { gradle 'gradle-8.10.2' }
+  tools {
+    gradle 'gradle-8.10.2'
+  }
 
   stages {
     stage('Checkout') {
       steps {
+        // 이전 워크스페이스 깔끔히 비우고 시작 (재시작/중단 잔여물 제거)
+        deleteDir()
         echo '📦 Checkout from SCM (job branch setting respected)'
         checkout scm
       }
     }
 
     stage('Build Jar') {
-      options { timeout(time: 20, unit: 'MINUTES') }
+      options { timeout(time: 20, unit: 'MINUTES') }  // 스테이지 타임아웃
       steps {
         echo '🔧 Gradle build (skip tests, no daemon)'
         dir("${BACKEND_DIR}") {
@@ -66,7 +70,7 @@ pipeline {
     }
 
     stage('Smoke Test') {
-      options { timeout(time: 2, unit: 'MINUTES') }
+      options { timeout(time: 5, unit: 'MINUTES') }
       steps {
         echo '🩺 Smoke test'
         sh '''
@@ -78,8 +82,16 @@ pipeline {
   }
 
   post {
-    success { echo '✅ Backend Build & Deployment Success!' }
-    failure { echo '❌ Build Failed' }
-    always  { sh 'docker image prune -f || true' }
+    success {
+      echo '✅ Backend Build & Deployment Success!'
+    }
+    failure {
+      echo '❌ Build Failed'
+    }
+    always {
+      // 도커 이미지 캐시 및 워크스페이스 정리
+      sh 'docker image prune -f || true'
+      cleanWs()
+    }
   }
 }

@@ -1,0 +1,85 @@
+pipeline {
+  agent any
+
+  options {
+    timeout(time: 30, unit: 'MINUTES')
+    disableConcurrentBuilds()
+    durabilityHint('PERFORMANCE_OPTIMIZED')
+    timestamps()
+  }
+
+  environment {
+    IMAGE       = 'propozal-frontend:latest'
+    CONTAINER   = 'propozal-frontend'
+    FRONTEND_DIR = 'propozal-frontend'
+    HOST_PORT   = '3000'
+  }
+
+  tools { nodejs 'node-20' } // Jenkins에 Node.js 20.x 등록 필요
+
+  stages {
+    stage('Checkout') {
+      steps {
+        echo '📦 Checkout from SCM'
+        checkout scm
+      }
+    }
+
+    stage('Install & Build') {
+      steps {
+        dir("${FRONTEND_DIR}") {
+          sh '''
+            #!/usr/bin/env bash
+            set -e
+
+            echo "📥 Installing dependencies"
+            npm ci
+
+            echo "🏗️ Building production bundle"
+            npm run build
+          '''
+        }
+      }
+    }
+
+    stage('Build Docker Image') {
+      steps {
+        echo "🐳 Docker build: ${IMAGE}"
+        sh 'docker build -t $IMAGE $FRONTEND_DIR'
+      }
+    }
+
+    stage('Deploy Container') {
+      steps {
+        echo '🧹 Stop & remove previous container (if any)'
+        sh '''
+          docker stop $CONTAINER || true
+          docker rm $CONTAINER || true
+        '''
+        echo '🚀 Run new container'
+        sh '''
+          docker run -d --name $CONTAINER \
+            --restart unless-stopped \
+            -p 127.0.0.1:${HOST_PORT}:80 \
+            $IMAGE
+        '''
+      }
+    }
+
+    stage('Smoke Test') {
+      options { timeout(time: 2, unit: 'MINUTES') }
+      steps {
+        echo '🩺 Smoke test'
+        sh '''
+          curl -fsS http://127.0.0.1:${HOST_PORT} >/dev/null
+        '''
+      }
+    }
+  }
+
+  post {
+    success { echo '✅ Frontend Build & Deployment Success!' }
+    failure { echo '❌ Build Failed' }
+    always  { sh 'docker image prune -f || true' }
+  }
+}
