@@ -74,6 +74,7 @@ pipeline {
           docker run -d --name $CONTAINER \
             --restart unless-stopped \
             --env-file $ENV_FILE \
+            --add-host=host.docker.internal:host-gateway \
             -p 127.0.0.1:${HOST_PORT}:8080 \
             $IMAGE
         '''
