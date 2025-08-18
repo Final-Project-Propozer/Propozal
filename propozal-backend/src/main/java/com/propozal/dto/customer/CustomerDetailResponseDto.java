@@ -1,6 +1,7 @@
 package com.propozal.dto.customer;
 
 import com.propozal.domain.Customer.CustomerType;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
