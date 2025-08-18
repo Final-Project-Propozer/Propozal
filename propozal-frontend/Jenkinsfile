@@ -1,5 +1,5 @@
 pipeline {
-  agent any
+  agent none
 
   options {
     timeout(time: 30, unit: 'MINUTES')
@@ -10,15 +10,14 @@ pipeline {
 
   environment {
     FRONTEND_DIR = 'propozal-frontend'
-    EC2_IP       = '<EC2_IP>'
+    EC2_IP       = '3.106.5.69'
     REMOTE_TGZ   = '/tmp/propozal-frontend.tgz'
     REMOTE_ROOT  = '/var/www/propozal'
   }
 
-  tools { nodejs 'node-20' }
-
   stages {
     stage('Checkout') {
+      agent any
       steps {
         echo 'Checkout'
         checkout scm
@@ -26,6 +25,12 @@ pipeline {
     }
 
     stage('Install & Build') {
+      agent {
+        docker {
+          image 'node:20-bullseye'
+          args '-u root'
+        }
+      }
       steps {
         dir("${FRONTEND_DIR}") {
           withCredentials([usernamePassword(credentialsId: 'FRONT_ENV', usernameVariable: 'DUMMY', passwordVariable: 'ENV_FILE')]) {
@@ -34,24 +39,15 @@ pipeline {
               echo "$ENV_FILE" > .env
               npm ci
               npm run build
+              tar -C dist -czf build.tgz .
             '''
           }
         }
       }
     }
 
-    stage('Package') {
-      steps {
-        dir("${FRONTEND_DIR}") {
-          sh '''
-            set -e
-            tar -C dist -czf build.tgz .
-          '''
-        }
-      }
-    }
-
     stage('Deploy to EC2') {
+      agent any
       steps {
         sshagent(credentials: ['EC2_SSH_KEY']) {
           sh '''
@@ -70,6 +66,7 @@ pipeline {
     }
 
     stage('Smoke Test') {
+      agent any
       options { timeout(time: 2, unit: 'MINUTES') }
       steps {
         sh '''
