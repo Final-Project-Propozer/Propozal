@@ -27,21 +27,21 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.getCustomers());
     }
 
-    // 고객 상세 조회
+    // 고객 조회 (상세)
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CustomerDetailResponseDto> getCustomer(@PathVariable("id") Long id) {
         return ResponseEntity.ok(customerService.getCustomer(id));
     }
 
-    // 고객 정보 등록
+    // 고객 등록
     @PostMapping("/insert")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CustomerDetailResponseDto> createCustomer(@RequestBody CustomerCreateRequestDto request) {
         return ResponseEntity.ok(customerService.createCustomer(request));
     }
 
-    // 고객 정보 삭제
+    // 고객 삭제
     @DeleteMapping("/{id}/delete")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteCustomer(@PathVariable("id") Long id) {
