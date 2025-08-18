@@ -4,6 +4,9 @@ import axios from "axios";
 import axiosInstance from "../../api/axiosInstance"; // 인증된 요청용
 import "./Login.css";
 
+// 🔹 카카오 인증 URL
+const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=3fdf6a1c367635a4dbc945a816c7a2b1&redirect_uri=http://localhost:5173/kakao/callback&response_type=code`;
+
 export default function LoginPage() {
   const navigate = useNavigate();
 
@@ -14,7 +17,6 @@ export default function LoginPage() {
     e.preventDefault();
 
     try {
-      // 1️⃣ 로그인 요청
       const response = await axios.post("http://localhost:8080/api/auth/login", {
         email,
         password,
@@ -22,49 +24,26 @@ export default function LoginPage() {
 
       const { accessToken, refreshToken } = response.data;
 
-      // 2️⃣ 토큰 저장
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
 
-      // 3️⃣ 사용자 정보 조회
       const userRes = await axiosInstance.get("/api/auth/me");
       const { role, verified, active } = userRes.data;
 
-      // 4️⃣ 승인 여부 및 역할에 따라 분기
       const isVerified = Boolean(verified);
       const isActive = Boolean(active);
 
       if (!isVerified || !isActive) {
-        navigate("/signup/pending"); // 승인 대기 중
+        navigate("/signup/pending");
       } else {
         if (role === "SALESPERSON") {
-          navigate("/sales"); // 영업사원 홈
+          navigate("/sales");
         } else if (role === "ADMIN") {
-          navigate("/admin/test"); // 관리자 테스트 페이지(임시)
+          navigate("/admin/test");
         } else {
           alert("알 수 없는 사용자 권한입니다.");
         }
       }
-
-//     // 3️⃣ 사용자 정보 조회
-//     const userRes = await axiosInstance.get("/api/auth/me");
-//     const { role, active } = userRes.data; // verified 제거
-//
-//     // 4️⃣ 승인 여부 및 역할에 따라 분기
-//     const isActive = Boolean(active);
-//
-//     if (!isActive) {
-//       navigate("/signup/pending"); // 승인 대기 중
-//     } else {
-//       if (role === "SALESPERSON") {
-//         navigate("/sales"); // 영업사원 홈
-//       } else if (role === "ADMIN") {
-//         navigate("/admin/test"); // 관리자 테스트 페이지
-//       } else {
-//         alert("알 수 없는 사용자 권한입니다.");
-//       }
-//     }
-
     } catch (error) {
       console.error("로그인 실패:", error);
       alert("아이디 또는 비밀번호가 틀렸습니다.");
@@ -125,9 +104,11 @@ export default function LoginPage() {
               Sign in with Google
             </button>
 
+            {/* ✅ 카카오 로그인 버튼 (onClick 추가됨) */}
             <button
               className="btn w-100 mb-4"
               style={{ backgroundColor: "#FEE500", color: "#000", border: "none", fontWeight: "400" }}
+              onClick={() => window.location.href = KAKAO_AUTH_URL}
             >
               <img src="/kakao.png" alt="Kakao" style={{ width: "25px", marginRight: "10px", verticalAlign: "middle" }} />
               카카오 로그인

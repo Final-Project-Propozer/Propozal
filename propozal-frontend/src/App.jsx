@@ -23,14 +23,19 @@ import CustomerRegister from './pages/Customer/CustomerRegister';
 import CustomerDetail from './pages/Customer/CustomerDetail';
 import CustomerList from './pages/Customer/CustomerList';
 
+// ✅ 새로 추가
+import KakaoCallback from './pages/KakaoCallback/KakaoCallback';
+
 const App = () => {
   return (
     <Routes>
       {/* 공통 레이아웃이 필요한 페이지들 */}
       <Route path="/" element={<Layout><Home /></Layout>} />
       <Route path="/signup" element={<Layout><Signup /></Layout>} />
-      {/* <Route path="/estimate" element={<Layout><EstimateDetail /></Layout>} /> */}
       <Route path="/password-reset" element={<Layout><PasswordResetForm /></Layout>} />
+
+      {/* ✅ 카카오 로그인 콜백 */}
+      <Route path="/kakao/callback" element={<KakaoCallback />} />
 
       {/* 레이아웃이 필요 없는 페이지들 */}
       <Route path="/login" element={<Login />} />
@@ -50,7 +55,6 @@ const App = () => {
       <Route path="/customer/register" element={<CustomerRegister />} />
       <Route path="/customer/detail" element={<CustomerDetail />} />
       <Route path="/customer/list" element={<CustomerList />} />
-
     </Routes>
   );
 };
