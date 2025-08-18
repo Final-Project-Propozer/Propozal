@@ -81,23 +81,21 @@ pipeline {
     }
 
     stage('Smoke Test') {
-      options { timeout(time: 5, unit: 'MINUTES') }
+      options { timeout(time: 2, unit: 'MINUTES') }
       steps {
-        echo '🩺 Smoke test (wait & retry)'
-        sh """
-          set -e
+        echo '🩺 Smoke test (check liveness)'
+        sh '''
           for i in {1..30}; do
             if curl -fsS http://127.0.0.1:${HOST_PORT}/actuator/health/liveness | grep -q '"status":"UP"'; then
               echo "Liveness is UP ✅"
               exit 0
             fi
-            if ! docker ps --filter "name=${CONTAINER}" --filter "status=running" --format '{{.Names}}' | grep -q "${CONTAINER}"; then
-              echo "Container not running ❌"; docker logs --tail=200 ${CONTAINER} || true; exit 1
-            fi
-            echo "Waiting for app... (\$i/30)"; sleep 5
+            echo "Waiting for liveness... ($i/30)"
+            sleep 5
           done
-          echo "Timed out ❌"; docker logs --tail=200 ${CONTAINER} || true; exit 1
-        """
+          echo "❌ Liveness check failed"
+          exit 1
+        '''
       }
     }
   }
