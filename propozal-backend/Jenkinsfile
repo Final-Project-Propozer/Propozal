@@ -84,19 +84,47 @@ pipeline {
     stage('Smoke Test') {
       options { timeout(time: 2, unit: 'MINUTES') }
       steps {
-        echo '🩺 Smoke test (check liveness)'
-        sh '''
-          for i in {1..30}; do
-            if curl -fsS http://127.0.0.1:${HOST_PORT}/actuator/health/liveness | grep -q '"status":"UP"'; then
-              echo "Liveness is UP ✅"
-              exit 0
+        tool name: 'curl', type: 'org.jenkinsci.plugins.curl.CurlTool' // 있으면, 없으면 자동 curl 사용
+        withEnv(["HOST_PORT=${HOST_PORT ?: '8081'}"]) {
+          echo '🩺 Smoke test (wait for Spring Boot to be ready)'
+
+          sh '''
+            set +e  # 재시도 루프가 실패해도 즉시 종료하지 않게
+            HEALTH_URL="http://127.0.0.1:${HOST_PORT}/actuator/health"
+
+            echo "⏳ Waiting for port ${HOST_PORT} to accept connections..."
+            for i in $(seq 1 40); do
+              (exec 3<>/dev/tcp/127.0.0.1/${HOST_PORT}) 2>/dev/null && { echo "✅ Port open"; break; }
+              echo "  ...port not open yet (${i}/40)"
+              sleep 3
+            done
+
+            echo "🔎 Probing actuator health until UP..."
+            success=0
+            for i in $(seq 1 40); do
+              # 응답 코드와 바디를 분리해서 확보
+              code=$(curl -sS -m 3 -o /tmp/health_body -w "%{http_code}" "$HEALTH_URL")
+              body="$(cat /tmp/health_body || true)"
+
+              # 디버그 출력(줄여서)
+              echo "  try ${i}: http ${code} $(echo "$body" | tr -d "\\n" | cut -c1-120)"
+
+              # 200이면서 "status":"UP" 이면 성공
+              echo "$body" | grep -q '"status"[[:space:]]*:[[:space:]]*"UP"' && [ "$code" = "200" ] && { success=1; break; }
+
+              # 아직 준비 안 됐을 때(503 DOWN/401 Unauthorized 등)는 잠시 대기 후 재시도
+              sleep 3
+            done
+
+            if [ "$success" -ne 1 ]; then
+              echo "❌ Smoke test failed. Dumping last logs..."
+              docker logs --tail 200 propozal-backend || true
+              exit 1
             fi
-            echo "Waiting for liveness... ($i/30)"
-            sleep 5
-          done
-          echo "❌ Liveness check failed"
-          exit 1
-        '''
+
+            echo "✅ Smoke test passed: ${HEALTH_URL} is UP"
+          '''
+        }
       }
     }
   }
