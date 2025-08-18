@@ -1,19 +1,16 @@
 import React from 'react';
 import { Image, Row, Col } from 'react-bootstrap';
 
-const ProductImageSection = () => {
-  const thumbnails = [
-    '/lion_main.png',
-    '/lion_main.png',
-    '/lion_main.png',
-  ];
+const ProductImageSection = ({ product }) => {
+  const mainImage = product.imageUrl || 'https://placehold.co/400x300?text=No+Image';
+  const thumbnails = product.thumbnailUrls || [mainImage]; // 썸네일 없으면 메인 이미지 반복
 
   return (
     <div className="p-3">
       {/* 메인 이미지 */}
       <Image
-        src="/lion_main.png"
-        alt="Main Lion Plush"
+        src={mainImage}
+        alt={`${product.name} 메인 이미지`}
         fluid
         rounded
         className="mb-3 shadow-sm"
@@ -26,7 +23,7 @@ const ProductImageSection = () => {
           <Col xs={3} key={idx} className="px-1">
             <Image
               src={src}
-              alt={`Thumbnail ${idx + 1}`}
+              alt={`썸네일 ${idx + 1}`}
               thumbnail
               style={{ height: '80px', objectFit: 'cover' }}
             />
@@ -38,3 +35,4 @@ const ProductImageSection = () => {
 };
 
 export default ProductImageSection;
+

@@ -1,0 +1,87 @@
+import React, { useState, useEffect } from 'react';
+import AdminNavbar from '../../../components/Navbar/AdminNavbar.jsx';
+import Footer from '../../../components/Footer/Footer.jsx';
+import DashboardChart from '../../../components/Dashboard/DashboardChart.jsx';
+import DashboardQuoteList from '../../../components/Dashboard/DashboardQuoteList.jsx';
+import DashboardDoughnutChart from '../../../components/Dashboard/DashboardDoughnutChart.jsx';
+
+const AdminDashboard = () => {
+  const navbarHeight = '60px'; // 내비게이션 바 / 다른페이지에서는 작동 안함.
+
+  // useState로 현재 접속중인 사용자 ID 불러옴.
+  const [userId, setUserId] = useState('');
+
+  // 백엔드 연동 지점
+  useEffect(() => {
+    // 더미데이터= ID: "admin123"
+    setUserId("admin123"); 
+  }, []);
+
+  return (
+    <div className="d-flex flex-column min-vh-100">
+      {/* 상단 내비게이션 바 */}
+      <AdminNavbar />
+
+      {/* 대시보드 */}
+      <div 
+        className="container flex-grow-1" 
+        style={{ paddingTop: navbarHeight }}
+      >
+        {/* 1번째 행: 제목/관리자ID */}
+        <div className="row mt-4">
+          <div className="col-md-4">
+            <div className="p-3" style={{height: '200px'}}>
+              <h5 className="card-title">관리자 대시보드</h5>
+              <p className="card-text">{userId}님, 환영합니다.</p>
+            </div>
+          </div>
+        {/* 1번째 행: 고객업종 통계 파이차트 */}
+        <div className="col-md-4">
+            <div className="card p-3 bg-light" style={{height: '200px'}}>
+                <h5 className="card-title">업종별 고객 비율</h5>
+                    <DashboardDoughnutChart />
+                </div>
+            </div>
+          {/* 1번째 행: 견적 실적 통계 차트 */}
+          <div className="col-md-4">
+            <div className="card p-3 bg-light" style={{height: '200px'}}>
+              <h5 className="card-title">월별 견적 추이</h5>
+              <DashboardChart />
+            </div>
+          </div>
+        </div>
+
+        {/* 2번째 행: 용도 지정X -> 삭제 또는 차트 or 정보 나열 컴포넌트로 활용 가능. */}
+        <div className="row mt-4">
+          <div className="col-md-8">
+            <div className="card p-3 bg-secondary" style={{height: '180px'}}>
+              <h5 className="card-title">네 번째 카드</h5>
+              <p className="card-text">여기에 내용이 들어갑니다.</p>
+            </div>
+          </div>
+          <div className="col-md-4">
+            <div className="card p-3 bg-secondary" style={{height: '180px'}}>
+              <h5 className="card-title">다섯 번째 카드</h5>
+              <p className="card-text">여기에 내용이 들어갑니다.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* 3번째 행: 견적 목록 */}
+        <div className="row mt-4 mb-4">
+          <div className="col-md-12">
+            <div className="card p-3 bg-light" style={{height: '471px'}}>
+              <h5 className="card-title mb-4">최근 견적</h5>
+              <DashboardQuoteList />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 하단 푸터 */}
+      <Footer />
+    </div>
+  );
+};
+
+export default AdminDashboard;

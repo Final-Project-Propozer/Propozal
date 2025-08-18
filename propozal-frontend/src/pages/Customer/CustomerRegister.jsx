@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom'; // ✅ 추가
+import { useNavigate } from 'react-router-dom';
 import PageLayout from '../../components/Layout/PageLayout';
+import axiosInstance from '../../api/axiosInstance';
 
 const CustomerRegister = () => {
-  const navigate = useNavigate(); // ✅ 추가
+  const navigate = useNavigate();
 
   const [type, setType] = useState('개인');
   const [formData, setFormData] = useState({
@@ -24,6 +25,31 @@ const CustomerRegister = () => {
 
   const handleTypeChange = (e) => {
     setType(e.target.value);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const payload = {
+        customerType: type === '기업' ? 'COMPANY' : 'INDIVIDUAL',
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        ceoName: type === '기업' ? formData.ceo : null,
+        businessAddress: type === '기업' ? formData.address : null,
+        industry: type === '기업' ? formData.businessType : null,
+        businessType: type === '기업' ? formData.businessCategory : null,
+        businessRegistrationNumber: type === '기업' ? formData.registrationNumber : null,
+      };
+
+      const res = await axiosInstance.post('/customer/insert', payload);
+      const newCustomer = res.data;
+
+      alert('등록이 완료되었습니다.'); // ✅ 팝업 알림 추가
+      navigate(`/customer/${newCustomer.id}`); // ✅ 상세 페이지로 이동
+    } catch (err) {
+      console.error('등록 실패:', err);
+      alert('등록 중 오류가 발생했습니다.');
+    }
   };
 
   return (
@@ -173,11 +199,17 @@ const CustomerRegister = () => {
             {/* 버튼 */}
             <Row>
               <Col className="d-flex justify-content-center gap-3">
-                <Button variant="primary" className="rounded-pill px-4">저장</Button>
+                <Button
+                  variant="primary"
+                  className="rounded-pill px-4"
+                  onClick={handleSubmit}
+                >
+                  저장
+                </Button>
                 <Button
                   variant="secondary"
                   className="rounded-pill px-4"
-                  onClick={() => navigate('/customer/list')} // ✅ 수정된 부분
+                  onClick={() => navigate('/customer/list')}
                 >
                   취소
                 </Button>

@@ -16,7 +16,17 @@ const AdminNavbar = () => {
   }, [location]); // location 변경될 때마다 실행됨
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light custom-navbar">
+    <nav 
+      className="navbar navbar-expand-lg navbar-light bg-light custom-navbar"
+      style={{
+        position: 'fixed',
+        top: 0,
+        width: '100%',
+        zIndex: 100,
+        height: '60px' // ✅ 이 부분을 추가했습니다.
+      }}
+      >
+
       <div className="container-fluid">
         {/* 🔰 로고 */}
         <Link className="navbar-brand logo" to="/">

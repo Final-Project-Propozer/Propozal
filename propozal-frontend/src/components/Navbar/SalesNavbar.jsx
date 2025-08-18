@@ -57,7 +57,7 @@ const SalesNavbar = () => {
             </li>
             <li className="nav-item">
               <Link className="btn btn-outline-dark rounded-pill px-3 py-1 login-btn" to="/login">
-                나의 프로필
+                로그아웃
               </Link>
             </li>
           </ul>
