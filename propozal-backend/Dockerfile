@@ -1,11 +1,11 @@
 FROM gradle:8.10.2-jdk21 AS build
 WORKDIR /app
 
-COPY settings.gradle build.gradle gradle.properties gradlew gradle/ ./
+COPY settings.gradle build.gradle gradle.properties ./
 COPY src ./src
 
 RUN --mount=type=cache,target=/root/.gradle \
-    ./gradlew --no-daemon --stacktrace --info clean bootJar -x test
+    gradle --no-daemon --stacktrace --info clean bootJar -x test
 
 FROM eclipse-temurin:21-jre
 WORKDIR /app
