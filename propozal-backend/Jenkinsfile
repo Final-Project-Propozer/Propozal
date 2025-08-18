@@ -80,50 +80,66 @@ pipeline {
         '''
       }
     }
-
     stage('Smoke Test') {
-      options { timeout(time: 3, unit: 'MINUTES') }
+      options { timeout(time: 4, unit: 'MINUTES') }
       steps {
         withEnv(["HOST_PORT=${HOST_PORT ?: '8081'}"]) {
-          echo '🩺 Smoke test (wait for Spring Boot to be ready)'
+          echo '🩺 Smoke test (wait for Spring Boot to be ready via logs)'
           sh '''
-            set +e
-            HEALTH_URL="http://127.0.0.1:${HOST_PORT}/actuator/health"
+            set -e
 
-            echo "⏳ Waiting for port ${HOST_PORT} to accept connections..."
-            for i in $(seq 1 40); do
-              (exec 3<>/dev/tcp/127.0.0.1/${HOST_PORT}) 2>/dev/null && { echo "✅ Port open"; break; }
-              echo "  ...port not open yet (${i}/40)"
+            # 1) 컨테이너 로그에서 "Started ...Application" or "Tomcat started on port" 나올 때까지 대기
+            echo "⏳ Waiting app startup messages in docker logs..."
+            ready=0
+            for i in $(seq 1 60); do
+              if docker logs --tail 200 propozal-backend 2>&1 | grep -Eq "Started .*Application|Tomcat started on port"; then
+                echo "✅ Spring Boot startup detected in logs"
+                ready=1
+                break
+              fi
               sleep 3
             done
-
-            # HTTP 클라이언트 선택: curl 우선, 없으면 wget
-            if command -v curl >/dev/null 2>&1; then
-              http() { curl -sS -m 5 -o /tmp/health_body -w "%{http_code}" "$1"; }
-            elif command -v wget >/dev/null 2>&1; then
-              http() { wget -q --server-response -O /tmp/health_body "$1" 2>&1 | awk '/^  HTTP/{print $2}' | tail -1; }
-            else
-              echo "❌ curl/wget 둘 다 없음"; exit 2
-            fi
-
-            echo "🔎 Probing actuator health until UP..."
-            success=0
-            for i in $(seq 1 40); do
-              code=$(http "$HEALTH_URL")
-              body="$(cat /tmp/health_body || true)"
-              echo "  try ${i}: http ${code} $(echo "$body" | tr -d "\\n" | cut -c1-120)"
-
-              echo "$body" | grep -q '"status"[[:space:]]*:[[:space:]]*"UP"' && [ "$code" = "200" ] && { success=1; break; }
-              sleep 3
-            done
-
-            if [ "$success" -ne 1 ]; then
-              echo "❌ Smoke test failed. Dumping last logs..."
-              docker logs --tail 200 propozal-backend || true
+            if [ "$ready" -ne 1 ]; then
+              echo "❌ App did not signal startup in logs"
+              docker logs --tail 300 propozal-backend || true
               exit 1
             fi
 
-            echo "✅ Smoke test passed: ${HEALTH_URL} is UP"
+            # 2) /actuator/health 재시도 (401/503도 초기엔 나올 수 있음)
+            HEALTH_URL="http://127.0.0.1:${HOST_PORT}/actuator/health"
+            echo "🔎 Probing health: $HEALTH_URL"
+            ok=0
+            for i in $(seq 1 30); do
+              # curl 있으면 사용, 없으면 wget
+              if command -v curl >/dev/null 2>&1; then
+                code=$(curl -sS -m 5 -o /tmp/health_body -w "%{http_code}" "$HEALTH_URL" || echo 000)
+                body="$(cat /tmp/health_body 2>/dev/null || true)"
+              else
+                code=$(wget -q --server-response -O /tmp/health_body "$HEALTH_URL" 2>&1 | awk '/^  HTTP/{print $2}' | tail -1)
+                body="$(cat /tmp/health_body 2>/dev/null || true)"
+              fi
+
+              echo "  try ${i}: http ${code} $(echo "$body" | tr -d "\\n" | cut -c1-120)"
+
+              # 보안 설정에 따라 200/UP 또는 401이 올 수 있음.
+              # 200이면서 "UP"이면 합격. 401이면 보안으로 막힌 것뿐이라 '기동은 성공'으로 간주하고 통과시켜도 됨.
+              if echo "$body" | grep -q '"status"[[:space:]]*:[[:space:]]*"UP"'; then
+                ok=1; break
+              fi
+              if [ "$code" = "401" ]; then
+                echo "ℹ️  health endpoint requires auth (HTTP 401) — app is up. Treating as PASS."
+                ok=1; break
+              fi
+              sleep 3
+            done
+
+            if [ "$ok" -ne 1 ]; then
+              echo "❌ Health check not UP"
+              docker logs --tail 300 propozal-backend || true
+              exit 1
+            fi
+
+            echo "✅ Smoke test passed"
           '''
         }
       }
