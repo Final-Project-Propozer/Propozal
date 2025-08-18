@@ -45,8 +45,19 @@ pipeline {
     stage('Build Docker Image') {
       steps {
         echo "🐳 Docker build: ${IMAGE}"
-        withEnv(['DOCKER_BUILDKIT=0']) {
-          sh 'docker build -t $IMAGE $BACKEND_DIR'
+        withEnv(['DOCKER_BUILDKIT=0']) {   // 지금 환경에선 BuildKit 끄는게 안전
+          sh '''
+            set -e
+            # 1) JAR 존재 확인하고 컨텍스트로 복사
+            ls -l propozal-backend/build/libs || true
+            cp -f propozal-backend/build/libs/*.jar propozal-backend/app.jar
+
+            # 2) 이미지 빌드
+            docker build -t $IMAGE $BACKEND_DIR
+
+            # 3) 청소(선택)
+            rm -f propozal-backend/app.jar || true
+          '''
         }
       }
     }
