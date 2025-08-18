@@ -78,3 +78,18 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   padding: 0.5rem 1.2rem;
 }
 
+.custom-checkbox-style {
+  display: flex;
+  align-items: center;
+}
+
+.custom-checkbox-style input[type="checkbox"] {
+  width: 30px;               /* 크기 조절 */
+  height: 30px;
+  border-radius: 4px;
+  accent-color: #666;        /* 진한 회색 테두리 및 체크 표시 색상 */
+  margin-left: 0;
+  margin-right: 10px;
+  cursor: pointer;
+}
+

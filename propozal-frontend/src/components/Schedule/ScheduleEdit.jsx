@@ -1,49 +1,112 @@
-import React, { useState, forwardRef } from 'react';
+import React, { useState, useEffect, forwardRef } from 'react';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './ScheduleCreate.css';
 import { FaRegCalendarAlt, FaRegClock } from 'react-icons/fa';
+import axiosInstance from '../../api/axiosInstance';
+import { useNavigate, useParams } from 'react-router-dom';
 
-const ScheduleCreate = () => {
+const ScheduleEdit = () => {
+  const navigate = useNavigate();
+  const { scheduleId } = useParams();
+
   const [title, setTitle] = useState('');
   const [date, setDate] = useState(new Date());
   const [time, setTime] = useState(new Date());
   const [content, setContent] = useState('');
   const [customer, setCustomer] = useState('');
   const [notify, setNotify] = useState(false);
+  const [scheduleType, setScheduleType] = useState('MEETING');
 
-  // 📅 커스텀 날짜 입력 필드
   const CustomDateInput = forwardRef(({ value, onClick }, ref) => (
     <div className="custom-input-wrapper" onClick={onClick} ref={ref}>
-      <input
-        type="text"
-        className="form-control"
-        value={value}
-        readOnly
-        placeholder="날짜 선택"
-      />
+      <input type="text" className="form-control" value={value} readOnly placeholder="날짜 선택" />
       <FaRegCalendarAlt className="input-icon" />
     </div>
   ));
 
-  // ⏰ 커스텀 시간 입력 필드 (react-datepicker용)
   const CustomTimeInput = forwardRef(({ value, onClick }, ref) => (
     <div className="custom-input-wrapper" onClick={onClick} ref={ref}>
-      <input
-        type="text"
-        className="form-control"
-        value={value}
-        readOnly
-        placeholder="시간 선택"
-      />
+      <input type="text" className="form-control" value={value} readOnly placeholder="시간 선택" />
       <FaRegClock className="input-icon" />
     </div>
   ));
 
+  // ✅ 기존 일정 불러오기
+  useEffect(() => {
+    const fetchSchedule = async () => {
+      try {
+        const res = await axiosInstance.get(`/schedule/${scheduleId}`);
+        const data = res.data;
+
+        setTitle(data.title || '');
+        setContent(data.description || '');
+        setCustomer(data.customer || '');
+        setNotify(data.notify || false);
+        setScheduleType(data.scheduleType || 'MEETING');
+
+        const start = new Date(data.startDatetime);
+        setDate(start);
+        setTime(start);
+      } catch (err) {
+        console.error('일정 불러오기 실패:', err);
+        alert('일정 정보를 불러오지 못했습니다.');
+        navigate('/schedule');
+      }
+    };
+
+    fetchSchedule();
+  }, [scheduleId, navigate]);
+
+  const handleUpdate = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user || !user.id) {
+        alert('로그인 정보가 없습니다. 다시 로그인해주세요.');
+        return;
+      }
+
+      const startDatetime = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate(),
+        time.getHours(),
+        time.getMinutes()
+      );
+
+      const isoString = startDatetime
+        .toLocaleString('sv-SE')
+        .replace(' ', 'T');
+
+      const payload = {
+        userId: user.id,
+        scheduleType,
+        title,
+        description: content,
+        startDatetime: isoString,
+        endDatetime: isoString,
+        customer,
+        notify,
+      };
+
+      await axiosInstance.put(`/schedule/${scheduleId}`, payload);
+      alert('일정이 수정되었습니다.');
+      navigate(`/schedule/${scheduleId}`);
+    } catch (err) {
+      console.error('수정 실패:', err);
+      alert('일정 수정 중 오류가 발생했습니다.');
+    }
+  };
+
+  const isToday = date.toDateString() === new Date().toDateString();
+  const now = new Date();
+  const minSelectableTime = new Date();
+  minSelectableTime.setHours(now.getHours());
+  minSelectableTime.setMinutes(now.getMinutes());
+
   return (
     <div className="container py-4">
-      {/* 타이틀 */}
       <div className="mb-4">
         <h3 className="fw-bold" style={{ color: '#3a5a40' }}>
           스케줄 수정
@@ -51,12 +114,25 @@ const ScheduleCreate = () => {
       </div>
 
       <Form>
-        {/* 제목 */}
+        {/* 유형, 제목, 날짜, 시간, 내용, 고객사 정보, 알림 여부 → 기존과 동일 */}
+        {/* 생략 없이 그대로 유지 */}
+
         <Form.Group className="mb-3">
           <Row className="align-items-center">
-            <Col xs={2}>
-              <Form.Label className="mb-0">제목</Form.Label>
+            <Col xs={2}><Form.Label className="mb-0">유형</Form.Label></Col>
+            <Col xs={10}>
+              <Form.Select value={scheduleType} onChange={(e) => setScheduleType(e.target.value)}>
+                <option value="MEETING">회의</option>
+                <option value="CALL">할 일</option>
+                <option value="VISIT">이벤트</option>
+              </Form.Select>
             </Col>
+          </Row>
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Row className="align-items-center">
+            <Col xs={2}><Form.Label className="mb-0">제목</Form.Label></Col>
             <Col xs={10}>
               <Form.Control
                 type="text"
@@ -68,12 +144,9 @@ const ScheduleCreate = () => {
           </Row>
         </Form.Group>
 
-        {/* 일자 */}
         <Form.Group className="mb-2">
           <Row className="align-items-center">
-            <Col xs={2}>
-              <Form.Label className="mb-0">일자</Form.Label>
-            </Col>
+            <Col xs={2}><Form.Label className="mb-0">일자</Form.Label></Col>
             <Col xs={10}>
               <div style={{ maxWidth: '200px' }}>
                 <DatePicker
@@ -81,18 +154,16 @@ const ScheduleCreate = () => {
                   onChange={(date) => setDate(date)}
                   dateFormat="yyyy/MM/dd"
                   customInput={<CustomDateInput />}
+                  minDate={new Date()}
                 />
               </div>
             </Col>
           </Row>
         </Form.Group>
 
-        {/* 시간 */}
         <Form.Group className="mb-3">
           <Row className="align-items-center">
-            <Col xs={2}>
-              <Form.Label className="mb-0">시간</Form.Label>
-            </Col>
+            <Col xs={2}><Form.Label className="mb-0">시간</Form.Label></Col>
             <Col xs={10}>
               <div style={{ maxWidth: '200px' }}>
                 <DatePicker
@@ -104,18 +175,17 @@ const ScheduleCreate = () => {
                   timeCaption="시간"
                   dateFormat="h:mm aa"
                   customInput={<CustomTimeInput />}
+                  minTime={isToday ? minSelectableTime : new Date(0, 0, 0, 0, 0)}
+                  maxTime={new Date(0, 0, 0, 23, 59)}
                 />
               </div>
             </Col>
           </Row>
         </Form.Group>
 
-        {/* 내용 */}
         <Form.Group className="mb-3">
           <Row className="align-items-start">
-            <Col xs={2}>
-              <Form.Label className="mb-0">내용</Form.Label>
-            </Col>
+            <Col xs={2}><Form.Label className="mb-0">내용</Form.Label></Col>
             <Col xs={10}>
               <Form.Control
                 as="textarea"
@@ -128,12 +198,9 @@ const ScheduleCreate = () => {
           </Row>
         </Form.Group>
 
-        {/* 고객사 정보 */}
         <Form.Group className="mb-3">
           <Row className="align-items-center">
-            <Col xs={2}>
-              <Form.Label className="mb-0">고객사 정보</Form.Label>
-            </Col>
+            <Col xs={2}><Form.Label className="mb-0">고객사 정보</Form.Label></Col>
             <Col xs={10}>
               <Form.Control
                 type="text"
@@ -145,28 +212,24 @@ const ScheduleCreate = () => {
           </Row>
         </Form.Group>
 
-        {/* 알림 여부 */}
         <Form.Group className="mb-2">
           <Row className="align-items-center">
-            <Col xs={2}>
-              <Form.Label className="mb-0">알림 여부</Form.Label>
-            </Col>
+            <Col xs={2}><Form.Label className="mb-0">알림 여부</Form.Label></Col>
             <Col xs={10}>
-              <Form.Check
-                type="checkbox"
-                label=""
-                checked={notify}
-                onChange={(e) => setNotify(e.target.checked)}
-                className="custom-checkbox"
-              />
+              <label className="custom-checkbox-style">
+                <input
+                  type="checkbox"
+                  checked={notify}
+                  onChange={(e) => setNotify(e.target.checked)}
+                />
+                <span> </span>
+              </label>
             </Col>
           </Row>
         </Form.Group>
 
-        {/* 체크박스와 버튼 사이 여백 */}
         <div className="mb-3" />
 
-        {/* 하단 버튼 */}
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
           <Button
             className="submit-btn rounded-pill fw-semibold"
@@ -174,15 +237,15 @@ const ScheduleCreate = () => {
               fontSize: '1.0rem',
               padding: '0.5rem 1.2rem',
               border: '2px solid #3a5a40',
-            }}
-          >
-            + 일정 수정
-          </Button>
-        </div>
+                          }}
+                          onClick={handleUpdate}
+                        >
+                          ✓ 일정 수정
+                        </Button>
+                      </div>
+                    </Form>
+                  </div>
+                );
+              };
 
-      </Form>
-    </div>
-  );
-};
-
-export default ScheduleCreate;
+              export default ScheduleEdit;

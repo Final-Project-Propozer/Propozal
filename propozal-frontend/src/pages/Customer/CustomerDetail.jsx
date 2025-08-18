@@ -1,23 +1,53 @@
-import React from 'react';
-import { Container, Row, Col, Card, Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom'; // ✅ 추가
+import React, { useEffect, useState } from 'react';
+import { Container, Row, Col, Card, Button, Spinner } from 'react-bootstrap';
+import { useNavigate, useParams } from 'react-router-dom';
 import PageLayout from '../../components/Layout/PageLayout';
+import axiosInstance from '../../api/axiosInstance';
 
 const CustomerDetail = () => {
-  const navigate = useNavigate(); // ✅ 추가
+  const navigate = useNavigate();
+  const { id } = useParams(); // ✅ URL에서 고객 ID 추출
+  const [customer, setCustomer] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // 더미 데이터 (개인 or 기업)
-  const customer = {
-    type: '기업',
-    name: 'B회사',
-    phone: '031-222-2222',
-    email: 'test001@naver.com',
-    ceo: '홍길동',
-    address: '경기도 성남시 분당구',
-    businessType: 'IT 서비스',
-    businessCategory: '정보통신업',
-    registrationNumber: '123-45-67890',
-  };
+  useEffect(() => {
+    const fetchCustomer = async () => {
+      try {
+        const res = await axiosInstance.get(`/customer/${id}`);
+        setCustomer(res.data);
+      } catch (err) {
+        console.error('고객 정보 조회 실패:', err);
+        alert('고객 정보를 불러오는 데 실패했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCustomer();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <PageLayout>
+        <Container className="text-center py-5">
+          <Spinner animation="border" variant="primary" />
+          <p className="mt-3">고객 정보를 불러오는 중입니다...</p>
+        </Container>
+      </PageLayout>
+    );
+  }
+
+  if (!customer) {
+    return (
+      <PageLayout>
+        <Container className="text-center py-5">
+          <p>고객 정보를 찾을 수 없습니다.</p>
+          <Button variant="secondary" onClick={() => navigate('/customer/list')}>
+            목록으로
+          </Button>
+        </Container>
+      </PageLayout>
+    );
+  }
 
   return (
     <PageLayout>
@@ -37,7 +67,7 @@ const CustomerDetail = () => {
               <Card.Body>
                 <Row className="mb-3 mt-3">
                   <Col xs={4} className="fw-semibold">고객 유형</Col>
-                  <Col>{customer.type}</Col>
+                  <Col>{customer.customerType === 'COMPANY' ? '기업' : '개인'}</Col>
                 </Row>
                 <Row className="mb-3">
                   <Col xs={4} className="fw-semibold">이름</Col>
@@ -53,27 +83,27 @@ const CustomerDetail = () => {
                 </Row>
 
                 {/* 기업 전용 필드 */}
-                {customer.type === '기업' && (
+                {customer.customerType === 'COMPANY' && (
                   <>
                     <Row className="mb-3">
                       <Col xs={4} className="fw-semibold">대표자명</Col>
-                      <Col>{customer.ceo}</Col>
+                      <Col>{customer.ceoName}</Col>
                     </Row>
                     <Row className="mb-3">
                       <Col xs={4} className="fw-semibold">주소</Col>
-                      <Col>{customer.address}</Col>
+                      <Col>{customer.businessAddress}</Col>
                     </Row>
                     <Row className="mb-3">
                       <Col xs={4} className="fw-semibold">업종</Col>
-                      <Col>{customer.businessType}</Col>
+                      <Col>{customer.industry}</Col>
                     </Row>
                     <Row className="mb-3">
                       <Col xs={4} className="fw-semibold">업태</Col>
-                      <Col>{customer.businessCategory}</Col>
+                      <Col>{customer.businessType}</Col>
                     </Row>
                     <Row className="mb-3">
                       <Col xs={4} className="fw-semibold">사업자 등록번호</Col>
-                      <Col>{customer.registrationNumber}</Col>
+                      <Col>{customer.businessRegistrationNumber}</Col>
                     </Row>
                   </>
                 )}
@@ -83,11 +113,12 @@ const CustomerDetail = () => {
             {/* 버튼 */}
             <Row>
               <Col className="d-flex justify-content-center gap-3">
-                <Button variant="primary" className="rounded-pill px-4">[임시]수정</Button>
+{/*                 <Button variant="primary" className="rounded-pill px-4">[임시]수정</Button> */}
+{/*                  */}
                 <Button
-                  variant="secondary"
+                  variant="success"
                   className="rounded-pill px-4"
-                  onClick={() => navigate('/customer/list')} // ✅ 수정된 부분
+                  onClick={() => navigate('/customer/list')}
                 >
                   목록으로
                 </Button>

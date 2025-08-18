@@ -1,0 +1,19 @@
+.summary-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.summary-table th {
+  width: 140px; /* 빨간선 기준으로 고정 */
+  word-break: keep-all;
+}
+
+.summary-table td {
+  width: auto;
+}
+
+@media (max-width: 576px) {
+  .summary-table th {
+    width: 120px; /* 모바일에서 조금 더 좁게 */
+  }
+}
