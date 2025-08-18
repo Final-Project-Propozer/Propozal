@@ -28,43 +28,26 @@ export default function LoginPage() {
 
       // 3️⃣ 사용자 정보 조회
       const userRes = await axiosInstance.get("/api/auth/me");
-      const { role, verified, active } = userRes.data;
+      const user = userRes.data;
+
+      // ✅ 사용자 정보 저장
+      localStorage.setItem("user", JSON.stringify(user));
 
       // 4️⃣ 승인 여부 및 역할에 따라 분기
-      const isVerified = Boolean(verified);
-      const isActive = Boolean(active);
+      const isVerified = Boolean(user.verified);
+      const isActive = Boolean(user.active);
 
       if (!isVerified || !isActive) {
         navigate("/signup/pending"); // 승인 대기 중
       } else {
-        if (role === "SALESPERSON") {
+        if (user.role === "SALESPERSON") {
           navigate("/sales"); // 영업사원 홈
-        } else if (role === "ADMIN") {
+        } else if (user.role === "ADMIN") {
           navigate("/admin/test"); // 관리자 테스트 페이지(임시)
         } else {
           alert("알 수 없는 사용자 권한입니다.");
         }
       }
-
-//     // 3️⃣ 사용자 정보 조회
-//     const userRes = await axiosInstance.get("/api/auth/me");
-//     const { role, active } = userRes.data; // verified 제거
-//
-//     // 4️⃣ 승인 여부 및 역할에 따라 분기
-//     const isActive = Boolean(active);
-//
-//     if (!isActive) {
-//       navigate("/signup/pending"); // 승인 대기 중
-//     } else {
-//       if (role === "SALESPERSON") {
-//         navigate("/sales"); // 영업사원 홈
-//       } else if (role === "ADMIN") {
-//         navigate("/admin/test"); // 관리자 테스트 페이지
-//       } else {
-//         alert("알 수 없는 사용자 권한입니다.");
-//       }
-//     }
-
     } catch (error) {
       console.error("로그인 실패:", error);
       alert("아이디 또는 비밀번호가 틀렸습니다.");
@@ -138,8 +121,8 @@ export default function LoginPage() {
                 계정이 없으신가요? <span style={{ fontWeight: 600 }}>회원가입</span>
               </button>
 
-              <button type="button" className="btn btn-link p-0 link-text" onClick={() => navigate("/forgot-password")}>
-                아이디 찾기 / 비밀번호 찾기
+              <button type="button" className="btn btn-link p-0 link-text" onClick={() => navigate("/password-reset")}>
+                비밀번호 재설정
               </button>
             </div>
           </form>

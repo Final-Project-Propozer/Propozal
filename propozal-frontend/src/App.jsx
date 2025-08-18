@@ -6,8 +6,8 @@ import Home from './pages/Home/Home';
 import Login from './pages/Login/Login';
 import Signup from './pages/Signup/Signup';
 import SalesMainPage from './pages/SalesMainPage/SalesMainPage';
-import EstimateView from './pages/EstimateView/EstimateView'; // ✅ 견적서 조회 페이지
-import EstimatePage from './pages/EstimateCreate/EstimatePage'; // ✅ 견적서 생성 페이지 추가
+// import EstimateView from './pages/EstimateView/EstimateView'; // ✅ 견적서 조회 페이지
+// import EstimatePage from './pages/EstimateCreate/EstimatePage'; // ✅ 견적서 생성 페이지 추가
 import AdminTestPage from "./pages/AdminTestPage";
 import PasswordResetForm from './components/PasswordResetForm/PasswordResetForm';
 import ScheduleCreatePage from './pages/Schedule/ScheduleCreatePage';
@@ -22,6 +22,13 @@ import ApprovalPendingPage from './pages/Signup/ApprovalPendingPage';
 import CustomerRegister from './pages/Customer/CustomerRegister';
 import CustomerDetail from './pages/Customer/CustomerDetail';
 import CustomerList from './pages/Customer/CustomerList';
+import EstimatePageCreation from './pages/EstimateCreate/EstimatePageCreation';
+import EstimateDetailPage from './pages/EstimateView/EstimateDetailPage';
+import ScheduleEdit from './components/Schedule/ScheduleEdit';
+import EstimateEditPage from './pages/Estimate/EstimateEditPage';
+import EstimateVersionListPage from './pages/EstimateVersion/EstimateVersionListPage';
+import EstimateVersionDetailPage from './pages/EstimateVersion/EstimateVersionDetailPage';
+import EstimateCompletedListPage from './pages/EstimateView/EstimateCompletedListPage';
 
 const App = () => {
   return (
@@ -35,12 +42,12 @@ const App = () => {
       {/* 레이아웃이 필요 없는 페이지들 */}
       <Route path="/login" element={<Login />} />
       <Route path="/sales" element={<SalesMainPage />} />
-      <Route path="/estimate/:id" element={<EstimateView />} />
-      <Route path="/estimate/create" element={<EstimatePage />} /> {/* ✅ 견적서 생성 페이지 */}
+{/*       <Route path="/estimate/:id" element={<EstimateView />} /> */}
+{/*       <Route path="/estimate/create" element={<EstimatePage />} />  */}{/* ✅ 견적서 생성 페이지 */}
       <Route path="/admin/test" element={<AdminTestPage />} />
       <Route path="/schedule/create" element={<ScheduleCreatePage />} />
       <Route path="/schedule/edit" element={<ScheduleEditPage />} />
-      <Route path="/schedule/detail" element={<ScheduleDetailPage />} />
+      <Route path="/schedule/:id" element={<ScheduleDetailPage />} />
       <Route path="/schedule/list" element={<ScheduleListPage />} />
       <Route path="/products/:productId" element={<ProductDetailPage />} />
       <Route path="/products" element={<ProductPageLayout />} />
@@ -48,8 +55,15 @@ const App = () => {
       <Route path="/estimate/list" element={<EstimateListPage />} />
       <Route path="/signup/pending" element={<ApprovalPendingPage />} />
       <Route path="/customer/register" element={<CustomerRegister />} />
-      <Route path="/customer/detail" element={<CustomerDetail />} />
+      <Route path="/customer/:id" element={<CustomerDetail />} />
       <Route path="/customer/list" element={<CustomerList />} />
+      <Route path="/estimate" element={<EstimatePageCreation />} />
+      <Route path="/estimate/:id" element={<EstimateDetailPage />} /> */}
+      <Route path="/schedule/:scheduleId/edit" element={<ScheduleEdit />} />
+      <Route path="/estimate/:id/edit" element={<EstimateEditPage />} />
+      <Route path="/estimate/:estimateId/versions" element={<EstimateVersionListPage />} />
+      <Route path="/estimate-version/:versionId" element={<EstimateVersionDetailPage />} />
+      <Route path="/estimate/completedlist" element={<EstimateCompletedListPage />} />
 
     </Routes>
   );
