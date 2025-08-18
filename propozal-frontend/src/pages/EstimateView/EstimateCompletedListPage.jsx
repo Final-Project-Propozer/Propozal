@@ -13,7 +13,7 @@ import Footer from '../../components/Footer/Footer';
 import axiosInstance from '../../api/axiosInstance';
 import { Link } from 'react-router-dom';
 
-const EstimateListPage = () => {
+const CompletedEstimateListPage = () => {
   const [estimates, setEstimates] = useState([]);
   const [filteredEstimates, setFilteredEstimates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,20 +21,23 @@ const EstimateListPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   // 검색 관련 상태
-  const [searchType, setSearchType] = useState('company'); // 'company' or 'id'
+  const [searchType, setSearchType] = useState('company');
   const [searchKeyword, setSearchKeyword] = useState('');
+
+  // 거래 상태 필터
+  const [dealStatusFilter, setDealStatusFilter] = useState('all');
 
   const itemsPerPage = 15;
 
   useEffect(() => {
     const fetchEstimates = async () => {
       try {
-        const res = await axiosInstance.get('/api/estimate/drafts');
+        const res = await axiosInstance.get('/api/estimate/completed');
         const data = res.data || [];
         setEstimates(data);
         setFilteredEstimates(data);
       } catch (err) {
-        setError('견적서 목록을 불러오는 데 실패했습니다.');
+        setError('완성된 견적서 목록을 불러오는 데 실패했습니다.');
       } finally {
         setLoading(false);
       }
@@ -45,12 +48,10 @@ const EstimateListPage = () => {
 
   const renderDealStatus = (status) => {
     switch (status) {
-      case 0:
-        return <Badge bg="secondary">임시저장</Badge>;
       case 1:
         return <Badge bg="primary">발송 완료</Badge>;
       case 2:
-        return <Badge bg="success">계약 완료</Badge>;
+        return <Badge bg="success">승인</Badge>;
       case 3:
         return <Badge bg="danger">거절</Badge>;
       default:
@@ -58,7 +59,7 @@ const EstimateListPage = () => {
     }
   };
 
-  // 검색 필터링
+  // 검색 + 거래 상태 필터링
   useEffect(() => {
     let filtered = [...estimates];
 
@@ -74,9 +75,18 @@ const EstimateListPage = () => {
       }
     }
 
+    if (dealStatusFilter !== 'all') {
+      const statusMap = {
+        sent: 1,
+        approved: 2,
+        rejected: 3
+      };
+      filtered = filtered.filter(e => e.dealStatus === statusMap[dealStatusFilter]);
+    }
+
     setFilteredEstimates(filtered);
     setCurrentPage(1);
-  }, [searchKeyword, searchType, estimates]);
+  }, [searchKeyword, searchType, dealStatusFilter, estimates]);
 
   const totalPages = Math.ceil(filteredEstimates.length / itemsPerPage);
   const paginatedEstimates = filteredEstimates.slice(
@@ -89,20 +99,16 @@ const EstimateListPage = () => {
       <SalesNavbar />
 
       <main style={{ flex: 1 }}>
-        <Container className="py-4" style={{ marginTop: '30px' }}>
+        <Container className="py-4" style={{ marginTop: '70px' }}>
           <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-            <h2 className="mb-0 fw-bold">📄 임시 저장된 견적서 목록</h2>
+            <h2 className="mb-0 fw-bold"> 완성된 견적서 목록 조회</h2>
 
             <div className="d-flex align-items-center gap-2 flex-wrap">
               {/* 검색 기준 드롭다운 */}
               <Form.Select
                 value={searchType}
                 onChange={(e) => setSearchType(e.target.value)}
-                style={{
-                  height: '38px',
-                  width: '100px',
-                  fontSize: '0.9rem'
-                }}
+                style={{ height: '38px', width: '100px', fontSize: '0.9rem' }}
               >
                 <option value="company">회사명</option>
                 <option value="id">#</option>
@@ -116,21 +122,20 @@ const EstimateListPage = () => {
                 }
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
-                style={{
-                  height: '38px',
-                  width: '160px',
-                  fontSize: '0.9rem'
-                }}
+                style={{ height: '38px', width: '160px', fontSize: '0.9rem' }}
               />
 
-              {/* 견적서 추가 버튼 */}
-              <Link
-                to="/estimate"
-                className="btn btn-success btn-pill"
-                style={{ marginLeft: '32px' }} // 👈 탭 간격 추가
+              {/* 거래 상태 필터 */}
+              <Form.Select
+                value={dealStatusFilter}
+                onChange={(e) => setDealStatusFilter(e.target.value)}
+                style={{ height: '38px', width: '140px', fontSize: '0.9rem' }}
               >
-                + 새 견적서
-              </Link>
+                <option value="all">전체 상태</option>
+                <option value="sent">발송 완료</option>
+                <option value="approved">승인</option>
+                <option value="rejected">거절</option>
+              </Form.Select>
             </div>
           </div>
 
@@ -195,4 +200,4 @@ const EstimateListPage = () => {
   );
 };
 
-export default EstimateListPage;
+export default CompletedEstimateListPage;
