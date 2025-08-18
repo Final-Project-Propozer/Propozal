@@ -1,0 +1,48 @@
+/* 전체 래퍼: 위치 조정 */
+.timer-wrapper {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
+}
+
+/* 회전하는 원형 테두리 */
+.timer-circle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 12px solid #e0e0e0;
+  border-top: 12px solid #28a745;
+  animation: spin 4s linear infinite;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+  background-color: #fdfdfd;
+}
+
+/* 가운데 고정된 모래시계 이모티콘 */
+.timer-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3.75rem;
+  color: #555;
+  z-index: 1;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.hover-light:hover {
+  background-color: #DAD7CD !important;
+  color: #000 !important;
+  border: 1px solid #000 !important;
+}

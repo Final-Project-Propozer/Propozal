@@ -33,11 +33,14 @@ public class UserService {
 
     @Transactional
     public void signup(String email, String password, String name, User.Role role) {
-        if (userRepository.existsByEmail(email)) {
+        String normalizedEmail = email.trim().toLowerCase();
+
+        if (userRepository.existsByEmail(normalizedEmail)) {
             throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
         }
+
         User user = User.builder()
-                .email(email)
+                .email(normalizedEmail)
                 .password(passwordEncoder.encode(password))
                 .name(name)
                 .role(role)
@@ -46,6 +49,7 @@ public class UserService {
                 .isVerified(false)
                 .build();
         userRepository.save(user);
+
         sendVerificationEmail(user.getId(), user.getEmail());
     }
 

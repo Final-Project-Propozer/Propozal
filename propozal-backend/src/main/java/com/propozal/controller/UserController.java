@@ -4,9 +4,12 @@ import com.propozal.domain.User;
 import com.propozal.dto.user.LoginRequest;
 import com.propozal.dto.user.LoginResponse;
 import com.propozal.dto.user.SignupRequest;
+import com.propozal.dto.user.UserInfoResponse;
+import com.propozal.jwt.CustomUserDetails;
 import com.propozal.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,25 +44,6 @@ public class UserController {
         return ResponseEntity.ok(userService.socialLogin(provider, authCode));
     }
 
-    @PostMapping("/password-reset/request")
-    public ResponseEntity<?> requestPasswordReset(@RequestParam String email) {
-        userService.requestPasswordReset(email);
-        return ResponseEntity.ok().body("{\"message\": \"비밀번호 재설정 메일 발송\"}");
-    }
-
-    @GetMapping("/password-reset/verify")
-    public ResponseEntity<?> verifyPasswordResetToken(@RequestParam String token) {
-        userService.verifyPasswordResetToken(token);
-        return ResponseEntity.ok().body("{\"message\": \"토큰 검증 완료\"}");
-    }
-
-    @PostMapping("/password-reset/confirm")
-    public ResponseEntity<?> resetPassword(@RequestParam String token,
-                                           @RequestParam String newPassword) {
-        userService.resetPassword(token, newPassword);
-        return ResponseEntity.ok().body("{\"message\": \"비밀번호 변경 완료\"}");
-    }
-
     @GetMapping("/pending-approvals")
     public ResponseEntity<List<User>> getPendingApprovals() {
         return ResponseEntity.ok(userService.getPendingApprovals());
@@ -83,4 +67,17 @@ public class UserController {
         userService.verifyEmail(token);
         return ResponseEntity.ok("{\"message\": \"이메일 인증 완료\"}");
     }
+
+    // 로그인 시 추가한 코드
+    @GetMapping("/me")
+    public ResponseEntity<?> getMyPage(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).body("{\"message\": \"로그인이 필요합니다.\"}");
+        }
+
+        UserInfoResponse response = UserInfoResponse.from(userDetails.getUser());
+
+        return ResponseEntity.ok(response);
+    }
+
 }
