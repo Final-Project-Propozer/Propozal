@@ -55,6 +55,8 @@ dependencies {
 	implementation "org.springframework.boot:spring-boot-devtools:3.5.3"
 
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate6'
+
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 }
 
 tasks.named('test') {

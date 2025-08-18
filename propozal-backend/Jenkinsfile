@@ -45,7 +45,7 @@ pipeline {
     stage('Build Docker Image') {
       steps {
         echo "🐳 Docker build: ${IMAGE}"
-        withEnv(['DOCKER_BUILDKIT=0']) {   // 지금 환경에선 BuildKit 끄는게 안전
+        withEnv(['DOCKER_BUILDKIT=0']) {
           sh '''
             set -e
             # 1) JAR 존재 확인하고 컨텍스트로 복사
@@ -81,13 +81,23 @@ pipeline {
     }
 
     stage('Smoke Test') {
-      options { timeout(time: 2, unit: 'MINUTES') }
+      options { timeout(time: 5, unit: 'MINUTES') }
       steps {
-        echo '🩺 Smoke test'
-        sh '''
-          (curl -fsS http://127.0.0.1:${HOST_PORT}/actuator/health || \
-           curl -fsS http://127.0.0.1:${HOST_PORT}/api/schedule/upcoming) >/dev/null
-        '''
+        echo '🩺 Smoke test (wait & retry)'
+        sh """
+          set -e
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:${HOST_PORT}/actuator/health/liveness | grep -q '"status":"UP"'; then
+              echo "Liveness is UP ✅"
+              exit 0
+            fi
+            if ! docker ps --filter "name=${CONTAINER}" --filter "status=running" --format '{{.Names}}' | grep -q "${CONTAINER}"; then
+              echo "Container not running ❌"; docker logs --tail=200 ${CONTAINER} || true; exit 1
+            fi
+            echo "Waiting for app... (\$i/30)"; sleep 5
+          done
+          echo "Timed out ❌"; docker logs --tail=200 ${CONTAINER} || true; exit 1
+        """
       }
     }
   }
