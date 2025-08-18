@@ -33,22 +33,11 @@ pipeline {
         echo '🔧 Gradle build (skip tests, cached, heartbeat)'
         dir("${BACKEND_DIR}") {
           sh '''#!/usr/bin/env bash
-set -euo pipefail
-
-GRADLE_BIN="$(tool 'gradle-8.10.2')/bin/gradle"
-export GRADLE_OPTS="${GRADLE_OPTS:-} -Xmx2g -Dfile.encoding=UTF-8 \
- -Dorg.gradle.caching=true -Dorg.gradle.configuration-cache=true \
- -Dorg.gradle.workers.max=2"
-
-( while true; do echo "[$(date +%T)] ⏳ still building…"; sleep 30; done ) &
-HB=$!; trap 'kill $HB 2>/dev/null || true' EXIT
-
-"$GRADLE_BIN" --no-daemon --console=plain --build-cache --max-workers=2 \
-  -Dorg.gradle.configuration-cache.problems=warn \
-  bootJar -x test
-
-kill $HB 2>/dev/null || true
-'''
+          set -euo pipefail
+          gradle --no-daemon --console=plain --build-cache --max-workers=2 \
+                -Dorg.gradle.logging.stacktrace=all \
+                clean bootJar -x test
+          '''
         }
       }
     }
@@ -95,12 +84,10 @@ kill $HB 2>/dev/null || true
       echo '❌ Build Failed — generating Gradle profile report for diagnosis'
       dir("${BACKEND_DIR}") {
         sh '''#!/usr/bin/env bash
-set -euo pipefail
-GRADLE_BIN="$(tool 'gradle-8.10.2')/bin/gradle"
-"$GRADLE_BIN" --no-daemon --console=plain --profile bootJar -x test || true
-'''
+        set -euo pipefail
+        gradle --no-daemon --console=plain help --scan || true
+        '''
       }
-      archiveArtifacts artifacts: 'propozal-backend/build/reports/profile/*.html', onlyIfSuccessful: false
     }
     success { echo '✅ Backend Build & Deployment Success!' }
     always  { sh 'docker image prune -f || true' }
