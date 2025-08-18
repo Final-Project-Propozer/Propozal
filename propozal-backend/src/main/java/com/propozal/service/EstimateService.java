@@ -11,11 +11,11 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.propozal.dto.estimate.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.propozal.domain.Company;
 import com.propozal.domain.EmployeeProfile;
@@ -25,15 +25,7 @@ import com.propozal.domain.EstimateItem;
 import com.propozal.domain.EstimateVersion;
 import com.propozal.domain.Product;
 import com.propozal.domain.User;
-import com.propozal.dto.detail.EstimateDetailDto;
 import com.propozal.dto.email.EstimateSendRequest;
-import com.propozal.dto.estimate.AmountSummaryDto;
-import com.propozal.dto.estimate.EstimateCustomerUpdateRequest;
-import com.propozal.dto.estimate.EstimateItemAddRequest;
-import com.propozal.dto.estimate.EstimateItemUpdateRequest;
-import com.propozal.dto.estimate.EstimateSimpleResponse;
-import com.propozal.dto.estimate.EstimateVersionData;
-import com.propozal.dto.estimate.EstimateVersionResponse;
 import com.propozal.repository.CompanyRepository;
 import com.propozal.repository.EmployeeProfileRepository;
 import com.propozal.repository.EstimateConfirmationTokenRepository;
@@ -169,28 +161,17 @@ public class EstimateService {
 
                 Estimate estimate = version.getEstimate();
 
+                // ✅ HEAD의 복잡한 로직을 모두 버리고 새 버전의 로직을 채택
                 try {
-                        Map<String, Object> templateModel;
-
-                        try {
-                                EstimateVersionData versionData = objectMapper.readValue(version.getEstimateData(),
-                                                EstimateVersionData.class);
-
-                                if (versionData.getItems() == null) {
-                                        throw new RuntimeException("Items null - fallback to current data");
-                                }
-
-                                templateModel = prepareVersionTemplateModel(versionData, estimate);
-
-                        } catch (Exception e) {
-                                templateModel = dataPreparationService.prepareTemplateData(estimate.getId());
-                        }
-
+                        // PDF 생성 및 업로드, URL 생성
+                        Map<String, Object> templateModel = dataPreparationService
+                                        .prepareTemplateData(estimate.getId());
                         byte[] pdfBytes = pdfService.generateEstimatePdf(templateModel);
                         String s3Key = "estimates/estimate-" + estimate.getId() + "-v" + version.getId() + ".pdf";
                         s3Service.uploadPdf(s3Key, pdfBytes);
                         String downloadUrl = s3Service.generatePresignedUrl(s3Key);
 
+                        // 승인/거절 토큰 및 URL 생성
                         String approveToken = this.createConfirmationToken(estimate,
                                         EstimateConfirmationToken.ActionType.ACCEPT);
                         String rejectToken = this.createConfirmationToken(estimate,
@@ -198,22 +179,26 @@ public class EstimateService {
                         String approveUrl = appBaseUrl + "/estimate/response?token=" + approveToken;
                         String rejectUrl = appBaseUrl + "/estimate/response?token=" + rejectToken;
 
+                        // 최종적으로 이메일 템플릿에 필요한 모든 데이터 추가
                         templateModel.put("downloadUrl", downloadUrl);
                         templateModel.put("approveUrl", approveUrl);
                         templateModel.put("rejectUrl", rejectUrl);
 
+                        // 수신자 이메일 주소 확인
                         String recipientEmail = (request != null && request.getRecipientEmail() != null)
                                         ? request.getRecipientEmail()
                                         : estimate.getCustomerEmail();
-
                         if (recipientEmail == null || recipientEmail.isBlank()) {
                                 throw new IllegalArgumentException("수신자 이메일 주소가 없습니다.");
                         }
 
+                        // 이메일 발송
                         String subject = "[PropoZal] " + estimate.getCustomerCompanyName() + " 님께서 요청하신 견적서입니다.";
                         emailService.sendEstimateEmail(recipientEmail, subject, templateModel);
 
-                        estimate.setDealStatus(3);
+                        // 상태 변경 및 저장
+                        estimate.setDealStatus(3); // 3: 발송 완료
+                        estimate.setSentDate(LocalDate.now()); // 송부일 설정
                         estimateRepository.save(estimate);
 
                 } catch (Exception e) {
@@ -265,12 +250,46 @@ public class EstimateService {
                                 : "견적서가 거절되었습니다. 소중한 의견 감사합니다.";
         }
 
+        // @Transactional
+        // public void saveVersion(Long estimateId, Long userId, String memo) {
+        // Estimate estimate = estimateRepository.findById(estimateId)
+        // .orElseThrow(() -> new EntityNotFoundException("견적서를 찾을 수 없습니다."));
+        // User user = userRepository.findById(userId)
+        // .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+        //
+        // try {
+        // EstimateDetailDto detailDto = new EstimateDetailDto(estimate);
+        // String estimateJson = objectMapper.writeValueAsString(detailDto);
+        //
+        // EstimateVersion version = EstimateVersion.builder()
+        // .estimate(estimate)
+        // .estimateData(estimateJson)
+        // .savedBy(user.getName())
+        // .memo(memo)
+        // .build();
+        //
+        // versionRepository.save(version);
+        //
+        // } catch (Exception e) {
+        // throw new RuntimeException("견적서 버전 저장에 실패했습니다.", e);
+        // }
+        // }
+
         @Transactional
-        public void saveVersion(Long estimateId, Long userId, String memo) {
+        public void saveVersion(Long estimateId, Long userId, String memo, EstimateDataDto estimateData) {
                 Estimate estimate = estimateRepository.findById(estimateId)
                                 .orElseThrow(() -> new EntityNotFoundException("견적서를 찾을 수 없습니다."));
                 User user = userRepository.findById(userId)
                                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+
+                // ✅ 특약사항 등 고객 정보 업데이트
+                estimate.updateCustomerInfo(
+                                estimateData.getCustomerName(),
+                                estimateData.getCustomerEmail(),
+                                estimateData.getCustomerPhone(),
+                                estimateData.getCustomerCompanyName(),
+                                estimateData.getCustomerPosition(),
+                                estimateData.getSpecialTerms());
 
                 try {
                         // JPA 엔티티 대신 단순 DTO로 변환

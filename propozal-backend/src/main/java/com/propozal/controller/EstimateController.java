@@ -4,6 +4,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.propozal.dto.estimate.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,13 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.propozal.domain.Estimate;
 import com.propozal.domain.User;
 import com.propozal.dto.email.EstimateSendRequest;
-import com.propozal.dto.estimate.EstimateSimpleResponse;
-import com.propozal.dto.estimate.EstimateCustomerUpdateRequest;
-import com.propozal.dto.estimate.EstimateDetailResponse;
-import com.propozal.dto.estimate.EstimateDraftResponse;
-import com.propozal.dto.estimate.EstimateItemAddRequest;
-import com.propozal.dto.estimate.EstimateItemUpdateRequest;
-import com.propozal.dto.estimate.EstimateVersionResponse;
 import com.propozal.jwt.CustomUserDetails;
 import com.propozal.service.EstimateService;
 
@@ -52,19 +47,22 @@ public class EstimateController {
                 .body(response);
     }
 
-    // 2. 특정 견적서의 상세 정보 조회 (미리보기 및 수정 페이지 로딩용)
-    @GetMapping("/{estimateId}")
-    public ResponseEntity<EstimateDetailResponse> getEstimate(
-            @PathVariable("estimateId") Long estimateId) {
-        Estimate estimate = estimateService.findEstimateById(estimateId);
-        return ResponseEntity.ok(EstimateDetailResponse.from(estimate));
-    }
+    // // 2. 특정 견적서의 상세 정보 조회 (미리보기 및 수정 페이지 로딩용)
+    // @GetMapping("/{estimateId}")
+    // public ResponseEntity<EstimateDetailResponse> getEstimate(
+    // @PathVariable("estimateId") Long estimateId) {
+    // Estimate estimate = estimateService.findEstimateById(estimateId);
+    // return ResponseEntity.ok(EstimateDetailResponse.from(estimate));
+    // }
 
     // 3. 견적서의 고객 정보 수정
     @PatchMapping("/{estimateId}")
     public ResponseEntity<EstimateDetailResponse> updateCustomerInfo(
             @PathVariable("estimateId") Long estimateId,
             @Valid @RequestBody EstimateCustomerUpdateRequest request) {
+
+        log.info("받은 고객명: {}", request.getCustomerName());
+
         Estimate updatedEstimate = estimateService.updateCustomerInfo(estimateId, request);
         return ResponseEntity.ok(EstimateDetailResponse.from(updatedEstimate));
     }
@@ -112,11 +110,15 @@ public class EstimateController {
     public ResponseEntity<?> saveVersion(
             @PathVariable("estimateId") Long estimateId,
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody(required = false) Map<String, String> payload) {
+            @RequestBody(required = false) Map<String, Object> payload) {
 
-        String memo = (payload != null) ? payload.get("memo") : "버전 저장";
-        estimateService.saveVersion(estimateId, userDetails.getUser().getId(), memo);
-        return ResponseEntity.ok(Map.of("message", "견적서가 저장되었습니다."));
+        ObjectMapper mapper = new ObjectMapper();
+
+        EstimateDataDto estimateData = mapper.convertValue(payload.get("estimateData"), EstimateDataDto.class);
+        String memo = (String) payload.get("memo");
+
+        estimateService.saveVersion(estimateId, userDetails.getUser().getId(), memo, estimateData);
+        return ResponseEntity.ok(Map.of("message", "견적서가 임시 저장되었습니다."));
     }
 
     // 9. 특정 견적서의 모든 버전 목록 조회
@@ -154,10 +156,11 @@ public class EstimateController {
         return ResponseEntity.ok(completed);
     }
 
-    // 13. 견적서 PDF 다운로드 생성
-    @GetMapping("/{estimateId}/download-url")
-    public ResponseEntity<?> getEstimateDownloadUrl(@PathVariable("estimateId") Long estimateId) {
-        String downloadUrl = estimateService.generateEstimateDownloadUrl(estimateId);
-        return ResponseEntity.ok(Map.of("downloadUrl", downloadUrl));
+    // 2. 특정 견적서의 상세 정보 조회 (미리보기 및 수정 페이지 로딩용)
+    @GetMapping("/{estimateId}")
+    public ResponseEntity<EstimateDetailResponse> getEstimate(
+            @PathVariable("estimateId") Long estimateId) {
+        Estimate estimate = estimateService.findEstimateById(estimateId);
+        return ResponseEntity.ok(EstimateDetailResponse.from(estimate));
     }
 }
