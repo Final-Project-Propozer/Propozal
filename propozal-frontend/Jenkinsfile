@@ -10,7 +10,7 @@ pipeline {
 
   environment {
     FRONTEND_DIR = 'propozal-frontend'
-    EC2_IP       = '<EC2_IP>'
+    EC2_HOST     = '3.106.5.69'
     REMOTE_TGZ   = '/tmp/propozal-frontend.tgz'
     REMOTE_ROOT  = '/var/www/propozal'
   }
@@ -47,11 +47,12 @@ pipeline {
 
     stage('Deploy to EC2') {
       steps {
-        sshagent(credentials: ['EC2_SSH_KEY']) {
+        withCredentials([sshUserPrivateKey(credentialsId: 'EC2_SSH_KEY', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
           sh '''
             set -e
-            scp -o StrictHostKeyChecking=no ${FRONTEND_DIR}/build.tgz ubuntu@${EC2_IP}:${REMOTE_TGZ}
-            ssh -o StrictHostKeyChecking=no ubuntu@${EC2_IP} "
+            chmod 600 "$SSH_KEY"
+            scp -o StrictHostKeyChecking=no -i "$SSH_KEY" ${FRONTEND_DIR}/build.tgz ${SSH_USER}@${EC2_HOST}:${REMOTE_TGZ}
+            ssh -o StrictHostKeyChecking=no -i "$SSH_KEY" ${SSH_USER}@${EC2_HOST} "
               sudo mkdir -p ${REMOTE_ROOT} &&
               sudo rm -rf ${REMOTE_ROOT}/* &&
               sudo tar -xzf ${REMOTE_TGZ} -C ${REMOTE_ROOT} &&
