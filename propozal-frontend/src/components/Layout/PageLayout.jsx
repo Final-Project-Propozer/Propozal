@@ -1,5 +1,5 @@
 import React from 'react';
-import SalesNavBar from '../Navbar/SalesNavBar';
+import SalesNavBar from '../Navbar/SalesNavbar';
 import Footer from '../Footer/Footer';
 
 const PageLayout = ({ children }) => {
