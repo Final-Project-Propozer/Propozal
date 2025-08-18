@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";  // ✅ 기본 axios 사용
 
+// 🔹 카카오 인증 URL
+const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=3fdf6a1c367635a4dbc945a816c7a2b1&redirect_uri=http://localhost:5173/kakao/callback&response_type=code`;
+
 const SignupPage = () => {
   const navigate = useNavigate();
 
@@ -51,7 +54,7 @@ const SignupPage = () => {
 
   const handleEmailCheck = async () => {
     try {
-      const res = await axios.get(`http://localhost:8080/api/auth/check-email?email=${email}`);  // ✅ 기본 axios 사용
+      const res = await axios.get(`http://localhost:8080/api/auth/check-email?email=${email}`);
 
       if (res.data === true) {
         alert("이미 사용 중인 이메일입니다.");
@@ -149,9 +152,15 @@ const SignupPage = () => {
           Google로 시작하기
         </button>
 
-        <button type="button" className="btn w-100 mb-4" style={{ backgroundColor: "#FEE500", color: "#000", border: "none", fontWeight: "400" }}
+        {/* ✅ 카카오 로그인 버튼 (onClick 추가됨) */}
+        <button
+          type="button"
+          className="btn w-100 mb-4"
+          style={{ backgroundColor: "#FEE500", color: "#000", border: "none", fontWeight: "400" }}
+          onClick={() => window.location.href = KAKAO_AUTH_URL}
           onMouseEnter={(e) => { e.target.style.backgroundColor = "#FEE500"; e.target.style.border = "1px solid #000000"; }}
-          onMouseLeave={(e) => { e.target.style.backgroundColor = "#FEE500"; e.target.style.border = "1px solid #FEE500"; }}>
+          onMouseLeave={(e) => { e.target.style.backgroundColor = "#FEE500"; e.target.style.border = "1px solid #FEE500"; }}
+        >
           <img src="/kakao.png" alt="Kakao" style={{ width: "25px", marginRight: "10px", verticalAlign: "middle" }} />
           카카오로 시작하기
         </button>

@@ -4,6 +4,9 @@ import axios from "axios";
 import axiosInstance from "../../api/axiosInstance"; // 인증된 요청용
 import "./Login.css";
 
+// 🔹 카카오 인증 URL
+const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=3fdf6a1c367635a4dbc945a816c7a2b1&redirect_uri=http://localhost:5173/kakao/callback&response_type=code`;
+
 export default function LoginPage() {
   const navigate = useNavigate();
 
@@ -14,7 +17,6 @@ export default function LoginPage() {
     e.preventDefault();
 
     try {
-      // 1️⃣ 로그인 요청
       const response = await axios.post("http://localhost:8080/api/auth/login", {
         email,
         password,
@@ -22,23 +24,21 @@ export default function LoginPage() {
 
       const { accessToken, refreshToken } = response.data;
 
-      // 2️⃣ 토큰 저장
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
 
-      // 3️⃣ 사용자 정보 조회
       const userRes = await axiosInstance.get("/api/auth/me");
       const user = userRes.data;
 
       // ✅ 사용자 정보 저장
       localStorage.setItem("user", JSON.stringify(user));
 
-      // 4️⃣ 승인 여부 및 역할에 따라 분기
+      // ✅ 승인 여부 및 활성 상태 체크
       const isVerified = Boolean(user.verified);
       const isActive = Boolean(user.active);
 
       if (!isVerified || !isActive) {
-        navigate("/signup/pending"); // 승인 대기 중
+        navigate("/signup/pending");
       } else {
         if (user.role === "SALESPERSON") {
           navigate("/sales"); // 영업사원 홈
@@ -60,19 +60,36 @@ export default function LoginPage() {
       <div className="left-panel">
         <div className="intro-content">
           <h2 className="brand-title">PROPOZAL</h2>
-          <h4 style={{ fontWeight: 700, fontSize: "2.0rem", lineHeight: 1.4, marginBottom: "1rem" }}>
+          <h4
+            style={{
+              fontWeight: 700,
+              fontSize: "2.0rem",
+              lineHeight: 1.4,
+              marginBottom: "1rem",
+            }}
+          >
             빠르고 편하게,<br />프로답게
           </h4>
-          <p>프로포잘은 언제 어디서나 간편하게 사용할 수 있는<br />견적 관리 솔루션입니다.</p>
+          <p>
+            프로포잘은 언제 어디서나 간편하게 사용할 수 있는
+            <br />
+            견적 관리 솔루션입니다.
+          </p>
         </div>
       </div>
 
       <div className="right-panel">
         <div className="login-content">
           <h3 className="highlight">로그인</h3>
-          <form className="w-100" style={{ maxWidth: "100%", maxInlineSize: "400px" }} onSubmit={handleLogin}>
+          <form
+            className="w-100"
+            style={{ maxWidth: "100%", maxInlineSize: "400px" }}
+            onSubmit={handleLogin}
+          >
             <div className="mb-3">
-              <label htmlFor="email" className="form-label">이메일 주소</label>
+              <label htmlFor="email" className="form-label">
+                이메일 주소
+              </label>
               <input
                 type="email"
                 className="form-control email-input"
@@ -84,7 +101,9 @@ export default function LoginPage() {
             </div>
 
             <div className="mb-4">
-              <label htmlFor="password" className="form-label">비밀번호</label>
+              <label htmlFor="password" className="form-label">
+                비밀번호
+              </label>
               <input
                 type="password"
                 className="form-control password-input"
@@ -95,7 +114,9 @@ export default function LoginPage() {
               />
             </div>
 
-            <button type="submit" className="btn btn-success w-100 mb-1">SIGN IN</button>
+            <button type="submit" className="btn btn-success w-100 mb-1">
+              SIGN IN
+            </button>
 
             <div className="or-divider">
               <hr className="line" />
@@ -104,24 +125,56 @@ export default function LoginPage() {
             </div>
 
             <button className="btn btn-outline-dark w-100 mb-2">
-              <img src="/google.png" alt="Google" style={{ width: "20px", marginRight: "10px", verticalAlign: "middle" }} />
+              <img
+                src="/google.png"
+                alt="Google"
+                style={{
+                  width: "20px",
+                  marginRight: "10px",
+                  verticalAlign: "middle",
+                }}
+              />
               Sign in with Google
             </button>
 
+            {/* ✅ 카카오 로그인 버튼 */}
             <button
               className="btn w-100 mb-4"
-              style={{ backgroundColor: "#FEE500", color: "#000", border: "none", fontWeight: "400" }}
+              style={{
+                backgroundColor: "#FEE500",
+                color: "#000",
+                border: "none",
+                fontWeight: "400",
+              }}
+              onClick={() => (window.location.href = KAKAO_AUTH_URL)}
             >
-              <img src="/kakao.png" alt="Kakao" style={{ width: "25px", marginRight: "10px", verticalAlign: "middle" }} />
+              <img
+                src="/kakao.png"
+                alt="Kakao"
+                style={{
+                  width: "25px",
+                  marginRight: "10px",
+                  verticalAlign: "middle",
+                }}
+              />
               카카오 로그인
             </button>
 
             <div className="d-flex justify-content-between flex-wrap gap-2">
-              <button type="button" className="btn btn-link p-0 link-text" onClick={() => navigate("/signup")}>
-                계정이 없으신가요? <span style={{ fontWeight: 600 }}>회원가입</span>
+              <button
+                type="button"
+                className="btn btn-link p-0 link-text"
+                onClick={() => navigate("/signup")}
+              >
+                계정이 없으신가요?{" "}
+                <span style={{ fontWeight: 600 }}>회원가입</span>
               </button>
 
-              <button type="button" className="btn btn-link p-0 link-text" onClick={() => navigate("/password-reset")}>
+              <button
+                type="button"
+                className="btn btn-link p-0 link-text"
+                onClick={() => navigate("/password-reset")}
+              >
                 비밀번호 재설정
               </button>
             </div>

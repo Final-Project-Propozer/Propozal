@@ -30,20 +30,25 @@ import EstimateVersionListPage from './pages/EstimateVersion/EstimateVersionList
 import EstimateVersionDetailPage from './pages/EstimateVersion/EstimateVersionDetailPage';
 import EstimateCompletedListPage from './pages/EstimateView/EstimateCompletedListPage';
 
+// ✅ 새로 추가
+import KakaoCallback from './pages/KakaoCallback/KakaoCallback';
+
 const App = () => {
   return (
     <Routes>
       {/* 공통 레이아웃이 필요한 페이지들 */}
       <Route path="/" element={<Layout><Home /></Layout>} />
       <Route path="/signup" element={<Layout><Signup /></Layout>} />
-      {/* <Route path="/estimate" element={<Layout><EstimateDetail /></Layout>} /> */}
       <Route path="/password-reset" element={<Layout><PasswordResetForm /></Layout>} />
+
+      {/* ✅ 카카오 로그인 콜백 */}
+      <Route path="/kakao/callback" element={<KakaoCallback />} />
 
       {/* 레이아웃이 필요 없는 페이지들 */}
       <Route path="/login" element={<Login />} />
       <Route path="/sales" element={<SalesMainPage />} />
-{/*       <Route path="/estimate/:id" element={<EstimateView />} /> */}
-{/*       <Route path="/estimate/create" element={<EstimatePage />} />  */}{/* ✅ 견적서 생성 페이지 */}
+      {/* <Route path="/estimate/:id" element={<EstimateView />} /> */}
+      {/* <Route path="/estimate/create" element={<EstimatePage />} /> */} {/* ✅ 견적서 생성 페이지 */}
       <Route path="/admin/test" element={<AdminTestPage />} />
       <Route path="/schedule/create" element={<ScheduleCreatePage />} />
       <Route path="/schedule/edit" element={<ScheduleEditPage />} />
@@ -57,14 +62,15 @@ const App = () => {
       <Route path="/customer/register" element={<CustomerRegister />} />
       <Route path="/customer/:id" element={<CustomerDetail />} />
       <Route path="/customer/list" element={<CustomerList />} />
+
+      {/* ✅ 견적 관련 페이지들 */}
       <Route path="/estimate" element={<EstimatePageCreation />} />
-      <Route path="/estimate/:id" element={<EstimateDetailPage />} /> */}
+      <Route path="/estimate/:id" element={<EstimateDetailPage />} />
       <Route path="/schedule/:scheduleId/edit" element={<ScheduleEdit />} />
       <Route path="/estimate/:id/edit" element={<EstimateEditPage />} />
       <Route path="/estimate/:estimateId/versions" element={<EstimateVersionListPage />} />
       <Route path="/estimate-version/:versionId" element={<EstimateVersionDetailPage />} />
       <Route path="/estimate/completedlist" element={<EstimateCompletedListPage />} />
-
     </Routes>
   );
 };
