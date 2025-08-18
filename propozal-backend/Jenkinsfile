@@ -45,7 +45,7 @@ pipeline {
     stage('Build Docker Image') {
       steps {
         echo "🐳 Docker build: ${IMAGE}"
-        withEnv(['DOCKER_BUILDKIT=1', 'BUILDKIT_PROGRESS=plain']) {
+        withEnv(['DOCKER_BUILDKIT=0']) {
           sh 'docker build -t $IMAGE $BACKEND_DIR'
         }
       }
