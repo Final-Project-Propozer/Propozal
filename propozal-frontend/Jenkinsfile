@@ -9,18 +9,18 @@ pipeline {
   }
 
   environment {
-    IMAGE       = 'propozal-frontend:latest'
-    CONTAINER   = 'propozal-frontend'
     FRONTEND_DIR = 'propozal-frontend'
-    HOST_PORT   = '3000'
+    EC2_IP       = '<EC2_IP>'
+    REMOTE_TGZ   = '/tmp/propozal-frontend.tgz'
+    REMOTE_ROOT  = '/var/www/propozal'
   }
 
-  tools { nodejs 'node-20' } // Jenkins에 Node.js 20.x 등록 필요
+  tools { nodejs 'node-20' }
 
   stages {
     stage('Checkout') {
       steps {
-        echo '📦 Checkout from SCM'
+        echo 'Checkout'
         checkout scm
       }
     }
@@ -28,58 +28,61 @@ pipeline {
     stage('Install & Build') {
       steps {
         dir("${FRONTEND_DIR}") {
+          withCredentials([usernamePassword(credentialsId: 'FRONT_ENV', usernameVariable: 'DUMMY', passwordVariable: 'ENV_FILE')]) {
+            sh '''
+              set -e
+              echo "$ENV_FILE" > .env
+              npm ci
+              npm run build
+            '''
+          }
+        }
+      }
+    }
+
+    stage('Package') {
+      steps {
+        dir("${FRONTEND_DIR}") {
           sh '''
-            #!/usr/bin/env bash
             set -e
-
-            echo "📥 Installing dependencies"
-            npm ci
-
-            echo "🏗️ Building production bundle"
-            npm run build
+            tar -C dist -czf build.tgz .
           '''
         }
       }
     }
 
-    stage('Build Docker Image') {
+    stage('Deploy to EC2') {
       steps {
-        echo "🐳 Docker build: ${IMAGE}"
-        sh 'docker build -t $IMAGE $FRONTEND_DIR'
-      }
-    }
-
-    stage('Deploy Container') {
-      steps {
-        echo '🧹 Stop & remove previous container (if any)'
-        sh '''
-          docker stop $CONTAINER || true
-          docker rm $CONTAINER || true
-        '''
-        echo '🚀 Run new container'
-        sh '''
-          docker run -d --name $CONTAINER \
-            --restart unless-stopped \
-            -p 127.0.0.1:${HOST_PORT}:80 \
-            $IMAGE
-        '''
+        sshagent(credentials: ['EC2_SSH_KEY']) {
+          sh '''
+            set -e
+            scp -o StrictHostKeyChecking=no ${FRONTEND_DIR}/build.tgz ubuntu@${EC2_IP}:${REMOTE_TGZ}
+            ssh -o StrictHostKeyChecking=no ubuntu@${EC2_IP} "
+              sudo mkdir -p ${REMOTE_ROOT} &&
+              sudo rm -rf ${REMOTE_ROOT}/* &&
+              sudo tar -xzf ${REMOTE_TGZ} -C ${REMOTE_ROOT} &&
+              sudo nginx -t &&
+              sudo systemctl reload nginx
+            "
+          '''
+        }
       }
     }
 
     stage('Smoke Test') {
       options { timeout(time: 2, unit: 'MINUTES') }
       steps {
-        echo '🩺 Smoke test'
         sh '''
-          curl -fsS http://127.0.0.1:${HOST_PORT} >/dev/null
+          set -e
+          curl -fsS https://propozal.app >/dev/null
         '''
       }
     }
   }
 
   post {
-    success { echo '✅ Frontend Build & Deployment Success!' }
-    failure { echo '❌ Build Failed' }
-    always  { sh 'docker image prune -f || true' }
+    success { echo '✅ Frontend deployed to Nginx' }
+    failure { echo '❌ Frontend pipeline failed' }
+    always  { echo 'Pipeline finished' }
   }
 }
