@@ -97,12 +97,13 @@ public class EstimateController {
         return ResponseEntity.ok(EstimateDetailResponse.from(updatedEstimate));
     }
 
-    // 7. 견적서를 이메일로 발송하고 상태를 '발송 완료'로 변경 (최종 저장)
-    @PostMapping("/{estimateId}/send")
+    // 7. 견적서를 이메일로 발송
+    @PostMapping("/versions/{versionId}/send")
     public ResponseEntity<?> sendEstimateByEmail(
-            @PathVariable("estimateId") Long estimateId,
+            @PathVariable("versionId") Long versionId,
             @RequestBody(required = false) @Valid EstimateSendRequest request) {
-        estimateService.sendEstimateByEmail(estimateId, request);
+
+        estimateService.sendEstimateByEmail(versionId, request);
         return ResponseEntity.ok(Map.of("message", "견적서가 성공적으로 전송되었습니다."));
     }
 
@@ -112,9 +113,10 @@ public class EstimateController {
             @PathVariable("estimateId") Long estimateId,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody(required = false) Map<String, String> payload) {
-        String memo = (payload != null) ? payload.get("memo") : "임시 저장";
+
+        String memo = (payload != null) ? payload.get("memo") : "버전 저장";
         estimateService.saveVersion(estimateId, userDetails.getUser().getId(), memo);
-        return ResponseEntity.ok(Map.of("message", "견적서가 임시 저장되었습니다."));
+        return ResponseEntity.ok(Map.of("message", "견적서가 저장되었습니다."));
     }
 
     // 9. 특정 견적서의 모든 버전 목록 조회
@@ -150,5 +152,12 @@ public class EstimateController {
         User user = userDetails.getUser();
         List<EstimateSimpleResponse> completed = estimateService.getCompletedEstimates(user.getId());
         return ResponseEntity.ok(completed);
+    }
+
+    // 13. 견적서 PDF 다운로드 생성
+    @GetMapping("/{estimateId}/download-url")
+    public ResponseEntity<?> getEstimateDownloadUrl(@PathVariable("estimateId") Long estimateId) {
+        String downloadUrl = estimateService.generateEstimateDownloadUrl(estimateId);
+        return ResponseEntity.ok(Map.of("downloadUrl", downloadUrl));
     }
 }

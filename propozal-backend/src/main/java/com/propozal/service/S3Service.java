@@ -36,8 +36,7 @@ public class S3Service {
                         .key(keyName)
                         .contentType(file.getContentType())
                         .build(),
-                RequestBody.fromBytes(file.getBytes())
-        );
+                RequestBody.fromBytes(file.getBytes()));
 
         return keyName; // S3 객체 Key 반환
     }
@@ -55,8 +54,7 @@ public class S3Service {
                 GetObjectPresignRequest.builder()
                         .signatureDuration(Duration.ofMinutes(5)) // URL 유효기간
                         .getObjectRequest(getObjectRequest)
-                        .build()
-        );
+                        .build());
 
         return presignedRequest.url().toString();
     }
@@ -65,5 +63,31 @@ public class S3Service {
     public void deleteFile(String folder, String fileName) {
         String keyName = String.format("uploads/%s/%s", folder, fileName);
         s3Client.deleteObject(builder -> builder.bucket(bucketName).key(keyName));
+    }
+
+    // PDF 파일을 S3에 업로드
+    public void uploadPdf(String key, byte[] fileBytes) {
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .contentType("application/pdf")
+                .build();
+        s3Client.putObject(putObjectRequest, RequestBody.fromBytes(fileBytes));
+    }
+
+    // S3 객체의 유효기간이 있는 URL을 생성
+    public String generatePresignedUrl(String key) {
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .build();
+
+        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofDays(7)) // URL 유효기간 7일
+                .getObjectRequest(getObjectRequest)
+                .build();
+
+        PresignedGetObjectRequest presignedRequest = presigner.presignGetObject(presignRequest);
+        return presignedRequest.url().toString();
     }
 }

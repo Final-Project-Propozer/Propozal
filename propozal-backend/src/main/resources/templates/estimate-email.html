@@ -4,12 +4,14 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>견적서</title>
-    <!-- 이메일 클라이언트의 기본 스타일을 초기화하기 위한 스타일 -->
+    <!-- 이메일 클라이언트 호환성을 위한 스타일 -->
     <style type="text/css">
       body {
         margin: 0;
         padding: 0;
         background-color: #f4f4f2;
+        font-family: "Noto Sans KR", AppleSDGothicNeo-Regular, "Malgun Gothic",
+          "맑은 고딕", dotum, "돋움", sans-serif;
       }
       table {
         border-spacing: 0;
@@ -24,7 +26,7 @@
         width: 100%;
         table-layout: fixed;
         background-color: #f4f4f2;
-        padding-bottom: 60px;
+        padding: 40px 0;
       }
       .main {
         background-color: #ffffff;
@@ -32,18 +34,9 @@
         width: 100%;
         max-width: 600px;
         border-spacing: 0;
-        font-family: "Noto Sans KR", sans-serif;
         color: #344e41;
-      }
-      .two-columns {
-        text-align: center;
-        font-size: 0;
-      }
-      .two-columns .column {
-        width: 100%;
-        max-width: 300px;
-        display: inline-block;
-        vertical-align: top;
+        border-radius: 10px;
+        border: 1px solid #e5e7eb;
       }
     </style>
   </head>
@@ -52,28 +45,17 @@
       <table class="main" width="100%">
         <!-- HEADER -->
         <tr>
-          <td style="padding: 15px 30px">
+          <td style="padding: 20px 30px">
             <table width="100%">
               <tr>
-                <td
-                  style="
-                    font-size: 25px;
-                    font-family: 'Noto Sans KR', Helvetica, sans-serif;
-                    color: #344e41;
-                  "
-                >
+                <td style="font-size: 24px; font-weight: bold; color: #344e41">
                   견적서 승인 요청
                 </td>
                 <td
-                  style="
-                    font-size: 14px;
-                    font-family: 'Noto Sans KR', Helvetica, sans-serif;
-                    color: #344e41;
-                    text-align: right;
-                  "
+                  style="font-size: 14px; color: #344e41; text-align: right"
                   th:text="${#temporals.format(T(java.time.LocalDateTime).now(), 'yyyy.MM.dd HH:mm')}"
                 >
-                  2025.07.31 15:00
+                  2025.08.18 13:30
                 </td>
               </tr>
             </table>
@@ -93,51 +75,38 @@
               "
             >
               <tr>
-                <td style="padding: 10px 30px">
+                <td style="padding: 15px 30px">
                   <p
                     style="
-                      font-family: 'Noto Sans KR', Helvetica, sans-serif;
                       font-size: 18px;
                       color: #344e41;
                       margin: 0;
+                      font-weight: 500;
                     "
                     th:text="${sender.user.name}"
                   >
                     김영업
                   </p>
                   <p
-                    style="
-                      font-family: 'Noto Sans KR', Helvetica, sans-serif;
-                      font-size: 14px;
-                      color: #588157;
-                      margin: 5px 0 0 0;
-                    "
+                    style="font-size: 14px; color: #588157; margin: 5px 0 0 0"
                     th:text="${sender.user.email}"
                   >
-                    rladuddjq@gmail.com
+                    sales@propozal.com
                   </p>
                 </td>
               </tr>
               <tr>
                 <td style="padding: 5px 30px 20px 30px">
-                  <p
-                    style="
-                      font-family: 'Noto Sans KR', Helvetica, sans-serif;
-                      font-size: 14px;
-                      color: #588157;
-                      line-height: 1.5;
-                    "
-                  >
+                  <p style="font-size: 14px; color: #588157; line-height: 1.6">
                     안녕하세요,
                     <span
                       th:text="${estimate.customerName} + ' ' + ${estimate.customerPosition}"
                       >고객명 직위</span
-                    >님 <br /><br />
-                    요청하신 견적서를 첨부하여 보내드립니다.
+                    >님. <br /><br />
+                    요청하신 견적서를 보내드립니다. 아래 링크를 통해 PDF
+                    파일로도 확인하실 수 있습니다.
                     <br />
                     검토 후 승인 여부를 알려주시면 감사하겠습니다.
-                    <br /><br />
-                    문의사항이 있으시면 언제든 연락 부탁드립니다.
                     <br /><br />
                     감사합니다.
                   </p>
@@ -167,12 +136,12 @@
               <tr>
                 <td style="padding: 30px">
                   <!-- 견적서 타이틀 -->
-                  <table width="100%" style="margin-bottom: 16px">
+                  <table width="100%" style="margin-bottom: 20px">
                     <tr>
                       <td
                         style="
-                          font-family: 'Noto Sans KR', Helvetica, sans-serif;
-                          font-size: 18px;
+                          font-size: 20px;
+                          font-weight: bold;
                           color: #3a5a40;
                         "
                       >
@@ -180,7 +149,6 @@
                       </td>
                       <td
                         style="
-                          font-family: 'Noto Sans KR', Helvetica, sans-serif;
                           font-size: 12px;
                           color: #3a5a40;
                           text-align: right;
@@ -195,38 +163,36 @@
                   <!-- 발주처/수주처 정보 -->
                   <table
                     width="100%"
-                    style="border-spacing: 0; margin-bottom: 16px"
+                    style="border-spacing: 0; margin-bottom: 20px"
                   >
                     <tr>
-                      <td width="50%" style="padding-right: 10px">
+                      <td
+                        width="50%"
+                        style="padding-right: 10px; vertical-align: top"
+                      >
                         <table
                           width="100%"
                           style="
                             border-spacing: 0;
-                            background-color: #f4f4f2;
+                            background-color: #f8f9fa;
                             border-radius: 10px;
                           "
                         >
                           <tr>
-                            <td style="padding: 10px">
+                            <td style="padding: 10px; font-size: 14px">
                               <p
                                 style="
-                                  font-family: 'Noto Sans KR', Helvetica,
-                                    sans-serif;
-                                  font-size: 14px;
                                   color: #3a5a40;
                                   margin: 0 0 10px 0;
+                                  font-weight: bold;
                                 "
                               >
                                 발주처
                               </p>
                               <p
                                 style="
-                                  font-family: 'Noto Sans KR', Helvetica,
-                                    sans-serif;
-                                  font-size: 14px;
                                   color: #588157;
-                                  line-height: 1.5;
+                                  line-height: 1.6;
                                   margin: 0;
                                 "
                               >
@@ -247,35 +213,33 @@
                           </tr>
                         </table>
                       </td>
-                      <td width="50%" style="padding-left: 10px">
+                      <td
+                        width="50%"
+                        style="padding-left: 10px; vertical-align: top"
+                      >
                         <table
                           width="100%"
                           style="
                             border-spacing: 0;
-                            background-color: #f4f4f2;
+                            background-color: #f8f9fa;
                             border-radius: 10px;
                           "
                         >
                           <tr>
-                            <td style="padding: 10px">
+                            <td style="padding: 10px; font-size: 14px">
                               <p
                                 style="
-                                  font-family: 'Noto Sans KR', Helvetica,
-                                    sans-serif;
-                                  font-size: 14px;
                                   color: #3a5a40;
                                   margin: 0 0 10px 0;
+                                  font-weight: bold;
                                 "
                               >
                                 수주처
                               </p>
                               <p
                                 style="
-                                  font-family: 'Noto Sans KR', Helvetica,
-                                    sans-serif;
-                                  font-size: 14px;
                                   color: #588157;
-                                  line-height: 1.5;
+                                  line-height: 1.6;
                                   margin: 0;
                                 "
                               >
@@ -299,85 +263,6 @@
                     </tr>
                   </table>
 
-                  <!-- 금액 요약 -->
-                  <table
-                    width="100%"
-                    style="
-                      border-spacing: 0;
-                      margin-bottom: 16px;
-                      font-family: 'Noto Sans KR', Helvetica, sans-serif;
-                      font-size: 14px;
-                      color: black;
-                    "
-                  >
-                    <tr>
-                      <td
-                        style="
-                          padding: 6px 40px 6px 10px;
-                          background-color: #f4f4f2;
-                          border-radius: 10px;
-                        "
-                      >
-                        <table width="100%">
-                          <tr>
-                            <td>총 견적 금액</td>
-                            <td
-                              style="text-align: right"
-                              th:text="${#numbers.formatDecimal(totalAmountInfo.totalAmount, 0, 'COMMA', 0, 'POINT')}"
-                            >
-                              40,480.00
-                            </td>
-                          </tr>
-                        </table>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 6px 40px 6px 10px">
-                        <table width="100%">
-                          <tr>
-                            <td>총 공급가액</td>
-                            <td
-                              style="text-align: right"
-                              th:text="${#numbers.formatDecimal(totalAmountInfo.supplyAmount, 0, 'COMMA', 0, 'POINT')}"
-                            >
-                              38,000.00
-                            </td>
-                          </tr>
-                        </table>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 6px 40px 6px 10px">
-                        <table width="100%">
-                          <tr>
-                            <td>할인액</td>
-                            <td
-                              style="text-align: right"
-                              th:text="${#numbers.formatDecimal(totalAmountInfo.discountAmount, 0, 'COMMA', 0, 'POINT')}"
-                            >
-                              1,200.00
-                            </td>
-                          </tr>
-                        </table>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 6px 40px 6px 10px">
-                        <table width="100%">
-                          <tr>
-                            <td>VAT</td>
-                            <td
-                              style="text-align: right"
-                              th:text="${#numbers.formatDecimal(totalAmountInfo.vatAmount, 0, 'COMMA', 0, 'POINT')}"
-                            >
-                              600.00
-                            </td>
-                          </tr>
-                        </table>
-                      </td>
-                    </tr>
-                  </table>
-
                   <!-- 품목 테이블 -->
                   <table
                     width="100%"
@@ -386,7 +271,6 @@
                       border: 1px solid #f4f4f2;
                       border-radius: 10px;
                       overflow: hidden;
-                      font-family: 'Noto Sans KR', Helvetica, sans-serif;
                       font-size: 14px;
                     "
                   >
@@ -394,40 +278,44 @@
                       <tr>
                         <th
                           style="
-                            background-color: #f4f4f2;
+                            background-color: #f8f9fa;
                             color: #3a5a40;
                             padding: 10px;
                             text-align: center;
+                            font-weight: 500;
                           "
                         >
                           품목
                         </th>
                         <th
                           style="
-                            background-color: #f4f4f2;
+                            background-color: #f8f9fa;
                             color: #3a5a40;
                             padding: 10px;
                             text-align: center;
+                            font-weight: 500;
                           "
                         >
                           수량
                         </th>
                         <th
                           style="
-                            background-color: #f4f4f2;
+                            background-color: #f8f9fa;
                             color: #3a5a40;
                             padding: 10px;
                             text-align: center;
+                            font-weight: 500;
                           "
                         >
                           단가
                         </th>
                         <th
                           style="
-                            background-color: #f4f4f2;
+                            background-color: #f8f9fa;
                             color: #3a5a40;
                             padding: 10px;
                             text-align: center;
+                            font-weight: 500;
                           "
                         >
                           공급가액
@@ -464,7 +352,7 @@
                           "
                           th:text="${#numbers.formatDecimal(item.unitPrice, 0, 'COMMA', 0, 'POINT')}"
                         >
-                          4,000.00
+                          4,000
                         </td>
                         <td
                           style="
@@ -474,11 +362,53 @@
                           "
                           th:text="${#numbers.formatDecimal(item.subtotal, 0, 'COMMA', 0, 'POINT')}"
                         >
-                          12,000.00
+                          12,000
                         </td>
                       </tr>
                     </tbody>
                   </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- SPACER -->
+        <tr>
+          <td height="15"></td>
+        </tr>
+
+        <!-- DOWNLOAD LINK SECTION -->
+        <tr>
+          <td style="padding: 0 15px">
+            <table
+              width="100%"
+              style="
+                border-spacing: 0;
+                border: 1px solid #e5e7eb;
+                border-radius: 10px;
+                background-color: #ffffff;
+              "
+            >
+              <tr>
+                <td style="padding: 20px 30px">
+                  <p
+                    style="
+                      font-size: 16px;
+                      color: #3a5a40;
+                      margin: 0 0 10px 0;
+                      font-weight: 500;
+                    "
+                  >
+                    견적서 PDF 다운로드
+                  </p>
+                  <a
+                    th:href="${downloadUrl}"
+                    style="font-size: 12px; color: #007bff"
+                  >
+                    여기를 클릭하여 견적서를 다운로드하세요. (링크는 7일간
+                    유효합니다)
+                  </a>
                 </td>
               </tr>
             </table>
@@ -504,17 +434,9 @@
             >
               <tr>
                 <td style="padding: 16px; text-align: center">
-                  <p
-                    style="
-                      font-family: 'Noto Sans KR', Helvetica, sans-serif;
-                      font-size: 14px;
-                      color: black;
-                      margin: 0 0 16px 0;
-                    "
-                  >
+                  <p style="font-size: 14px; color: black; margin: 0 0 16px 0">
                     견적서 검토 결과
                   </p>
-                  <!-- Thymeleaf로 동적 URL 생성 -->
                   <a
                     th:href="${approveUrl}"
                     style="
@@ -523,7 +445,6 @@
                       padding: 10px 20px;
                       text-decoration: none;
                       border-radius: 5px;
-                      font-family: 'Noto Sans KR', Helvetica, sans-serif;
                       font-size: 14px;
                       margin-right: 10px;
                     "
@@ -537,7 +458,6 @@
                       padding: 8px 18px;
                       text-decoration: none;
                       border-radius: 5px;
-                      font-family: 'Noto Sans KR', Helvetica, sans-serif;
                       font-size: 14px;
                       border: 1px solid #588157;
                     "
