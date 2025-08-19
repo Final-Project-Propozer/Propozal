@@ -48,12 +48,12 @@ public class EstimateController {
     }
 
     // // 2. 특정 견적서의 상세 정보 조회 (미리보기 및 수정 페이지 로딩용)
-    // @GetMapping("/{estimateId}")
-    // public ResponseEntity<EstimateDetailResponse> getEstimate(
-    // @PathVariable("estimateId") Long estimateId) {
-    // Estimate estimate = estimateService.findEstimateById(estimateId);
-    // return ResponseEntity.ok(EstimateDetailResponse.from(estimate));
-    // }
+    @GetMapping("/{estimateId}")
+    public ResponseEntity<EstimateDetailResponse> getEstimate(
+            @PathVariable("estimateId") Long estimateId) {
+        Estimate estimate = estimateService.findEstimateById(estimateId);
+        return ResponseEntity.ok(EstimateDetailResponse.from(estimate));
+    }
 
     // 3. 견적서의 고객 정보 수정
     @PatchMapping("/{estimateId}")
@@ -156,11 +156,4 @@ public class EstimateController {
         return ResponseEntity.ok(completed);
     }
 
-    // 2. 특정 견적서의 상세 정보 조회 (미리보기 및 수정 페이지 로딩용)
-    @GetMapping("/{estimateId}")
-    public ResponseEntity<EstimateDetailResponse> getEstimate(
-            @PathVariable("estimateId") Long estimateId) {
-        Estimate estimate = estimateService.findEstimateById(estimateId);
-        return ResponseEntity.ok(EstimateDetailResponse.from(estimate));
-    }
 }

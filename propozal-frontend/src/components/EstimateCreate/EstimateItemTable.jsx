@@ -1,44 +1,92 @@
-import React, { useEffect, useState } from 'react';
-import { Table, Button, Form, Row, Col, Alert, Spinner, InputGroup } from 'react-bootstrap';
-import axiosInstance from '../../api/axiosInstance';
-import { FiTrash2 } from 'react-icons/fi';
+import React, { useEffect, useState, useRef } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import {
+  Table,
+  Button,
+  Form,
+  Row,
+  Col,
+  Alert,
+  Spinner,
+  InputGroup,
+} from "react-bootstrap";
+import axiosInstance from "../../api/axiosInstance";
+import { FiTrash2 } from "react-icons/fi";
 
-const EstimateItemTable = ({ estimateId, readOnly = false }) => {
-  const [items, setItems] = useState([]);
+const EstimateItemTable = ({
+  estimateId,
+  initialItems,
+  onItemsChange,
+  readOnly = false,
+}) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [items, setItems] = useState(initialItems || []);
   const [newItem, setNewItem] = useState({
-    productId: '',
+    productId: "",
     quantity: 1,
-    discountRate: 0 // % 단위로 입력받음
+    discountRate: 0, // % 단위로 입력받음
   });
 
-  const [selectedItemId, setSelectedItemId] = useState('');
+  const [selectedItemId, setSelectedItemId] = useState("");
   const [selectedDiscount, setSelectedDiscount] = useState(5);
 
-  const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
   const [discounting, setDiscounting] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-
-  const fetchItems = async () => {
-    try {
-      const res = await axiosInstance.get(`/api/estimate/${estimateId}`);
-      setItems(res.data.items || []);
-    } catch (err) {
-      setError('품목 정보를 불러오지 못했습니다.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const isProcessingRef = useRef(false);
 
   useEffect(() => {
-    fetchItems();
-  }, [estimateId]);
+    setItems(initialItems || []);
+  }, [initialItems]);
+
+  // ✅ 제품 페이지에서 전달받은 상품을 자동으로 추가하는 로직
+  useEffect(() => {
+    const autoAddItem = async () => {
+      const productToAdd = location.state?.product;
+
+      // 🛑 최종 방어 로직:
+      // 1. 추가할 제품이 없으면 중단
+      // 2. isProcessingRef가 true이면, 이미 다른 추가 작업이 시작된 것이므로 절대 중복 실행하지 않음
+      if (!productToAdd || isProcessingRef.current) {
+        return;
+      }
+
+      // ✅ 추가 로직 시작을 기록
+      isProcessingRef.current = true;
+      setAdding(true);
+      setError("");
+      setSuccess(false);
+
+      try {
+        await axiosInstance.post(`/api/estimate/${estimateId}/items`, {
+          productId: parseInt(productToAdd.id),
+          quantity: 1,
+          discountRate: 0,
+        });
+        setSuccess(true);
+        if (onItemsChange) {
+          onItemsChange();
+        }
+      } catch (err) {
+        setError(`'${productToAdd.name}' 품목 추가 중 오류가 발생했습니다.`);
+      } finally {
+        // ✅ 작업이 끝나면 '처리 중' 상태를 해제하고, location.state를 초기화
+        setAdding(false);
+        isProcessingRef.current = false;
+        navigate(".", { replace: true, state: {} });
+      }
+    };
+
+    autoAddItem();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state, estimateId, navigate, onItemsChange]);
 
   const handleChange = (e) => {
     if (readOnly) return;
     const { name, value } = e.target;
-    setNewItem(prev => ({ ...prev, [name]: value }));
+    setNewItem((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleAddItem = async (e) => {
@@ -46,19 +94,21 @@ const EstimateItemTable = ({ estimateId, readOnly = false }) => {
     if (readOnly) return;
 
     setAdding(true);
-    setError('');
+    setError("");
     setSuccess(false);
     try {
       await axiosInstance.post(`/api/estimate/${estimateId}/items`, {
         productId: parseInt(newItem.productId),
         quantity: parseInt(newItem.quantity),
-        discountRate: parseFloat(newItem.discountRate) / 100 // ✅ 소수로 변환
+        discountRate: parseFloat(newItem.discountRate) / 100, // ✅ 소수로 변환
       });
-      setNewItem({ productId: '', quantity: 1, discountRate: 0 });
+      setNewItem({ productId: "", quantity: 1, discountRate: 0 });
       setSuccess(true);
-      fetchItems();
+      if (onItemsChange) {
+        onItemsChange();
+      }
     } catch (err) {
-      setError('품목 추가 중 오류가 발생했습니다.');
+      setError("품목 추가 중 오류가 발생했습니다.");
     } finally {
       setAdding(false);
     }
@@ -68,43 +118,50 @@ const EstimateItemTable = ({ estimateId, readOnly = false }) => {
     if (readOnly) return;
     try {
       await axiosInstance.delete(`/api/estimate/${estimateId}/items/${itemId}`);
-      fetchItems();
+      if (onItemsChange) {
+        onItemsChange();
+      }
     } catch (err) {
-      setError('품목 삭제 중 오류가 발생했습니다.');
+      setError("품목 삭제 중 오류가 발생했습니다.");
     }
   };
 
   const handleSearchProduct = () => {
-    window.location.href = 'http://localhost:5173/products';
+    navigate("/products", { state: { estimateId } });
   };
 
   const handleApplyDiscount = async () => {
     if (readOnly || !selectedItemId) return;
 
     setDiscounting(true);
-    setError('');
+    setError("");
     try {
-      await axiosInstance.patch(`/api/estimate/${estimateId}/items/${selectedItemId}`, {
-        discountRate: selectedDiscount / 100 // ✅ 소수로 변환
-      });
-      setSelectedItemId('');
+      await axiosInstance.patch(
+        `/api/estimate/${estimateId}/items/${selectedItemId}`,
+        {
+          discountRate: selectedDiscount / 100, // ✅ 소수로 변환
+        }
+      );
+      setSelectedItemId("");
       setSelectedDiscount(5);
-      fetchItems();
+      if (onItemsChange) {
+        onItemsChange();
+      }
     } catch (err) {
-      setError('할인 적용 중 오류가 발생했습니다.');
+      setError("할인 적용 중 오류가 발생했습니다.");
     } finally {
       setDiscounting(false);
     }
   };
-
-  if (loading) return <Spinner animation="border" />;
 
   return (
     <>
       <h4 className="mb-3">견적 품목</h4>
 
       {error && <Alert variant="danger">{error}</Alert>}
-      {success && !readOnly && <Alert variant="success">품목이 추가되었습니다.</Alert>}
+      {success && !readOnly && (
+        <Alert variant="success">품목이 성공적으로 처리되었습니다.</Alert>
+      )}
 
       <Table responsive bordered hover>
         <thead className="table-light">
@@ -121,16 +178,18 @@ const EstimateItemTable = ({ estimateId, readOnly = false }) => {
         <tbody>
           {items.length === 0 ? (
             <tr>
-              <td colSpan={readOnly ? 6 : 7} className="text-center text-muted">등록된 품목이 없습니다.</td>
+              <td colSpan={readOnly ? 6 : 7} className="text-center text-muted">
+                등록된 품목이 없습니다.
+              </td>
             </tr>
           ) : (
-            items.map(item => (
+            items.map((item) => (
               <tr key={item.id}>
                 <td>{item.productName}</td>
                 <td>{item.productCode}</td>
                 <td>{item.quantity}</td>
                 <td>{item.unitPrice.toLocaleString()}원</td>
-                <td>{(item.discountRate * 100).toFixed(0)}%</td> {/* ✅ 소수 → % 변환 */}
+                <td>{(item.discountRate * 100).toFixed(0)}%</td>
                 <td>{item.subtotal.toLocaleString()}원</td>
                 {!readOnly && (
                   <td>
@@ -213,7 +272,7 @@ const EstimateItemTable = ({ estimateId, readOnly = false }) => {
                     disabled={adding}
                     className="w-100"
                   >
-                    {adding ? '추가 중...' : '품목 추가'}
+                    {adding ? "추가 중..." : "품목 추가"}
                   </Button>
                 </div>
               </Col>
