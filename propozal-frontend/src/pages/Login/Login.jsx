@@ -17,7 +17,7 @@ export default function LoginPage() {
     e.preventDefault();
 
     try {
-      const response = await axios.post("/api/auth/login", {
+      const response = await axios.post("/auth/login", {
         email,
         password,
       });
@@ -27,7 +27,7 @@ export default function LoginPage() {
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
 
-      const userRes = await axiosInstance.get("/api/auth/me");
+      const userRes = await axiosInstance.get("/auth/me");
       const user = userRes.data;
 
       // ✅ 사용자 정보 저장
