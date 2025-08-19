@@ -38,18 +38,17 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/auth/**",                     // ✅ 카카오 소셜 로그인 콜백 허용
-                                "/api/auth/**",                  // ✅ 기존 API
+                                "/auth/**", // ✅ 카카오 소셜 로그인 콜백 허용
+                                "/api/auth/**", // ✅ 기존 API
                                 "/api/auth/send-verification",
-                                "/api/auth/verify-email"
-                        ).permitAll()
+                                "/api/auth/verify-email")
+                        .permitAll()
+                        .requestMatchers("/estimate/response").permitAll()
                         .requestMatchers("/api/auth/me").hasAnyRole("ADMIN", "SALESPERSON")
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint((request, response, authException) ->
-                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"))
-                )
+                        .authenticationEntryPoint((request, response, authException) -> response
+                                .sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")))
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtil, userDetailsService),
                         UsernamePasswordAuthenticationFilter.class)
                 .build();
