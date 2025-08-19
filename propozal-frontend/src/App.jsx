@@ -11,10 +11,10 @@ import EstimatePage from './pages/EstimateCreate/EstimatePage';
 import AdminTestPage from "./pages/AdminTestPage";
 import PasswordResetForm from './components/PasswordResetForm/PasswordResetForm';
 //관리자
-import AdminDashboard from './pages/Admin/AdminDashboard/AdminDashboard';
-import AdminCompanyRegistration from './pages/Admin/AdminCompanyData/AdminRegisterCompanyData';
-import AdminSalesRecordsList from './pages/Admin/AdminSalesRecords/AdminSalesRecordsList';
-import AdminCompanyDataView from './pages/Admin/AdminCompanyData/AdminCompanyDataView';
+import AdminDashboard from './pages/Admin/AdminDashboard/AdminDashboard';//
+import AdminRegisterCompanyData from './pages/Admin/AdminCompanyData/AdminRegisterCompanyData';
+import AdminSalesRecordsList from './pages/Admin/AdminSalesRecords/AdminSalesRecordsList';//
+import AdminCompanyDataView from './pages/Admin/AdminCompanyData/AdminViewCompanyData';
 import AdminEstimateList from './pages/Admin/AdminEstimate/AdminEstimateList';
 import AdminUserAuth from './pages/Admin/AdminAuthMember/AdminUserAuth';
 import AdminProductRegistration from './pages/Admin/AdminProduct/AdminProductRegistration';
@@ -22,6 +22,7 @@ import AdminViewProduct from './pages/Admin/AdminProduct/AdminViewProduct';
 import AdminClientList from './pages/Admin/AdminManageClients/AdminClientList';
 import AdminClientRegistration from './pages/Admin/AdminManageClients/AdminClientRegistration';
 import AdminProductList from './pages/Admin/AdminProduct/AdminProductList';
+import AdminViewCompanyData from './pages/Admin/AdminCompanyData/AdminViewCompanyData';
 
 
 const App = () => {
@@ -40,13 +41,14 @@ const App = () => {
       <Route path="/sales" element={<SalesMainPage />} />
       <Route path="/estimate/view" element={<EstimateView />} />
       <Route path="/estimate/create" element={<EstimatePage />} /> {/* ✅ 견적서 생성 페이지 */}
-      <Route path="/admin/test" element={<AdminTestPage />} />
-      <Route path="/admin/dashboard" element={<AdminDashboard />} />
-      <Route path="/admin/company-registration" element={<AdminCompanyRegistration />} />
-      <Route path="/admin/salesrecords" element={<AdminSalesRecordsList />} />
-      <Route path="/admin/companydataview" element={<AdminCompanyDataView />} />
+
+      ✅ <Route path="/admin/test" element={<AdminTestPage />} />
+      ✅ <Route path="/admin/dashboard" element={<AdminDashboard />} />
+      ✅ <Route path="/admin/company-registration" element={<AdminRegisterCompanyData />} /> 
+      ✅ <Route path="/admin/salesrecords" element={<AdminSalesRecordsList />} /> 
+      <Route path="/admin/companydataview" element={<AdminViewCompanyData />} />
       <Route path="/admin/estimatelist" element={<AdminEstimateList />} />
-      <Route path="/admin/userauthorization" element={<AdminUserAuth />} />
+      ✅ <Route path="/admin/user-authorization" element={<AdminUserAuth />} />
       <Route path="/admin/product-registration" element={<AdminProductRegistration />} />
       <Route path="/admin/product-view" element={<AdminViewProduct />} />
       <Route path="/admin/client-list" element={<AdminClientList />} />

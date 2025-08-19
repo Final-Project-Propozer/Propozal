@@ -5,7 +5,7 @@ import Footer from '../../../components/Footer/Footer.jsx';
 // 페이지당 표시할 기록 수
 const RECORDS_PER_PAGE = 10;
 
-// 더미(Dummy) 데이터 생성 (실제로는 API에서 받아옴)
+// 더미데이터
 const DUMMY_ESTIMATES = Array.from({ length: 50 }, (_, i) => ({
   id: i + 1,
   companyName: `견적서 기업 ${i + 1}`,
@@ -20,29 +20,29 @@ const AdminEstimateList = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    // 실제로는 여기에 API 호출 코드를 작성합니다.
+    // API 연동 지점
     // 예시: axios.get('/api/estimates').then(response => setEstimates(response.data));
     setEstimates(DUMMY_ESTIMATES);
   }, []);
 
-  // 현재 페이지에 표시할 기록 계산
+  // 페이지당 표시될 기록 개수
   const indexOfLastRecord = currentPage * RECORDS_PER_PAGE;
   const indexOfFirstRecord = indexOfLastRecord - RECORDS_PER_PAGE;
   const currentEstimates = estimates.slice(indexOfFirstRecord, indexOfLastRecord);
 
-  // 총 페이지 수 계산
+  // 총 페이지 수 계산 (실제 기록 개수에 맞도록)
   const totalPages = Math.ceil(estimates.length / RECORDS_PER_PAGE);
 
-  // 페이지 변경 함수
+  // 페이지네이션(현재 표시된 페이지만)
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="d-flex flex-column min-vh-100">
       <AdminNavbar />
-      <div className="container flex-grow-1 py-5" style={{ paddingTop: '60px' }}>
-        <h2 className="mb-4">견적서 관리 목록</h2>
+      <div className="container flex-grow-1" style={{ paddingTop: '100px' }}>
+        <h2 className="mb-4">견적서 목록</h2>
         
-        {/* 기록 목록 테이블 */}
+        {/* 기록 목록 행 */}
         <div className="table-responsive">
           <table className="table table-striped table-hover">
             <thead>
@@ -70,7 +70,7 @@ const AdminEstimateList = () => {
           </table>
         </div>
 
-        {/* 페이지네이션 UI */}
+        {/* 페이지네이션 */}
         <nav>
           <ul className="pagination justify-content-center">
             {Array.from({ length: totalPages }, (_, i) => (

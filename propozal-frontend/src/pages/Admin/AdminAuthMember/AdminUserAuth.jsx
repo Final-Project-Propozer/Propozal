@@ -2,16 +2,16 @@ import React, { useState, useEffect } from 'react';
 import AdminNavbar from '../../../components/Navbar/AdminNavbar.jsx';
 import Footer from '../../../components/Footer/Footer.jsx';
 
-// 페이지당 표시할 기록 수
+// 페이지당 표시되는 기록 개수
 const USERS_PER_PAGE = 10;
 
-// 더미(Dummy) 데이터 생성 (실제로는 API에서 받아옴)
+// 임시 더미데이터 생성 (백엔드 연동시 삭제예정)
 const DUMMY_REQUESTS = Array.from({ length: 30 }, (_, i) => ({
   id: `user${i + 1}`,
   name: `이름${i + 1}`,
   department: `부서${Math.floor(i / 10) + 1}`,
   position: `직급${i + 1}`,
-  status: 'pending', // ✅ 초기 상태를 'pending'으로 추가
+  status: 'pending', //기본값: 견적수락 대기중
 }));
 
 const AdminUserAuth = () => {
@@ -28,9 +28,9 @@ const AdminUserAuth = () => {
   const totalPages = Math.ceil(requests.length / USERS_PER_PAGE);
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // '승인' 버튼 클릭 시
+  // 승인시
   const handleApprove = (userId) => {
-    // requests 배열을 순회하며 해당 유저의 status를 'approved'로 변경
+    // requests 배열에서 유저 상태(status)를 'approved'로 변경
     const updatedRequests = requests.map(user => 
       user.id === userId ? { ...user, status: 'approved' } : user
     );
@@ -38,9 +38,9 @@ const AdminUserAuth = () => {
     console.log(`${userId}에 대한 승인 요청`);
   };
 
-  // '거절' 버튼 클릭 시
+  // 거절시
   const handleReject = (userId) => {
-    // requests 배열을 순회하며 해당 유저의 status를 'rejected'로 변경
+    // requests 배열에서 유저 상태(status)를 'rejected'로 변경
     const updatedRequests = requests.map(user => 
       user.id === userId ? { ...user, status: 'rejected' } : user
     );
@@ -51,7 +51,8 @@ const AdminUserAuth = () => {
   return (
     <div className="d-flex flex-column min-vh-100">
       <AdminNavbar />
-      <div className="container flex-grow-1 py-5" style={{ paddingTop: '60px' }}>
+      {/* 이 부분에 인라인 스타일을 추가합니다. */}
+      <div className="container flex-grow-1" style={{ paddingTop: '100px' }}>
         <h2 className="mb-4">회원가입 요청 목록</h2>
         
         <div className="table-responsive">
@@ -73,7 +74,7 @@ const AdminUserAuth = () => {
                   <td>{user.department}</td>
                   <td>{user.position}</td>
                   <td className="text-center">
-                    {/* ✅ 상태에 따라 다른 내용을 렌더링하는 조건부 렌더링 */}
+                    {/* 승인/거절 여부에 따라 다른 내용을 표기 */}
                     {user.status === 'pending' ? (
                       <>
                         <button 
@@ -101,7 +102,7 @@ const AdminUserAuth = () => {
           </table>
         </div>
 
-        {/* 페이지네이션 UI */}
+        {/* 페이지네이션 */}
         <nav>
           <ul className="pagination justify-content-center">
             {Array.from({ length: totalPages }, (_, i) => (

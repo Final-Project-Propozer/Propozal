@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import AdminNavbar from '../../../components/Navbar/AdminNavbar.jsx';
 import Footer from '../../../components/Footer/Footer.jsx';
 
-const AdminCompanyDataView = () => {
+const AdminViewCompanyData = () => {
   const [companyInfo, setCompanyInfo] = useState(null);
 
   useEffect(() => {
-    // API를 호출영역
+    // API 호출영역
     const dummyData = {
       companyName: 'PropoZal',
       ceoName: '김대표',
@@ -29,8 +29,8 @@ const AdminCompanyDataView = () => {
     <div className="d-flex flex-column min-vh-100">
       <AdminNavbar />
       <div 
-        className="container flex-grow-1 py-5"
-        style={{ paddingTop: '120px' }}
+        className="container flex-grow-1"
+        style={{ paddingTop: '100px' }}
       >
         <h2 className="mb-4">저장된 기업 정보</h2>
         
@@ -92,4 +92,4 @@ const AdminCompanyDataView = () => {
   );
 };
 
-export default AdminCompanyDataView;
+export default AdminViewCompanyData;
