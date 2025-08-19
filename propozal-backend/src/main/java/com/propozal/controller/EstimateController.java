@@ -47,13 +47,13 @@ public class EstimateController {
                 .body(response);
     }
 
-//    // 2. 특정 견적서의 상세 정보 조회 (미리보기 및 수정 페이지 로딩용)
-//    @GetMapping("/{estimateId}")
-//    public ResponseEntity<EstimateDetailResponse> getEstimate(
-//            @PathVariable("estimateId") Long estimateId) {
-//        Estimate estimate = estimateService.findEstimateById(estimateId);
-//        return ResponseEntity.ok(EstimateDetailResponse.from(estimate));
-//    }
+    // // 2. 특정 견적서의 상세 정보 조회 (미리보기 및 수정 페이지 로딩용)
+    // @GetMapping("/{estimateId}")
+    // public ResponseEntity<EstimateDetailResponse> getEstimate(
+    // @PathVariable("estimateId") Long estimateId) {
+    // Estimate estimate = estimateService.findEstimateById(estimateId);
+    // return ResponseEntity.ok(EstimateDetailResponse.from(estimate));
+    // }
 
     // 3. 견적서의 고객 정보 수정
     @PatchMapping("/{estimateId}")
@@ -95,26 +95,17 @@ public class EstimateController {
         return ResponseEntity.ok(EstimateDetailResponse.from(updatedEstimate));
     }
 
-    // 7. 견적서를 이메일로 발송하고 상태를 '발송 완료'로 변경 (최종 저장)
-    @PostMapping("/{estimateId}/send")
+    // 7. 견적서를 이메일로 발송
+    @PostMapping("/versions/{versionId}/send")
     public ResponseEntity<?> sendEstimateByEmail(
-            @PathVariable("estimateId") Long estimateId,
+            @PathVariable("versionId") Long versionId,
             @RequestBody(required = false) @Valid EstimateSendRequest request) {
-        estimateService.sendEstimateByEmail(estimateId, request);
+
+        estimateService.sendEstimateByEmail(versionId, request);
         return ResponseEntity.ok(Map.of("message", "견적서가 성공적으로 전송되었습니다."));
     }
 
     // 8. 현재 견적서 상태를 버전으로 임시 저장
-//    @PostMapping("/{estimateId}/versions")
-//    public ResponseEntity<?> saveVersion(
-//            @PathVariable("estimateId") Long estimateId,
-//            @AuthenticationPrincipal CustomUserDetails userDetails,
-//            @RequestBody(required = false) Map<String, String> payload) {
-//        String memo = (payload != null) ? payload.get("memo") : "임시 저장";
-//        estimateService.saveVersion(estimateId, userDetails.getUser().getId(), memo);
-//        return ResponseEntity.ok(Map.of("message", "견적서가 임시 저장되었습니다."));
-//    }
-
     @PostMapping("/{estimateId}/versions")
     public ResponseEntity<?> saveVersion(
             @PathVariable("estimateId") Long estimateId,
@@ -129,23 +120,6 @@ public class EstimateController {
         estimateService.saveVersion(estimateId, userDetails.getUser().getId(), memo, estimateData);
         return ResponseEntity.ok(Map.of("message", "견적서가 임시 저장되었습니다."));
     }
-
-//@PostMapping("/{estimateId}/versions")
-//public ResponseEntity<?> saveVersion(
-//        @PathVariable("estimateId") Long estimateId,
-//        @AuthenticationPrincipal CustomUserDetails userDetails,
-//        @RequestBody(required = false) Map<String, Object> payload) {
-//
-//    ObjectMapper mapper = new ObjectMapper();
-//
-//    EstimateDataDto estimateData = mapper.convertValue(payload.get("estimateData"), EstimateDataDto.class);
-//
-//    Object memoObj = payload.get("memo");
-//    String memo = (memoObj instanceof String) ? (String) memoObj : "임시 저장";
-//
-//    estimateService.saveVersion(estimateId, userDetails.getUser().getId(), memo, estimateData);
-//    return ResponseEntity.ok(Map.of("message", "견적서가 임시 저장되었습니다."));
-//}
 
     // 9. 특정 견적서의 모든 버전 목록 조회
     @GetMapping("/{estimateId}/versions")

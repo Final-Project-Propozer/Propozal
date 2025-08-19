@@ -45,15 +45,14 @@ public class SecurityConfig {
                                 "/actuator/liveness", "/actuator/readiness",
                                 "/actuator/info",
                                 "/api/auth/send-verification",
-                                "/api/auth/verify-email"
-                        ).permitAll()
+                                "/api/auth/verify-email")
+                        .permitAll()
+                        .requestMatchers("/estimate/response").permitAll()
                         .requestMatchers("/api/auth/me").hasAnyRole("ADMIN", "SALESPERSON")
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint((request, response, authException) ->
-                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"))
-                )
+                        .authenticationEntryPoint((request, response, authException) -> response
+                                .sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")))
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtil, userDetailsService),
                         UsernamePasswordAuthenticationFilter.class)
                 .build();
