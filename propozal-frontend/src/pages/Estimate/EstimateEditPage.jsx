@@ -14,26 +14,30 @@ const EstimateEditPage = () => {
   const { id: estimateId } = useParams(); // ✅ URL에서 estimateId 추출
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [exists, setExists] = useState(false); // ✅ 견적서 존재 여부 확인용
+  const [estimateData, setEstimateData] = useState(null);
+
+  const fetchEstimateData = async () => {
+    try {
+      const res = await axiosInstance.get(`/api/estimate/${estimateId}`);
+      console.log('견적서 조회 성공:', res.data);
+      setEstimateData(res.data);
+    } catch (err) {
+      console.error('견적서 조회 실패:', err);
+      setError('존재하지 않는 견적서입니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const checkEstimateExists = async () => {
-      try {
-        const res = await axiosInstance.get(`/api/estimate/${estimateId}`);
-        console.log('견적서 조회 성공:', res.data);
-        setExists(true);
-      } catch (err) {
-        console.error('견적서 조회 실패:', err);
-        setError('존재하지 않는 견적서입니다.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if (estimateId) {
-      checkEstimateExists();
+      fetchEstimateData();
     }
   }, [estimateId]);
+
+  const refreshEstimateData = () => {
+    fetchEstimateData();
+  };
 
   return (
     <>
@@ -44,11 +48,11 @@ const EstimateEditPage = () => {
 
         {loading && <Spinner animation="border" />}
         {error && <Alert variant="danger">{error}</Alert>}
-        {!loading && exists && (
+        {!loading && estimateData && (
           <>
-            <EstimateForm estimateId={estimateId} readOnly={false} />
+            <EstimateForm estimateId={estimateId} initialData={estimateData} readOnly={false} />
             <hr className="my-4" />
-            <EstimateItemTable estimateId={estimateId} readOnly={false} />
+            <EstimateItemTable estimateId={estimateId} initialItems={estimateData.items} onItemsChange={refreshEstimateData} readOnly={false} />
             <hr className="my-4" />
             <EstimateActions estimateId={estimateId} readOnly={false} />
           </>
