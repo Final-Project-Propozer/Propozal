@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import org.thymeleaf.context.Context;
@@ -20,6 +21,9 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
     private final SpringTemplateEngine templateEngine;
+
+    @Value("${app.base-url}")
+    private String appBaseUrl;
 
     @Value("${spring.mail.username}")
     private String fromEmail;
@@ -41,7 +45,11 @@ public class EmailService {
     }
 
     public void sendVerificationEmail(String to, String token) {
-        String link = "http://localhost:8080/api/auth/verify-email?token=" + token;
+        String link = UriComponentsBuilder.fromHttpUrl(appBaseUrl)
+                .path("/api/auth/verify-email")
+                .queryParam("token", token)
+                .toUriString();
+
         String htmlBody = "<h2>이메일 인증</h2>"
                 + "<p>아래 버튼을 클릭하여 이메일 인증을 완료하세요.</p>"
                 + "<a href=\"" + link + "\" "

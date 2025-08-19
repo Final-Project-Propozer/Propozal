@@ -18,7 +18,7 @@ const KakaoCallbackPage = () => {
       console.log("카카오 인가 코드:", code);
 
       axios
-        .post("http://localhost:8080/auth/social/login", {
+        .post("/api/auth/social/login", {
           provider: "kakao",
           authCode: code,
         })

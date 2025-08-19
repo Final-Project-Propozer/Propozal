@@ -41,7 +41,7 @@ const SignupPage = () => {
     setIsSubmitting(true);
 
     try {
-      await axios.post("http://localhost:8080/api/auth/signup", signupData);  // ✅ 기본 axios 사용
+      await axios.post("/api/auth/signup", signupData);  // ✅ 기본 axios 사용
       alert("회원가입 성공!");
       navigate("/login");
     } catch (error) {
@@ -54,7 +54,7 @@ const SignupPage = () => {
 
   const handleEmailCheck = async () => {
     try {
-      const res = await axios.get(`http://localhost:8080/api/auth/check-email?email=${email}`);
+      const res = await axios.get(`/api/auth/check-email?email=${email}`);
 
       if (res.data === true) {
         alert("이미 사용 중인 이메일입니다.");

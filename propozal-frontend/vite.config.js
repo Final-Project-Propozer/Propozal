@@ -14,7 +14,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://propozal.app',
+        target: 'http://localhost:8081',
         changeOrigin: true,
         secure: false,
       },
