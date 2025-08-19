@@ -7,6 +7,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.util.Map;
 
@@ -15,13 +19,11 @@ import java.util.Map;
 public class EmailService {
 
     private final JavaMailSender mailSender;
+    private final SpringTemplateEngine templateEngine;
 
     @Value("${spring.mail.username}")
     private String fromEmail;
 
-    /**
-     * 공통 HTML 메일 발송 메서드
-     */
     public void sendHtmlMail(String to, String subject, String htmlBody) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -38,9 +40,6 @@ public class EmailService {
         }
     }
 
-    /**
-     * 이메일 인증 메일 발송
-     */
     public void sendVerificationEmail(String to, String token) {
         String link = "http://localhost:8080/api/auth/verify-email?token=" + token;
         String htmlBody = "<h2>이메일 인증</h2>"
@@ -52,20 +51,22 @@ public class EmailService {
         sendHtmlMail(to, "[Propozal] 이메일 인증 요청", htmlBody);
     }
 
-    /**
-     * 견적서 발송 메서드
-     * EstimateService에서 사용
-     */
     public void sendEstimateEmail(String recipientEmail, String subject, Map<String, Object> templateModel) {
-        StringBuilder htmlBody = new StringBuilder("<h2>견적서</h2>");
-        templateModel.forEach((key, value) -> {
-            htmlBody.append("<p><b>")
-                    .append(key)
-                    .append(":</b> ")
-                    .append(value)
-                    .append("</p>");
-        });
+        Context context = new Context();
+        context.setVariables(templateModel);
 
-        sendHtmlMail(recipientEmail, subject, htmlBody.toString());
+        String htmlBody = templateEngine.process("estimate-email", context);
+
+        sendHtmlMail(recipientEmail, subject, htmlBody);
+    }
+
+    public void sendPasswordResetMail(String to, String link) {
+        String htmlBody = "<h2>비밀번호 재설정</h2>"
+                + "<p>아래 버튼을 클릭해 비밀번호를 재설정하세요.</p>"
+                + "<a href=\"" + link + "\" "
+                + "style='display:inline-block;padding:10px 20px;background-color:#1976D2;"
+                + "color:#fff;text-decoration:none;border-radius:5px;'>비밀번호 재설정</a>"
+                + "<p>본 링크는 일정 시간 후 만료됩니다.</p>";
+        sendHtmlMail(to, "[Propozal] 비밀번호 재설정 안내", htmlBody);
     }
 }

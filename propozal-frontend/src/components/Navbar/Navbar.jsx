@@ -44,11 +44,9 @@ const Navbar = () => {
               <Link className="nav-link" to="/">Home</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="#">Pricing</Link>
+              <Link className="nav-link" to="/signup">회원가입</Link>
             </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="#">Contact Us</Link>
-            </li>
+
             <li className="nav-item">
               <Link className="btn btn-outline-dark rounded-pill px-3 py-1 login-btn" to="/login">
                 로그인

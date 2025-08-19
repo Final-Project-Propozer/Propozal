@@ -1,0 +1,8 @@
+.custom-checkbox input[type="checkbox"] {
+  transform: scale(0.7); /* 크기 확대 */
+  border: 1px solid #999; /* 회색 실선 테두리 */
+  border-radius: 4px;
+  padding: 4px;
+  margin: 4px;
+  accent-color: #5c6bc0; /* 체크 색상 (보라빛 회색) */
+}

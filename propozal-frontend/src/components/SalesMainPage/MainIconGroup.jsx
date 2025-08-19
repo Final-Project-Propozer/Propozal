@@ -8,17 +8,17 @@ const iconData = [
   {
     icon: <FaFileSignature size={40} />,
     title: "견적서 작성",
-    link: "/estimate/create",
+    link: "/estimate",
   },
   {
     icon: <FaFileAlt size={40} />,
-    title: "견적서 조회",
-    link: "/estimate/view",
+    title: "견적서 목록",
+    link: "/estimate/list",
   },
   {
     icon: <FaCalendarAlt size={40} />,
     title: "스케줄 조회",
-    link: "/view-schedule",
+    link: "/schedule/list",
   },
 ];
 
