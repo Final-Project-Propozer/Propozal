@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ 추가
 import {
   Button,
   Row,
@@ -13,6 +14,8 @@ import axiosInstance from "../../api/axiosInstance";
 import PreviewComponent from "./PreviewComponent"; // 미리보기 컴포넌트
 
 const EstimateActions = ({ estimateId, readOnly = false }) => {
+  const navigate = useNavigate(); // ✅ 추가
+
   const [items, setItems] = useState([]);
   const [supplyAmount, setSupplyAmount] = useState(0);
   const [discountAmount, setDiscountAmount] = useState(0);
@@ -189,6 +192,9 @@ const EstimateActions = ({ estimateId, readOnly = false }) => {
       });
 
       setMessage("견적서가 저장되었습니다.");
+
+      // ✅ 저장 성공 후 상세 페이지로 이동
+      navigate(`/estimate/${estimateId}`);
     } catch (err) {
       console.error("❌ 저장 실패:", err);
       setError("저장 중 오류가 발생했습니다.");
