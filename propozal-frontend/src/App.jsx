@@ -134,6 +134,10 @@ const App = () => {
         path="/estimate/completedlist"
         element={<EstimateCompletedListPage />}
       />
+    <Route
+        path="/estimate/completedlist"
+        element={<EstimateCompletedListPage />}
+      />
     </Routes>
   );
 };
