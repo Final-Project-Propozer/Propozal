@@ -18,10 +18,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.propozal.domain.EmployeeProfile;
 import com.propozal.domain.Estimate;
 import com.propozal.domain.User;
 import com.propozal.dto.email.EstimateSendRequest;
 import com.propozal.jwt.CustomUserDetails;
+import com.propozal.repository.EmployeeProfileRepository;
 import com.propozal.service.EstimateService;
 
 import jakarta.validation.Valid;
@@ -35,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 public class EstimateController {
 
     private final EstimateService estimateService;
+    private final EmployeeProfileRepository employeeProfileRepository;
 
     // 1. 빈 견적서 생성 (견적 번호 할당)
     @PostMapping
@@ -47,12 +50,12 @@ public class EstimateController {
                 .body(response);
     }
 
-    // // 2. 특정 견적서의 상세 정보 조회 (미리보기 및 수정 페이지 로딩용)
+    // 2. 특정 견적서의 상세 정보 조회
     @GetMapping("/{estimateId}")
     public ResponseEntity<EstimateDetailResponse> getEstimate(
             @PathVariable("estimateId") Long estimateId) {
         Estimate estimate = estimateService.findEstimateById(estimateId);
-        return ResponseEntity.ok(EstimateDetailResponse.from(estimate));
+        return createEstimateDetailResponse(estimate);
     }
 
     // 3. 견적서의 고객 정보 수정
@@ -60,11 +63,9 @@ public class EstimateController {
     public ResponseEntity<EstimateDetailResponse> updateCustomerInfo(
             @PathVariable("estimateId") Long estimateId,
             @Valid @RequestBody EstimateCustomerUpdateRequest request) {
-
         log.info("받은 고객명: {}", request.getCustomerName());
-
         Estimate updatedEstimate = estimateService.updateCustomerInfo(estimateId, request);
-        return ResponseEntity.ok(EstimateDetailResponse.from(updatedEstimate));
+        return createEstimateDetailResponse(updatedEstimate);
     }
 
     // 4. 기존 견적서에 품목 추가
@@ -73,7 +74,7 @@ public class EstimateController {
             @PathVariable("estimateId") Long estimateId,
             @Valid @RequestBody EstimateItemAddRequest request) {
         Estimate updatedEstimate = estimateService.addItemToEstimate(estimateId, request);
-        return ResponseEntity.ok(EstimateDetailResponse.from(updatedEstimate));
+        return createEstimateDetailResponse(updatedEstimate);
     }
 
     // 5. 기존 품목의 수량/할인율 수정
@@ -83,7 +84,7 @@ public class EstimateController {
             @PathVariable("itemId") Long itemId,
             @Valid @RequestBody EstimateItemUpdateRequest request) {
         Estimate updatedEstimate = estimateService.updateEstimateItem(estimateId, itemId, request);
-        return ResponseEntity.ok(EstimateDetailResponse.from(updatedEstimate));
+        return createEstimateDetailResponse(updatedEstimate);
     }
 
     // 6. 견적서에서 특정 품목 삭제
@@ -92,7 +93,7 @@ public class EstimateController {
             @PathVariable("estimateId") Long estimateId,
             @PathVariable("itemId") Long itemId) {
         Estimate updatedEstimate = estimateService.deleteEstimateItem(estimateId, itemId);
-        return ResponseEntity.ok(EstimateDetailResponse.from(updatedEstimate));
+        return createEstimateDetailResponse(updatedEstimate);
     }
 
     // 7. 견적서를 이메일로 발송
@@ -156,4 +157,10 @@ public class EstimateController {
         return ResponseEntity.ok(completed);
     }
 
+    private ResponseEntity<EstimateDetailResponse> createEstimateDetailResponse(Estimate estimate) {
+        EmployeeProfile profile = employeeProfileRepository.findByUserId(estimate.getUser().getId())
+                .orElse(null);
+        EstimateDetailResponse responseBody = EstimateDetailResponse.from(estimate, profile);
+        return ResponseEntity.ok(responseBody);
+    }
 }
