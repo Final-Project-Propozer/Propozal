@@ -51,7 +51,7 @@ const AdminUserAuth = () => {
   return (
     <div className="d-flex flex-column min-vh-100">
       <AdminNavbar />
-      <div className="container flex-grow-1" style={{ paddingTop: '60px' }}>
+      <div className="container flex-grow-1" style={{ paddingTop: '100px' }}>
         <h2 className="mb-4">회원가입 요청 목록</h2>
         
         <div className="table-responsive">
