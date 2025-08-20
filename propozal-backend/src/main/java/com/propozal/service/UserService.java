@@ -56,8 +56,14 @@ public class UserService {
     public LoginResponse login(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // 🔹 상태값 분기 추가
+        if (!user.isVerified() && !user.isActive()) {
+            throw new CustomException(ErrorCode.EMAIL_AND_APPROVAL_REQUIRED);
         }
         if (!user.isVerified()) {
             throw new CustomException(ErrorCode.EMAIL_NOT_VERIFIED);
@@ -65,6 +71,7 @@ public class UserService {
         if (!user.isActive()) {
             throw new CustomException(ErrorCode.ACCOUNT_PENDING_APPROVAL);
         }
+
         String accessToken = jwtUtil.generateAccessToken(user.getEmail());
         String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
         return new LoginResponse(accessToken, refreshToken);

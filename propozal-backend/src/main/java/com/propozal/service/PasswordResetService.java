@@ -80,7 +80,7 @@ public class PasswordResetService {
     }
 
     private String buildBackendVerifyLink(String token) {
-        return appBaseUrl.replaceAll("/+$", "") + "/api/auth/password-reset/verify?token=" + token;
+        return "http://localhost:5173/password-reset?token=" + token;
     }
 
     @Transactional(readOnly = true)
