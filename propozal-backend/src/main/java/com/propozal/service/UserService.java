@@ -39,14 +39,17 @@ public class UserService {
             throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
         }
 
+        // ✅ 최고 관리자는 이메일 인증만 끝나면 활성화, 영업사원은 관리자 승인 필요
+        boolean active = (role == User.Role.ADMIN);
+
         User user = User.builder()
                 .email(normalizedEmail)
                 .password(passwordEncoder.encode(password))
                 .name(name)
                 .role(role)
                 .loginType(User.LoginType.LOCAL)
-                .isActive(false)
-                .isVerified(false)
+                .isActive(active)   // ADMIN → true, SALESPERSON → false
+                .isVerified(false)  // 이메일 인증은 여전히 필요
                 .build();
         userRepository.save(user);
 
@@ -61,7 +64,7 @@ public class UserService {
             throw new CustomException(ErrorCode.UNAUTHORIZED);
         }
 
-        // 🔹 상태값 분기 추가
+        // 🔹 상태값 분기
         if (!user.isVerified() && !user.isActive()) {
             throw new CustomException(ErrorCode.EMAIL_AND_APPROVAL_REQUIRED);
         }
