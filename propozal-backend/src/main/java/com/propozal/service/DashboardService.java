@@ -42,6 +42,11 @@ public class DashboardService {
         return customRepository.getStatusDistribution(startDate, endDate);
     }
 
+    // 업종 분포
+    public List<DashboardIndustryDistributionDto> getIndustryDistribution() {
+        return customRepository.getIndustryDistribution();
+    }
+
     // 인기 제품
     public List<DashboardPopularProductsDto> getPopularProducts() {
         return popularProductsRepository.findTopPopularProducts()

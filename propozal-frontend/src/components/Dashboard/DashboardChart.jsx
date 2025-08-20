@@ -22,14 +22,16 @@ ChartJS.register(
   Legend
 );
 
-const DashBoardChart = () => {
-  // 그래프에 표시할 가상의 데이터입니다.
-  const data = {
-    labels: ['1월', '2월', '3월', '4월', '5월', '6월'],
+const DashBoardChart = ({ data = [] }) => {
+  // 백엔드에서 받은 monthlyPerformance 배열을 사용합니다.
+  const labels = data.map((d) => d.month);
+  const values = data.map((d) => d.estimateCount);
+  const chartData = {
+    labels,
     datasets: [
       {
-        label: '월별 견적 추이',
-        data: [65, 59, 80, 81, 56, 55],
+        label: '월별 견적 추이(건수)',
+        data: values,
         fill: false,
         backgroundColor: 'rgba(75,192,192,0.4)',
         borderColor: 'rgba(75,192,192,1)',
@@ -52,7 +54,7 @@ const DashBoardChart = () => {
     },
   };
 
-  return <Line data={data} options={options} />;
+  return <Line data={chartData} options={options} />;
 };
 
 export default DashBoardChart;
