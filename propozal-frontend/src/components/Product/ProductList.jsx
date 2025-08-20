@@ -18,7 +18,7 @@ const ProductList = ({ products }) => {
   useEffect(() => {
     const fetchFavorites = async () => {
       try {
-        const res = await axiosInstance.get('/api/products/favorites');
+        const res = await axiosInstance.get('/products/favorites');
         const ids = res.data.content?.map((item) => item.id) || [];
         setFavoriteIds(ids);
       } catch (err) {

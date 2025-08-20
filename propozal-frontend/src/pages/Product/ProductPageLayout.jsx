@@ -24,29 +24,22 @@ const ProductPageLayout = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const params = {
-        page: currentPage,
-        size: 8
-      };
+      const params = { page: currentPage, size: 8 };
 
       if (searchTerm.trim()) {
         params.keyword = searchTerm;
       } else {
-        if (selectedCategories.lv1) params.categoryLv1Id = selectedCategories.lv1;
-        if (selectedCategories.lv2) params.categoryLv2Id = selectedCategories.lv2;
-        if (selectedCategories.lv3) params.categoryLv3Id = selectedCategories.lv3;
+        if (selectedCategories.lv1) params.categoryLv1Id = selectedCategories.lv1.id;
+        if (selectedCategories.lv2) params.categoryLv2Id = selectedCategories.lv2.id;
+        if (selectedCategories.lv3) params.categoryLv3Id = selectedCategories.lv3.id;
       }
 
       try {
-        const res = await axiosInstance.get('/api/products/search', { params });
+        const res = await axiosInstance.get('/products/search', { params });
         setAllProducts(res.data.content);
         setTotalPages(res.data.totalPages);
       } catch (err) {
         console.error('제품 목록 불러오기 실패:', err);
-        if (err.response?.status === 401) {
-          alert('로그인이 필요합니다. 다시 로그인해주세요.');
-          window.location.href = '/login';
-        }
       }
     };
 
@@ -60,14 +53,10 @@ const ProductPageLayout = () => {
   };
 
   const handleCategoryChange = (level, value) => {
-    setSelectedCategories((prev) => {
+    setSelectedCategories(prev => {
       const updated = { ...prev, [level]: value };
-      if (level === 'lv1') {
-        updated.lv2 = null;
-        updated.lv3 = null;
-      } else if (level === 'lv2') {
-        updated.lv3 = null;
-      }
+      if (level === 'lv1') { updated.lv2 = null; updated.lv3 = null; }
+      else if (level === 'lv2') { updated.lv3 = null; }
       return updated;
     });
     setSearchTerm('');
@@ -92,12 +81,13 @@ const ProductPageLayout = () => {
           <Row>
             {/* 왼쪽 필터 영역 */}
             <Col xs={12} md={3} className="mb-4">
+              {/* 검색 바 */}
               <ProductSearchBar
                 searchTerm={searchTerm}
                 onSearchChange={handleSearchChange}
               />
 
-              {/* ✅ 즐겨찾기 버튼 추가 */}
+              {/* 즐겨찾기 버튼 */}
               <div className="my-3">
                 <Button
                   variant="outline-warning"
@@ -109,6 +99,7 @@ const ProductPageLayout = () => {
                 </Button>
               </div>
 
+              {/* 카테고리 필터 메뉴 */}
               <CategoryFilterMenu
                 selectedCategories={selectedCategories}
                 onCategoryChange={handleCategoryChange}
