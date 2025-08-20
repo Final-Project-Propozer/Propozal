@@ -13,7 +13,12 @@ const iconData = [
   {
     icon: <FaFileAlt size={40} />,
     title: "견적서 목록",
-    link: "/estimate/list",
+    link: "/estimate/list-all",
+  },
+  {
+    icon: <FaFileAlt size={40} />,
+    title: "완료된 견적서 목록",
+    link: "/estimate/completedlist",
   },
   {
     icon: <FaCalendarAlt size={40} />,

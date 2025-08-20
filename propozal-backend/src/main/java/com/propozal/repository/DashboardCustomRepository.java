@@ -19,11 +19,11 @@ public interface DashboardCustomRepository extends JpaRepository<DashboardSummar
     @Query(value = """
         SELECT
             DATE_FORMAT(e.created_at, '%Y-%m') as month,
-            COUNT(*) as estimateCount,
-            SUM(CASE WHEN e.deal_status = 2 THEN 1 ELSE 0 END) as dealCount,
-            SUM(e.total_amount) as totalAmount,
-            SUM(CASE WHEN e.deal_status = 2 THEN e.total_amount ELSE 0 END) as dealAmount,
-            (SUM(CASE WHEN e.deal_status = 2 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) as conversionRate
+            CAST(COUNT(*) AS SIGNED) as estimateCount,
+            CAST(SUM(CASE WHEN e.deal_status = 2 THEN 1 ELSE 0 END) AS SIGNED) as dealCount,
+            CAST(SUM(e.total_amount) AS DECIMAL(15,2)) as totalAmount,
+            CAST(SUM(CASE WHEN e.deal_status = 2 THEN e.total_amount ELSE 0 END) AS DECIMAL(15,2)) as dealAmount,
+            CAST((SUM(CASE WHEN e.deal_status = 2 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) AS DOUBLE) as conversionRate
         FROM estimates e
         WHERE e.created_at >= :startDate AND e.created_at <= :endDate
         GROUP BY DATE_FORMAT(e.created_at, '%Y-%m')
@@ -36,13 +36,14 @@ public interface DashboardCustomRepository extends JpaRepository<DashboardSummar
     // 고객별 실적
     @Query(value = """
         SELECT
+            CAST(ROW_NUMBER() OVER (ORDER BY SUM(e.total_amount) DESC) AS SIGNED) as customerId,
             e.customer_name as customerName,
             e.customer_company_name as customerCompanyName,
-            COUNT(*) as estimateCount,
-            SUM(CASE WHEN e.deal_status = 2 THEN 1 ELSE 0 END) as dealCount,
-            SUM(e.total_amount) as totalAmount,
-            SUM(CASE WHEN e.deal_status = 2 THEN e.total_amount ELSE 0 END) as dealAmount,
-            MAX(e.created_at) as lastEstimateDate
+            CAST(COUNT(*) AS SIGNED) as estimateCount,
+            CAST(SUM(CASE WHEN e.deal_status = 2 THEN 1 ELSE 0 END) AS SIGNED) as dealCount,
+            CAST(SUM(e.total_amount) AS DECIMAL(15,2)) as totalAmount,
+            CAST(SUM(CASE WHEN e.deal_status = 2 THEN e.total_amount ELSE 0 END) AS DECIMAL(15,2)) as dealAmount,
+            DATE_FORMAT(MAX(e.created_at), '%Y-%m-%d %H:%i:%s') as lastEstimateDate
         FROM estimates e
         WHERE e.created_at >= :startDate AND e.created_at <= :endDate
         GROUP BY e.customer_name, e.customer_company_name
@@ -55,14 +56,14 @@ public interface DashboardCustomRepository extends JpaRepository<DashboardSummar
     // 영업사원별 실적
     @Query(value = """
         SELECT
-            u.id as userId,
+            CAST(u.id AS SIGNED) as userId,
             u.name as userName,
-            COUNT(*) as estimateCount,
-            SUM(CASE WHEN e.deal_status = 2 THEN 1 ELSE 0 END) as dealCount,
-            SUM(e.total_amount) as totalAmount,
-            SUM(CASE WHEN e.deal_status = 2 THEN e.total_amount ELSE 0 END) as dealAmount,
-            (SUM(CASE WHEN e.deal_status = 2 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) as conversionRate,
-            MAX(e.created_at) as lastEstimateDate
+            CAST(COUNT(*) AS SIGNED) as estimateCount,
+            CAST(SUM(CASE WHEN e.deal_status = 2 THEN 1 ELSE 0 END) AS SIGNED) as dealCount,
+            CAST(SUM(e.total_amount) AS DECIMAL(15,2)) as totalAmount,
+            CAST(SUM(CASE WHEN e.deal_status = 2 THEN e.total_amount ELSE 0 END) AS DECIMAL(15,2)) as dealAmount,
+            CAST((SUM(CASE WHEN e.deal_status = 2 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) AS DOUBLE) as conversionRate,
+            DATE_FORMAT(MAX(e.created_at), '%Y-%m-%d %H:%i:%s') as lastEstimateDate
         FROM estimates e
         JOIN users u ON e.user_id = u.id
         WHERE e.created_at >= :startDate AND e.created_at <= :endDate
@@ -73,25 +74,37 @@ public interface DashboardCustomRepository extends JpaRepository<DashboardSummar
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate);
 
-    // 미확정/지연견적
+    // 업종 분포
     @Query(value = """
         SELECT
-            e.id as estimateId,
+            c.industry as industry,
+            CAST(COUNT(*) AS SIGNED) as customerCount
+        FROM customers c
+        WHERE c.industry IS NOT NULL AND c.industry <> ''
+        GROUP BY c.industry
+        ORDER BY customerCount DESC
+        """, nativeQuery = true)
+    List<DashboardIndustryDistributionDto> getIndustryDistribution();
+
+    // 미확정/지연견적 - 임시로 30일 이내 만료 예정 견적 표시
+    @Query(value = """
+        SELECT
+            CAST(e.id AS SIGNED) as estimateId,
             e.customer_name as customerName,
             e.customer_company_name as customerCompanyName,
-            u.name as salesPersonName,
-            e.expiration_date as expirationDate,
-            DATEDIFF(CURDATE(), e.expiration_date) as daysOverdue,
-            e.total_amount as amount,
+            COALESCE(u.name, 'N/A') as salesPersonName,
+            CAST(e.expiration_date AS DATE) as expirationDate,
+            CAST(DATEDIFF(e.expiration_date, CURDATE()) AS SIGNED) as daysOverdue,
+            CAST(e.total_amount AS DECIMAL(15,2)) as amount,
             CASE e.deal_status
                 WHEN 0 THEN '취소'
                 WHEN 1 THEN '대기'
                 WHEN 2 THEN '성사'
             END as status
         FROM estimates e
-        JOIN users u ON e.user_id = u.id
+        LEFT JOIN users u ON e.user_id = u.id
         WHERE e.deal_status = 1
-            AND e.expiration_date < CURDATE()
+            AND e.expiration_date <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)
         ORDER BY e.expiration_date ASC
         """, nativeQuery = true)
     List<DashboardDelayedEstimatesDto> getDelayedEstimates();
@@ -99,10 +112,10 @@ public interface DashboardCustomRepository extends JpaRepository<DashboardSummar
     // 상태 분포
     @Query(value = """
         SELECT 
-            COUNT(*) as totalEstimates,
-            SUM(CASE WHEN deal_status = 1 THEN 1 ELSE 0 END) as pendingEstimates,
-            SUM(CASE WHEN deal_status = 2 THEN 1 ELSE 0 END) as completedEstimates,
-            SUM(CASE WHEN deal_status = 0 THEN 1 ELSE 0 END) as canceledEstimates
+            CAST(COUNT(*) AS SIGNED) as totalEstimates,
+            CAST(SUM(CASE WHEN deal_status = 1 THEN 1 ELSE 0 END) AS SIGNED) as pendingEstimates,
+            CAST(SUM(CASE WHEN deal_status = 2 THEN 1 ELSE 0 END) AS SIGNED) as completedEstimates,
+            CAST(SUM(CASE WHEN deal_status = 0 THEN 1 ELSE 0 END) AS SIGNED) as canceledEstimates
         FROM estimates
         WHERE created_at >= :startDate AND created_at <= :endDate
         """, nativeQuery = true)
