@@ -139,7 +139,10 @@ public class EstimateService {
                                 request.getCustomerPhone(),
                                 request.getCustomerCompanyName(),
                                 request.getCustomerPosition(),
-                                request.getSpecialTerms());
+                                request.getSpecialTerms(),
+                                request.getDealStatus(),
+                                request.getExpirationDate(),
+                                request.getSentDate());
                 return estimateRepository.save(estimate);
         }
 
@@ -164,7 +167,6 @@ public class EstimateService {
 
                 Estimate estimate = version.getEstimate();
 
-                // ✅ HEAD의 복잡한 로직을 모두 버리고 새 버전의 로직을 채택
                 try {
                         // PDF 생성 및 업로드, URL 생성
                         Map<String, Object> templateModel = dataPreparationService
@@ -253,31 +255,6 @@ public class EstimateService {
                                 : "견적서가 거절되었습니다. 소중한 의견 감사합니다.";
         }
 
-        // @Transactional
-        // public void saveVersion(Long estimateId, Long userId, String memo) {
-        // Estimate estimate = estimateRepository.findById(estimateId)
-        // .orElseThrow(() -> new EntityNotFoundException("견적서를 찾을 수 없습니다."));
-        // User user = userRepository.findById(userId)
-        // .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
-        //
-        // try {
-        // EstimateDetailDto detailDto = new EstimateDetailDto(estimate);
-        // String estimateJson = objectMapper.writeValueAsString(detailDto);
-        //
-        // EstimateVersion version = EstimateVersion.builder()
-        // .estimate(estimate)
-        // .estimateData(estimateJson)
-        // .savedBy(user.getName())
-        // .memo(memo)
-        // .build();
-        //
-        // versionRepository.save(version);
-        //
-        // } catch (Exception e) {
-        // throw new RuntimeException("견적서 버전 저장에 실패했습니다.", e);
-        // }
-        // }
-
         @Transactional
         public void saveVersion(Long estimateId, Long userId, String memo, EstimateDataDto estimateData) {
                 Estimate estimate = estimateRepository.findById(estimateId)
@@ -285,14 +262,16 @@ public class EstimateService {
                 User user = userRepository.findById(userId)
                                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
 
-                // ✅ 특약사항 등 고객 정보 업데이트
                 estimate.updateCustomerInfo(
                                 estimateData.getCustomerName(),
                                 estimateData.getCustomerEmail(),
                                 estimateData.getCustomerPhone(),
                                 estimateData.getCustomerCompanyName(),
                                 estimateData.getCustomerPosition(),
-                                estimateData.getSpecialTerms());
+                                estimateData.getSpecialTerms(),
+                                estimateData.getDealStatus(),
+                                estimateData.getExpirationDate(),
+                                estimateData.getSentDate());
 
                 try {
                         // JPA 엔티티 대신 단순 DTO로 변환

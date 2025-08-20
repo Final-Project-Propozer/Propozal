@@ -182,6 +182,34 @@ const EstimateForm = ({ estimateId, initialData, readOnly = false }) => {
           </div>
         </div>
 
+        {/* 담당자 정보 섹션 */}
+        <h4 className="mb-3">담당자 정보</h4>
+        <Row>
+          <Col md={6}>
+            <Form.Group className="mb-3">
+              <Form.Label>담당자 이름</Form.Label>
+              <Form.Control
+                type="text"
+                value={initialData?.user?.username || ""}
+                readOnly
+                style={{ backgroundColor: "#f1f1f1" }}
+              />
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group className="mb-3">
+              <Form.Label>담당자 이메일</Form.Label>
+              <Form.Control
+                type="email"
+                value={initialData?.user?.email || ""}
+                readOnly
+                style={{ backgroundColor: "#f1f1f1" }}
+              />
+            </Form.Group>
+          </Col>
+        </Row>
+        <hr className="my-4" />
+
         <h4 className="mb-3">고객 정보</h4>
 
         {error && <Alert variant="danger">{error}</Alert>}
@@ -408,7 +436,7 @@ const EstimateForm = ({ estimateId, initialData, readOnly = false }) => {
                   <strong>견적 송부일:</strong> {previewData.sentDate}
                 </p>
                 <p>
-                  <strong>견적 유효일:</strong> {previewData.expirationDate}
+                  <strong>견적 유효일:</strong> {previewA.expirationDate}
                 </p>
                 <p>
                   <strong>프로세스 단계:</strong> {previewData.dealStatus}
@@ -450,3 +478,4 @@ const EstimateForm = ({ estimateId, initialData, readOnly = false }) => {
 };
 
 export default EstimateForm;
+
