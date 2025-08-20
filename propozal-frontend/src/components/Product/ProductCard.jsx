@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Card, Button, Spinner } from 'react-bootstrap';
 import { StarFill, Star } from 'react-bootstrap-icons';
-import { Link } from 'react-router-dom';
-import QuoteModal from './QuoteModal';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
 
 const ProductCard = ({ product, onFavoriteRemove }) => {
   const [isFavorite, setIsFavorite] = useState(product.isFavorite !== false);
-  const [showModal, setShowModal] = useState(false);
   const [loadingFavorite, setLoadingFavorite] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { estimateId } = location.state || {};
 
   const toggleFavorite = async () => {
     setLoadingFavorite(true);
@@ -33,8 +34,15 @@ const ProductCard = ({ product, onFavoriteRemove }) => {
     }
   };
 
-  const handleOpenModal = () => setShowModal(true);
-  const handleCloseModal = () => setShowModal(false);
+  const handleAddToEstimate = () => {
+    if (estimateId) {
+      // ✅ 기존 견적서 수정 페이지로 이동
+      navigate(`/estimate/${estimateId}/edit`, { state: { product } });
+    } else {
+      // ✅ 새 견적서 작성 페이지로 이동
+      navigate(`/estimate`, { state: { product } });
+    }
+  };
 
   return (
     <>
@@ -84,13 +92,11 @@ const ProductCard = ({ product, onFavoriteRemove }) => {
             <strong>{product.basePrice?.toLocaleString()}원</strong>
           </Card.Text>
 
-          <Button variant="success" size="m" className="w-100" onClick={handleOpenModal}>
+          <Button variant="success" size="m" className="w-100" onClick={handleAddToEstimate}>
             + 견적서에 추가
           </Button>
         </Card.Body>
       </Card>
-
-      <QuoteModal show={showModal} handleClose={handleCloseModal} product={product} />
     </>
   );
 };
