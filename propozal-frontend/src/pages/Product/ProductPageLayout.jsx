@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
 
 import SalesNavbar from '../../components/Navbar/SalesNavbar';
@@ -9,6 +10,8 @@ import CategoryFilterMenu from '../../components/Product/CategoryFilterMenu';
 import ProductList from '../../components/Product/ProductList';
 
 const ProductPageLayout = () => {
+  const navigate = useNavigate();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategories, setSelectedCategories] = useState({
     lv1: null,
@@ -19,7 +22,6 @@ const ProductPageLayout = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
 
-  // ✅ 제품 목록 요청 (검색어 또는 카테고리 조건에 따라)
   useEffect(() => {
     const fetchProducts = async () => {
       const params = {
@@ -51,14 +53,12 @@ const ProductPageLayout = () => {
     fetchProducts();
   }, [currentPage, searchTerm, selectedCategories]);
 
-  // ✅ 검색어 입력 시 카테고리 초기화
   const handleSearchChange = (term) => {
     setSearchTerm(term);
     setSelectedCategories({ lv1: null, lv2: null, lv3: null });
     setCurrentPage(0);
   };
 
-  // ✅ 카테고리 선택 시 검색어 초기화
   const handleCategoryChange = (level, value) => {
     setSelectedCategories((prev) => {
       const updated = { ...prev, [level]: value };
@@ -74,10 +74,13 @@ const ProductPageLayout = () => {
     setCurrentPage(0);
   };
 
-  // ✅ 카테고리 필터 초기화
   const handleClearFilters = () => {
     setSelectedCategories({ lv1: null, lv2: null, lv3: null });
     setCurrentPage(0);
+  };
+
+  const handleGoToFavorites = () => {
+    navigate('/products/favorites');
   };
 
   return (
@@ -93,6 +96,19 @@ const ProductPageLayout = () => {
                 searchTerm={searchTerm}
                 onSearchChange={handleSearchChange}
               />
+
+              {/* ✅ 즐겨찾기 버튼 추가 */}
+              <div className="my-3">
+                <Button
+                  variant="outline-warning"
+                  className="w-100"
+                  style={{ color: 'black' }}
+                  onClick={handleGoToFavorites}
+                >
+                  ⭐ 즐겨찾기 목록
+                </Button>
+              </div>
+
               <CategoryFilterMenu
                 selectedCategories={selectedCategories}
                 onCategoryChange={handleCategoryChange}
