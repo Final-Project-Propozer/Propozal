@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Table, Button, Form, Row, Col, Alert, Spinner, InputGroup } from 'react-bootstrap';
 import axiosInstance from '../../api/axiosInstance';
 import { FiTrash2 } from 'react-icons/fi';
+import { useNavigate } from "react-router-dom";
 
 const EstimateItemTable = ({ estimateId, readOnly = false }) => {
   const [items, setItems] = useState([]);
@@ -19,6 +20,7 @@ const EstimateItemTable = ({ estimateId, readOnly = false }) => {
   const [discounting, setDiscounting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
 
   const fetchItems = async () => {
     try {
@@ -75,7 +77,7 @@ const EstimateItemTable = ({ estimateId, readOnly = false }) => {
   };
 
   const handleSearchProduct = () => {
-    window.location.href = 'http://localhost:5173/products';
+    navigate("/products");
   };
 
   const handleApplyDiscount = async () => {

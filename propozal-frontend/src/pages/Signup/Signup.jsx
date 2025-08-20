@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";  // ✅ 기본 axios 사용
 
 // 🔹 카카오 인증 URL
-const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=3fdf6a1c367635a4dbc945a816c7a2b1&redirect_uri=http://localhost:5173/kakao/callback&response_type=code`;
+const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=3fdf6a1c367635a4dbc945a816c7a2b1&redirect_uri=https://propozal.app/kakao/callback&response_type=code`;
 
 const SignupPage = () => {
   const navigate = useNavigate();

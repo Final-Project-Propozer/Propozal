@@ -26,7 +26,7 @@ public class PasswordResetService {
 
     private static final int EXPIRE_MINUTES = 30;
 
-    @Value("${app.base-url:http://localhost:8080}")
+    @Value("${app.base-url")
     private String appBaseUrl;
 
     public PasswordResetService(UserRepository userRepository,
@@ -80,7 +80,7 @@ public class PasswordResetService {
     }
 
     private String buildBackendVerifyLink(String token) {
-        return "http://localhost:5173/password-reset?token=" + token;
+        return "/password-reset?token=" + token;
     }
 
     @Transactional(readOnly = true)
