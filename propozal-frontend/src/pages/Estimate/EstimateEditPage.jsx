@@ -19,7 +19,7 @@ const EstimateEditPage = () => {
   useEffect(() => {
     const checkEstimateExists = async () => {
       try {
-        const res = await axiosInstance.get(`/api/estimate/${estimateId}`);
+        const res = await axiosInstance.get(`/estimate/${estimateId}`);
         console.log('견적서 조회 성공:', res.data);
         setExists(true);
       } catch (err) {

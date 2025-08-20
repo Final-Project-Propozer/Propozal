@@ -21,7 +21,7 @@ const EstimatePageCreation = () => {
       hasCreated.current = true;
 
       try {
-        const res = await axiosInstance.post('/api/estimate');
+        const res = await axiosInstance.post('/estimate');
         console.log('견적서 생성 응답:', res.data);
         console.log('생성된 estimateId:', res.data.id);
         setEstimateId(res.data.id);

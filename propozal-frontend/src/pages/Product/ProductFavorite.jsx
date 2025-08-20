@@ -23,7 +23,7 @@ const ProductFavoritePage = () => {
   useEffect(() => {
     const fetchFavorites = async () => {
       try {
-        const res = await axiosInstance.get('/api/products/favorites', {
+        const res = await axiosInstance.get('/products/favorites', {
           params: { page: currentPage, size: 8 }
         });
 

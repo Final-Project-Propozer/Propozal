@@ -22,7 +22,7 @@ const EstimateItemTable = ({ estimateId, readOnly = false }) => {
 
   const fetchItems = async () => {
     try {
-      const res = await axiosInstance.get(`/api/estimate/${estimateId}`);
+      const res = await axiosInstance.get(`/estimate/${estimateId}`);
       setItems(res.data.items || []);
     } catch (err) {
       setError('품목 정보를 불러오지 못했습니다.');
@@ -49,7 +49,7 @@ const EstimateItemTable = ({ estimateId, readOnly = false }) => {
     setError('');
     setSuccess(false);
     try {
-      await axiosInstance.post(`/api/estimate/${estimateId}/items`, {
+      await axiosInstance.post(`/estimate/${estimateId}/items`, {
         productId: parseInt(newItem.productId),
         quantity: parseInt(newItem.quantity),
         discountRate: parseFloat(newItem.discountRate) / 100 // ✅ 소수로 변환
@@ -67,7 +67,7 @@ const EstimateItemTable = ({ estimateId, readOnly = false }) => {
   const handleDeleteItem = async (itemId) => {
     if (readOnly) return;
     try {
-      await axiosInstance.delete(`/api/estimate/${estimateId}/items/${itemId}`);
+      await axiosInstance.delete(`/estimate/${estimateId}/items/${itemId}`);
       fetchItems();
     } catch (err) {
       setError('품목 삭제 중 오류가 발생했습니다.');
@@ -84,7 +84,7 @@ const EstimateItemTable = ({ estimateId, readOnly = false }) => {
     setDiscounting(true);
     setError('');
     try {
-      await axiosInstance.patch(`/api/estimate/${estimateId}/items/${selectedItemId}`, {
+      await axiosInstance.patch(`/estimate/${estimateId}/items/${selectedItemId}`, {
         discountRate: selectedDiscount / 100 // ✅ 소수로 변환
       });
       setSelectedItemId('');

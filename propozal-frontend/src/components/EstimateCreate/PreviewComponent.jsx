@@ -7,7 +7,7 @@ const PreviewComponent = ({ estimateId }) => {
 
   useEffect(() => {
     const fetchPreview = async () => {
-      const res = await axiosInstance.get(`/api/estimate/${estimateId}`);
+      const res = await axiosInstance.get(`/estimate/${estimateId}`);
       setEstimate(res.data);
     };
     fetchPreview();

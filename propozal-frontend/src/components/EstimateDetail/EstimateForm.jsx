@@ -40,7 +40,7 @@ const EstimateForm = ({ estimateId, readOnly = false }) => {
   useEffect(() => {
     const fetchEstimate = async () => {
       try {
-        const res = await axiosInstance.get(`/api/estimate/${estimateId}`);
+        const res = await axiosInstance.get(`/estimate/${estimateId}`);
         const data = res.data;
         setFormData({
           customerName: data.customerName || '',
@@ -61,7 +61,7 @@ const EstimateForm = ({ estimateId, readOnly = false }) => {
 
     const fetchMemos = async () => {
       try {
-        const res = await axiosInstance.get(`/api/estimates/${estimateId}/memos`);
+        const res = await axiosInstance.get(`/estimates/${estimateId}/memos`);
         setMemoList(res.data);
       } catch (err) {
         console.error('메모 조회 실패:', err);
@@ -89,7 +89,7 @@ const EstimateForm = ({ estimateId, readOnly = false }) => {
     setSuccess(false);
 
     try {
-      await axiosInstance.patch(`/api/estimate/${estimateId}`, formData);
+      await axiosInstance.patch(`/estimate/${estimateId}`, formData);
       setSuccess(true);
     } catch (err) {
       setError('저장 중 오류가 발생했습니다.');
@@ -104,13 +104,13 @@ const EstimateForm = ({ estimateId, readOnly = false }) => {
 
   const handleMemoSave = async () => {
     try {
-      await axiosInstance.post(`/api/estimates/${estimateId}/memos`, {
+      await axiosInstance.post(`/estimates/${estimateId}/memos`, {
         content: memoText
       });
       setMemoText('');
       setShowMemoModal(false);
       alert('메모가 저장되었습니다.');
-      const res = await axiosInstance.get(`/api/estimates/${estimateId}/memos`);
+      const res = await axiosInstance.get(`/estimates/${estimateId}/memos`);
       setMemoList(res.data);
     } catch (err) {
       alert('메모 저장 중 오류가 발생했습니다.');

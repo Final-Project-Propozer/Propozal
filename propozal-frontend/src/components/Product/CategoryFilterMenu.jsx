@@ -8,7 +8,7 @@ const CategoryFilterMenu = ({ selectedCategories, onCategoryChange, onClearFilte
 
   // ✅ 카테고리 트리 불러오기
   useEffect(() => {
-    axiosInstance.get('/api/categories/tree')
+    axiosInstance.get('/categories/tree')
       .then((res) => {
         setCategoryTree(res.data);
         setLoading(false);

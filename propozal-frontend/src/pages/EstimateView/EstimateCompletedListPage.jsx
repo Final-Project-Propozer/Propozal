@@ -32,7 +32,7 @@ const CompletedEstimateListPage = () => {
   useEffect(() => {
     const fetchEstimates = async () => {
       try {
-        const res = await axiosInstance.get('/api/estimate/completed');
+        const res = await axiosInstance.get('/estimate/completed');
         const data = res.data || [];
         setEstimates(data);
         setFilteredEstimates(data);

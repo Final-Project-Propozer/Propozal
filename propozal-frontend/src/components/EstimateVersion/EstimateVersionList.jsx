@@ -10,7 +10,7 @@ const EstimateVersionList = () => {
   useEffect(() => {
     const fetchVersions = async () => {
       try {
-        const res = await axiosInstance.get(`/api/estimate/${estimateId}/versions`);
+        const res = await axiosInstance.get(`/estimate/${estimateId}/versions`);
         setVersions(res.data);
       } catch (error) {
         console.error('버전 목록 조회 실패:', error);

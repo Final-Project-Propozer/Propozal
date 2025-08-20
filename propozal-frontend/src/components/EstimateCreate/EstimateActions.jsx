@@ -32,7 +32,7 @@ const EstimateActions = ({ estimateId, readOnly = false }) => {
   const fetchItems = async () => {
     setLoading(true);
     try {
-      const res = await axiosInstance.get(`/api/estimate/${estimateId}`);
+      const res = await axiosInstance.get(`/estimate/${estimateId}`);
       setItems(res.data.items || []);
       setError('');
     } catch (err) {
@@ -94,7 +94,7 @@ const EstimateActions = ({ estimateId, readOnly = false }) => {
         specialTerms
       };
 
-      await axiosInstance.post(`/api/estimate/${estimateId}/versions`, {
+      await axiosInstance.post(`/estimate/${estimateId}/versions`, {
         estimateData,
         memo: managerNote
       });

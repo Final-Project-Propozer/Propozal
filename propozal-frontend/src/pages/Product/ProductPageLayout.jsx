@@ -36,7 +36,7 @@ const ProductPageLayout = () => {
       }
 
       try {
-        const res = await axiosInstance.get('/api/products/search', { params });
+        const res = await axiosInstance.get('/products/search', { params });
         setAllProducts(res.data.content);
         setTotalPages(res.data.totalPages);
       } catch (err) {

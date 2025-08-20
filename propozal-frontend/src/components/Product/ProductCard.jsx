@@ -14,7 +14,7 @@ const ProductCard = ({ product, onFavoriteRemove }) => {
     setLoadingFavorite(true);
     try {
       if (isFavorite) {
-        await axiosInstance.delete(`/api/products/favorites/${product.id}`);
+        await axiosInstance.delete(`/products/favorites/${product.id}`);
         setIsFavorite(false);
 
         // ✅ 부모에게 알림: 즐겨찾기 목록에서 제거
@@ -22,7 +22,7 @@ const ProductCard = ({ product, onFavoriteRemove }) => {
           onFavoriteRemove(product.id);
         }
       } else {
-        await axiosInstance.post('/api/products/favorites', { productId: product.id });
+        await axiosInstance.post('/products/favorites', { productId: product.id });
         setIsFavorite(true);
       }
     } catch (err) {
