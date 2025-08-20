@@ -11,10 +11,39 @@ const AdminDashboard = () => {
   // useState로 현재 접속중인 사용자 ID 불러옴.
   const [userId, setUserId] = useState('');
 
+  // 대시보드 데이터 상태
+  const [dashboard, setDashboard] = useState(null);
+  const [industryData, setIndustryData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   // 백엔드 연동 지점
   useEffect(() => {
     // 더미데이터= ID: "admin123"
-    setUserId("admin123"); 
+    setUserId("admin123");
+
+    const fetchData = async () => {
+      try {
+        const [summaryRes, industryRes] = await Promise.all([
+          fetch('/api/dashboard/summary'),
+          fetch('/api/dashboard/industry-distribution')
+        ]);
+        if (!summaryRes.ok || !industryRes.ok) throw new Error('대시보드 데이터를 불러오지 못했습니다.');
+        const [summary, industry] = await Promise.all([
+          summaryRes.json(),
+          industryRes.json()
+        ]);
+        setDashboard(summary);
+        setIndustryData(industry);
+      } catch (e) {
+        console.error(e);
+        setError(e.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   return (
@@ -23,10 +52,19 @@ const AdminDashboard = () => {
       <AdminNavbar />
 
       {/* 대시보드 */}
-      <div 
-        className="container flex-grow-1" 
+      <div
+        className="container flex-grow-1"
         style={{ paddingTop: navbarHeight }}
       >
+        {/* 로딩/에러 표시 */}
+        {(loading || error) && (
+          <div className="row mt-3">
+            <div className="col-12">
+              {loading && <div className="alert alert-secondary">대시보드 데이터를 불러오는 중...</div>}
+              {error && <div className="alert alert-danger">{error}</div>}
+            </div>
+          </div>
+        )}
         {/* 1번째 행: 제목/관리자ID */}
         <div className="row mt-4">
           <div className="col-md-4">
@@ -39,14 +77,14 @@ const AdminDashboard = () => {
         <div className="col-md-4">
             <div className="card p-3 bg-light" style={{height: '200px'}}>
                 <h5 className="card-title">업종별 고객 비율</h5>
-                    <DashboardDoughnutChart />
+                    <DashboardDoughnutChart data={industryData} />
                 </div>
             </div>
           {/* 1번째 행: 견적 실적 통계 차트 */}
           <div className="col-md-4">
             <div className="card p-3 bg-light" style={{height: '200px'}}>
               <h5 className="card-title">월별 견적 추이</h5>
-              <DashboardChart />
+              <DashboardChart data={dashboard?.monthlyPerformance || []} />
             </div>
           </div>
         </div>
@@ -71,8 +109,8 @@ const AdminDashboard = () => {
         <div className="row mt-4 mb-4">
           <div className="col-md-12">
             <div className="card p-3 bg-light" style={{height: '471px'}}>
-              <h5 className="card-title mb-4">최근 견적</h5>
-              <DashboardQuoteList />
+              <h5 className="card-title mb-4">미확정/지연 견적</h5>
+              <DashboardQuoteList items={dashboard?.delayedEstimates || []} />
             </div>
           </div>
         </div>
