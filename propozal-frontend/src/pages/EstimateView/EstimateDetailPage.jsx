@@ -177,7 +177,7 @@ const EstimateDetailPage = () => {
     if (!window.confirm('정말로 이 견적서를 삭제하시겠습니까?')) return;
 
     try {
-      await axiosInstance.delete(`/api/estimate/${estimateId}`);
+      await axiosInstance.delete(`/estimate/${estimateId}`);
       setActionMessage('견적서가 삭제되었습니다.');
       navigate('/estimate');
     } catch (err) {
@@ -218,7 +218,7 @@ const EstimateDetailPage = () => {
 
   const handleSendEmail = async () => {
     try {
-      await axiosInstance.post(`/api/estimate/${estimateId}/send-email`);
+      await axiosInstance.post(`/estimate/${estimateId}/send-email`);
       setActionMessage('이메일이 성공적으로 전송되었습니다.');
     } catch (err) {
       setError('이메일 전송 중 오류가 발생했습니다.');

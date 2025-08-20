@@ -26,7 +26,7 @@ const EstimateListPagetemp = () => {
   useEffect(() => {
     const fetchEstimates = async () => {
       try {
-        const res = await axiosInstance.get('/api/estimate/drafts');
+        const res = await axiosInstance.get('/estimate/drafts');
         const data = res.data || [];
         setEstimates(data);
         setFilteredEstimates(data);

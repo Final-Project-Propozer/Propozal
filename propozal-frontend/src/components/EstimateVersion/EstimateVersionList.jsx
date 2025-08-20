@@ -18,7 +18,7 @@ const EstimateVersionList = () => {
     setSearchedId(searchEstimateId.trim());
 
     try {
-      const res = await axiosInstance.get(`/api/estimate/${searchEstimateId}/versions`);
+      const res = await axiosInstance.get(`/estimate/${searchEstimateId}/versions`);
 
       // 최신순으로 정렬
       const sortedVersions = [...res.data].sort(

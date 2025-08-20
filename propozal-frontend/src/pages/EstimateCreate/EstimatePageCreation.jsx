@@ -21,7 +21,7 @@ const EstimatePageCreation = () => {
   const fetchEstimateData = useCallback(async (id) => {
     if (!id) return;
     try {
-      const res = await axiosInstance.get(`/api/estimate/${id}`);
+      const res = await axiosInstance.get(`/estimate/${id}`);
       setEstimateData(res.data); // state를 최신 데이터로 업데이트
     } catch (err) {
       console.error("견적서 데이터 조회 오류:", err);

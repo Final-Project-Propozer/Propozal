@@ -61,7 +61,7 @@ const EstimateItemTable = ({
       setSuccess(false);
 
       try {
-        await axiosInstance.post(`/api/estimate/${estimateId}/items`, {
+        await axiosInstance.post(`/estimate/${estimateId}/items`, {
           productId: parseInt(productToAdd.id),
           quantity: 1,
           discountRate: 0,
