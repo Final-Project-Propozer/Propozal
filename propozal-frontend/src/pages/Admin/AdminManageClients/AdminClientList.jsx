@@ -76,7 +76,7 @@ const AdminClientList = () => {
   return (
     <div className="d-flex flex-column min-vh-100">
       <AdminNavbar />
-      <div className="container-fluid flex-grow-1 py-5" style={{ paddingTop: '60px' }}>
+      <div className="container-fluid flex-grow-1" style={{ paddingTop: '100px' }}>
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h2>고객 목록</h2>
           <div>
