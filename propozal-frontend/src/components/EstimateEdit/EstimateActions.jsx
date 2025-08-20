@@ -1,30 +1,34 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Row, Col, Alert, Spinner, Form, Table } from 'react-bootstrap';
-import axiosInstance from '../../api/axiosInstance';
+import React, { useEffect, useState } from "react";
+import { Button, Row, Col, Alert, Spinner, Form, Table } from "react-bootstrap";
+import axiosInstance from "../../api/axiosInstance";
 
-const EstimateActions = ({ estimateId, readOnly = false }) => {
+const EstimateActions = ({ estimateId, estimateData, readOnly = false }) => {
+  // ✅ estimateData props에서 items 우선 사용
   const [items, setItems] = useState([]);
   const [supplyAmount, setSupplyAmount] = useState(0);
   const [discountAmount, setDiscountAmount] = useState(0);
   const [vatAmount, setVatAmount] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
 
-  const [specialTerms, setSpecialTerms] = useState('');
-  const [managerNote, setManagerNote] = useState('');
+  const [specialTerms, setSpecialTerms] = useState("");
+  const [managerNote, setManagerNote] = useState("");
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // ✅ props 있으면 로딩 안함
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   const fetchItems = async () => {
     setLoading(true);
     try {
       const res = await axiosInstance.get(`/api/estimate/${estimateId}`);
       setItems(res.data.items || []);
-      setError('');
+      setError("");
     } catch (err) {
-      setError('품목 정보를 불러오지 못했습니다.');
+      console.log("품목 정보 조회 중 오류 (무시됨):", err);
+      if (!readOnly) {
+        setError("품목 정보를 불러오지 못했습니다.");
+      }
     } finally {
       setLoading(false);
     }
@@ -34,7 +38,7 @@ const EstimateActions = ({ estimateId, readOnly = false }) => {
     let supply = 0;
     let discount = 0;
 
-    items.forEach(item => {
+    items.forEach((item) => {
       const unitPrice = item.unitPrice || 0;
       const quantity = item.quantity || 0;
       const rate = item.discountRate || 0;
@@ -55,46 +59,60 @@ const EstimateActions = ({ estimateId, readOnly = false }) => {
     setTotalAmount(total);
   };
 
+  // ✅ estimateData props가 있으면 해당 데이터 사용
   useEffect(() => {
-    fetchItems();
-  }, [estimateId]);
+    if (estimateData && estimateData.items) {
+      console.log(
+        "✅ EstimateActions - props에서 items 사용:",
+        estimateData.items
+      );
+      setItems(estimateData.items);
+      setLoading(false);
+    } else if (estimateId) {
+      console.log("🔄 EstimateActions - API 호출로 데이터 조회");
+      fetchItems();
+    }
+  }, [estimateId, estimateData]);
 
   useEffect(() => {
     if (items.length > 0) {
+      console.log("💰 금액 계산 시작 - items:", items);
       calculateTotals();
+    } else {
+      console.log("❌ items가 없어서 금액 계산 안함");
     }
   }, [items]);
 
   const handleSaveVersion = async () => {
     if (readOnly) return;
 
-    console.log('✅ 저장 함수 실행됨');
+    console.log("✅ 저장 함수 실행됨");
 
     setSaving(true);
-    setMessage('');
-    setError('');
+    setMessage("");
+    setError("");
 
     try {
-      const estimateData = {
+      const estimateDataForSave = {
         items,
         supplyAmount,
         discountAmount,
         vatAmount,
         totalAmount,
-        specialTerms
+        specialTerms,
       };
 
-      console.log('📦 전송할 데이터:', estimateData);
+      console.log("📦 전송할 데이터:", estimateDataForSave);
 
       await axiosInstance.post(`/api/estimate/${estimateId}/versions`, {
-        estimateData,
-        memo: managerNote
+        estimateData: estimateDataForSave,
+        memo: managerNote,
       });
 
-      setMessage('견적서가 저장되었습니다.');
+      setMessage("견적서가 저장되었습니다.");
     } catch (err) {
-      console.error('❌ 저장 중 오류:', err);
-      setError('저장 중 오류가 발생했습니다.');
+      console.error("❌ 저장 중 오류:", err);
+      setError("저장 중 오류가 발생했습니다.");
     } finally {
       setSaving(false);
     }
@@ -107,7 +125,7 @@ const EstimateActions = ({ estimateId, readOnly = false }) => {
       <h4 className="mb-3">견적금액 요약</h4>
 
       {message && !readOnly && <Alert variant="success">{message}</Alert>}
-      {error && <Alert variant="danger">{error}</Alert>}
+      {!readOnly && error && <Alert variant="danger">{error}</Alert>}
 
       <Row>
         <Col md={6}>
@@ -119,7 +137,9 @@ const EstimateActions = ({ estimateId, readOnly = false }) => {
               </tr>
               <tr>
                 <th>할인액</th>
-                <td className="text-end">{discountAmount.toLocaleString()}원</td>
+                <td className="text-end">
+                  {discountAmount.toLocaleString()}원
+                </td>
               </tr>
               <tr>
                 <th>VAT</th>
@@ -136,7 +156,7 @@ const EstimateActions = ({ estimateId, readOnly = false }) => {
                 <th>총 견적금액</th>
                 <td className="text-end align-middle">
                   <div className="d-flex justify-content-between align-items-center">
-                    <strong style={{ fontSize: '1.5rem', color: '#007bff' }}>
+                    <strong style={{ fontSize: "1.5rem", color: "#007bff" }}>
                       {totalAmount.toLocaleString()}원
                     </strong>
                     <Button
@@ -145,7 +165,7 @@ const EstimateActions = ({ estimateId, readOnly = false }) => {
                       onClick={fetchItems}
                       disabled={loading}
                     >
-                      {loading ? '불러오는 중...' : '새로고침'}
+                      {loading ? "불러오는 중..." : "새로고침"}
                     </Button>
                   </div>
                 </td>
@@ -176,15 +196,21 @@ const EstimateActions = ({ estimateId, readOnly = false }) => {
               onChange={(e) => setManagerNote(e.target.value)}
               placeholder="홍길동 / 010-1234-5678 / sales@company.com"
               readOnly={readOnly}
-              style={{ backgroundColor: '#f8f9fa' }}
+              style={{ backgroundColor: "#f8f9fa" }}
             />
           </Form.Group>
 
           <Row className="mb-5">
             <Col className="text-end">
-              <Button variant="outline-primary" className="me-2">미리보기</Button>
-              <Button variant="success" onClick={handleSaveVersion} disabled={saving}>
-                {saving ? '저장 중...' : '저장하기'}
+              <Button variant="outline-primary" className="me-2">
+                미리보기
+              </Button>
+              <Button
+                variant="success"
+                onClick={handleSaveVersion}
+                disabled={saving}
+              >
+                {saving ? "저장 중..." : "저장하기"}
               </Button>
             </Col>
           </Row>
