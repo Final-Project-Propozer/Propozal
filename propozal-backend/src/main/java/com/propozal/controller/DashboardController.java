@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/dashboard")
+@RequestMapping("api/dashboard")
 @RequiredArgsConstructor
 public class DashboardController {
 
@@ -89,6 +89,12 @@ public class DashboardController {
         LocalDate end = endDate != null ? endDate : LocalDate.now();
 
         return ResponseEntity.ok(dashboardService.getDashboardSummary(start, end));
+    }
+
+    // 업종 분포
+    @GetMapping("/industry-distribution")
+    public ResponseEntity<List<DashboardIndustryDistributionDto>> getIndustryDistribution() {
+        return ResponseEntity.ok(dashboardService.getIndustryDistribution());
     }
 
     // 필터/검색 기능
