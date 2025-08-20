@@ -12,6 +12,8 @@ public class ProductCreateRequestDto {
     private String code;
     private String description;
     private BigDecimal price;
-    private Long categoryId;
+    private Long categoryLv1Id;
+    private Long categoryLv2Id;
+    private Long categoryLv3Id;
     private String imageUrl;
 }

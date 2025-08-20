@@ -34,17 +34,23 @@ public class ProductAdminService {
             throw new CustomException(ErrorCode.PRODUCT_ALREADY_EXISTS);
         }
 
-        Category categoryLv3 = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
-
-        Category categoryLv2 = categoryLv3.getParent();
-        if (categoryLv2 == null) {
-            throw new CustomException(ErrorCode.CATEGORY_NOT_FOUND); // Lv2 없으면 잘못된 소분류
+        // 🟢 수정된 부분: DTO에서 받은 ID가 null이 아닐 경우에만 조회
+        Category categoryLv1 = null;
+        if (request.getCategoryLv1Id() != null) {
+            categoryLv1 = categoryRepository.findById(request.getCategoryLv1Id())
+                    .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
         }
 
-        Category categoryLv1 = categoryLv2.getParent();
-        if (categoryLv1 == null) {
-            throw new CustomException(ErrorCode.CATEGORY_NOT_FOUND); // Lv1 없으면 잘못된 중분류
+        Category categoryLv2 = null;
+        if (request.getCategoryLv2Id() != null) {
+            categoryLv2 = categoryRepository.findById(request.getCategoryLv2Id())
+                    .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
+        }
+
+        Category categoryLv3 = null;
+        if (request.getCategoryLv3Id() != null) {
+            categoryLv3 = categoryRepository.findById(request.getCategoryLv3Id())
+                    .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
         }
 
         Product product = Product.builder()
@@ -92,6 +98,7 @@ public class ProductAdminService {
         product.setImageUrl(request.getImageUrl());
         product.setUpdatedAt(LocalDateTime.now());
 
+        // 🟢 수정된 부분: getCategoryId() 대신 ProductUpdateRequestDto에 맞게 수정
         if (request.getCategoryId() != null) {
             Category category = categoryRepository.findById(request.getCategoryId())
                     .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
