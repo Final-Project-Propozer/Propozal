@@ -1,11 +1,49 @@
 .footer-fixed {
-
+  position: fixed;
   bottom: 0;
-  left: 0;
   width: 100%;
-  background-color: #f8f9fa;
-  padding: 1rem;
+  background-color: #f8f8f8;
+  padding: 20px;
+  border-top: 1px solid #e7e7e7;
+  color: #555;
   text-align: center;
-  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-  z-index: 999;
+}
+
+.footer-container {
+  /* Flexbox를 적용하여 하위 요소를 가로로 정렬합니다. */
+  display: flex;
+  justify-content: space-between; /* 요소들을 양 끝으로 분산 배치합니다. */
+  align-items: center; /* 요소들을 세로 중앙에 정렬합니다. */
+  max-width: 1200px; /* 푸터의 최대 너비를 설정합니다. */
+  margin: 0 auto; /* 중앙 정렬합니다. */
+}
+
+.footer-links a {
+  margin-right: 20px; /* 링크 사이에 간격을 줍니다. */
+  text-decoration: none; /* 밑줄을 제거합니다. */
+  color: #555;
+}
+
+.footer-links a:hover {
+  text-decoration: underline; /* 마우스를 올리면 밑줄이 생깁니다. */
+}
+
+.footer-info {
+  text-align: right; /* 회사 정보를 오른쪽에 정렬합니다. */
+}
+
+/* 모바일 화면을 위한 반응형 디자인 (선택사항) */
+@media (max-width: 768px) {
+  .footer-container {
+    flex-direction: column; /* 화면이 작아지면 세로로 다시 쌓습니다. */
+    text-align: center; /* 가운데 정렬합니다. */
+  }
+
+  .footer-links {
+    margin-bottom: 10px; /* 링크와 회사 정보 사이에 간격을 줍니다. */
+  }
+
+  .footer-info {
+    text-align: center; /* 가운데 정렬합니다. */
+  }
 }
