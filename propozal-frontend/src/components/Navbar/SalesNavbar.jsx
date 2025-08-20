@@ -44,7 +44,7 @@ const SalesNavbar = () => {
               <Link className="nav-link" to="/sales"> 세일즈 홈</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/estimate/list">견적서 목록</Link>
+              <Link className="nav-link" to="/estimate/list-all">견적서 목록</Link>
             </li>
             <li className="nav-item">
               <Link className="nav-link" to="/products">제품 탐색</Link>

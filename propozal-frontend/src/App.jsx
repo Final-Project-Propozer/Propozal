@@ -43,6 +43,7 @@ import EstimateEditPage from "./pages/Estimate/EstimateEditPage";
 import EstimateVersionListPage from "./pages/EstimateVersion/EstimateVersionListPage";
 import EstimateVersionDetailPage from "./pages/EstimateVersion/EstimateVersionDetailPage";
 import EstimateCompletedListPage from "./pages/EstimateView/EstimateCompletedListPage";
+import EstimateListPageAll from './pages/EstimateList/EstimateListPageAll';
 
 // ✅ 새로 추가
 import KakaoCallback from "./pages/KakaoCallback/KakaoCallback";
@@ -122,18 +123,11 @@ const App = () => {
       <Route path="/estimate/:id" element={<EstimateDetailPage />} />
       <Route path="/schedule/:scheduleId/edit" element={<ScheduleEdit />} />
       <Route path="/estimate/:id/edit" element={<EstimateEditPage />} />
-      <Route
-        path="/estimate/:estimateId/versions"
-        element={<EstimateVersionListPage />}
-      />
-      <Route
-        path="/estimate-version/:versionId"
-        element={<EstimateVersionDetailPage />}
-      />
-      <Route
-        path="/estimate/completedlist"
-        element={<EstimateCompletedListPage />}
-      />
+      <Route path="/estimate/:estimateId/versions" element={<EstimateVersionListPage />} />
+      <Route path="/estimate-version/:versionId" element={<EstimateVersionDetailPage />} />
+      <Route path="/estimate/completedlist" element={<EstimateCompletedListPage />} />
+      <Route path="/estimate/list-all" element={<EstimateListPageAll />} />
+
     </Routes>
   );
 };
