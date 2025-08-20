@@ -51,7 +51,7 @@ const AdminClientRegistration = () => {
   return (
     <div className="d-flex flex-column min-vh-100">
       <AdminNavbar />
-      <div className="container flex-grow-1 py-5" style={{ paddingTop: '60px' }}>
+      <div className="container flex-grow-1" style={{ paddingTop: '100px' }}>
       <h2 className="mb-4">고객 등록</h2>
         <Form onSubmit={handleSubmit}>
           {/* 고객 유형 */}
