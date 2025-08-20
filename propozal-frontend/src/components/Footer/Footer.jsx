@@ -10,7 +10,7 @@ const Footer = () => {
           <a href="/privacy-policy">개인정보처리방침</a>
         </div>
         <div className="footer-info">
-          <p>상호명: (주)프로포잘 | 대표: 멋사장 | 사업자등록번호: 123-45-67890</p>
+          <p>상호명: (주)프로포잘 | 대표: 김사장 | 사업자등록번호: 123-45-67890</p>
           <p>주소: 서울특별시 강남구 테헤란로 123</p>
           <p>대표전화: 02-1234-5678 | 이메일: contact@proposal.com</p>
           <p className="copyright">© 2025 프로포잘. All Rights Reserved.</p>
