@@ -23,34 +23,36 @@ export default function LoginPage() {
       });
 
       const { accessToken, refreshToken } = response.data;
-
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
 
       const userRes = await axiosInstance.get("/auth/me");
       const user = userRes.data;
-
-      // ✅ 사용자 정보 저장
       localStorage.setItem("user", JSON.stringify(user));
 
-      // ✅ 승인 여부 및 활성 상태 체크
-      const isVerified = Boolean(user.verified);
-      const isActive = Boolean(user.active);
-
-      if (!isVerified || !isActive) {
-        navigate("/signup/pending");
+      if (user.role === "SALESPERSON") {
+        navigate("/sales"); // 영업사원 홈
+      } else if (user.role === "ADMIN") {
+        navigate("/admin/test"); // 관리자 페이지
       } else {
-        if (user.role === "SALESPERSON") {
-          navigate("/sales"); // 영업사원 홈
-        } else if (user.role === "ADMIN") {
-          navigate("/admin/test"); // 관리자 테스트 페이지(임시)
-        } else {
-          alert("알 수 없는 사용자 권한입니다.");
-        }
+        alert("알 수 없는 사용자 권한입니다.");
       }
     } catch (error) {
+      if (error.response) {
+        const msg = error.response.data.message;
+        if (msg.includes("이메일 인증과 관리자 승인")) {
+          alert("이메일 인증과 관리자 승인이 모두 필요합니다.");
+        } else if (msg.includes("이메일 인증")) {
+          alert("이메일 인증을 먼저 완료해주세요.");
+        } else if (msg.includes("승인 대기")) {
+          alert("관리자 승인이 필요합니다. 관리자에게 문의하세요.");
+        } else {
+          alert("로그인 실패: 아이디 또는 비밀번호를 확인해주세요.");
+        }
+      } else {
+        alert("서버 연결 오류");
+      }
       console.error("로그인 실패:", error);
-      alert("아이디 또는 비밀번호가 틀렸습니다.");
     }
   };
 
