@@ -80,7 +80,7 @@ public class PasswordResetService {
     }
 
     private String buildBackendVerifyLink(String token) {
-        return "/password-reset?token=" + token;
+        return "https://propozal.app/password-reset?token=" + token;
     }
 
     @Transactional(readOnly = true)
