@@ -19,6 +19,43 @@ const EstimateEditPage = () => {
   const [estimateData, setEstimateData] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
+  const calculateTotals = (items) => {
+    if (!Array.isArray(items) || items.length === 0) {
+      return {
+        supplyAmount: 0,
+        discountAmount: 0,
+        vatAmount: 0,
+        totalAmount: 0,
+      };
+    }
+
+    let supply = 0;
+    let discount = 0;
+
+    items.forEach((item) => {
+      const unitPrice = Number(item.unitPrice || 0);
+      const quantity = Number(item.quantity || 1);
+      const rate = Number(item.discountRate || 0);
+      const subtotal = Number(item.subtotal || 0); // subtotal을 직접 활용
+
+      // subtotal이 있다면 공급가액과 할인액을 역산하거나 subtotal을 기반으로 계산
+      const originalPrice = unitPrice * quantity;
+      supply += originalPrice;
+      discount += originalPrice - subtotal;
+    });
+
+    const netAmount = supply - discount;
+    const vat = Math.round(netAmount * 0.1);
+    const total = netAmount + vat;
+
+    return {
+      supplyAmount: supply,
+      discountAmount: discount,
+      vatAmount: vat,
+      totalAmount: total,
+    };
+  };
+
   const fetchEstimateData = async () => {
     try {
       setError("");
@@ -46,8 +83,21 @@ const EstimateEditPage = () => {
     }
   }, [estimateId, location.state]);
 
+  const handleDataChange = (updatedData) => {
+    setEstimateData((prevData) => ({ ...prevData, ...updatedData }));
+  };
+
+  const handleItemsChange = (newItems) => {
+    const newTotals = calculateTotals(newItems);
+
+    setEstimateData((prevData) => ({
+      ...prevData,
+      items: newItems,
+      ...newTotals,
+    }));
+  };
+
   const refreshEstimateData = () => {
-    // 모든 컴포넌트가 새로고침되도록 key 업데이트
     setRefreshKey((prev) => prev + 1);
     fetchEstimateData();
   };
@@ -72,24 +122,20 @@ const EstimateEditPage = () => {
         {!loading && estimateData && (
           <>
             <EstimateForm
-              key={`form-${refreshKey}`}
               estimateId={estimateId}
-              initialData={estimateData}
-              readOnly={false}
+              onDataChange={handleDataChange}
+              formData={estimateData}
             />
             <hr className="my-4" />
             <EstimateItemTable
-              key={`items-${refreshKey}`}
               estimateId={estimateId}
+              onItemsChange={handleItemsChange}
               initialItems={estimateData.items}
-              onItemsChange={refreshEstimateData}
-              readOnly={false}
             />
             <hr className="my-4" />
             <EstimateActions
-              key={`actions-${refreshKey}`}
               estimateId={estimateId}
-              readOnly={false}
+              estimateData={estimateData}
             />
           </>
         )}

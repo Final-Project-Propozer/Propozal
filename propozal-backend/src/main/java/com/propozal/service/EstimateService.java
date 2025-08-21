@@ -258,54 +258,15 @@ public class EstimateService {
         @Transactional
         public EstimateVersion saveVersion(Long estimateId, Long userId, String memo, EstimateDataDto estimateData) {
                 Estimate estimate = estimateRepository.findById(estimateId)
-                                .orElseThrow(() -> new EntityNotFoundException("견적서를 찾을 수 없습니다."));
+                                .orElseThrow(() -> new EntityNotFoundException("견적서를 찾을 수 없습니다. ID: " + estimateId));
                 User user = userRepository.findById(userId)
                                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
 
-                estimate.updateCustomerInfo(
-                                estimateData.getCustomerName(),
-                                estimateData.getCustomerEmail(),
-                                estimateData.getCustomerPhone(),
-                                estimateData.getCustomerCompanyName(),
-                                estimateData.getCustomerPosition(),
-                                estimateData.getSpecialTerms(),
-                                estimateData.getDealStatus(),
-                                estimateData.getExpirationDate(),
-                                estimateData.getSentDate());
-
                 try {
-                        // JPA 엔티티 대신 단순 DTO로 변환
-                        EstimateVersionData versionData = EstimateVersionData.builder()
-                                        .customerName(estimate.getCustomerName())
-                                        .customerEmail(estimate.getCustomerEmail())
-                                        .customerPhone(estimate.getCustomerPhone())
-                                        .customerCompanyName(estimate.getCustomerCompanyName())
-                                        .customerPosition(estimate.getCustomerPosition())
-                                        .specialTerms(estimate.getSpecialTerms())
-                                        .totalAmount(estimate.getTotalAmount())
+                        EstimateDataDto cleanData = createCleanEstimateData(estimateData);
+                        String estimateJson = objectMapper.writeValueAsString(cleanData);
 
-                                        // 수정: boolean 타입이므로 isVatIncluded() 사용
-                                        .vatIncluded(estimate.isVatIncluded())
-
-                                        .expirationDate(estimate.getExpirationDate())
-                                        .dealStatus(estimate.getDealStatus())
-                                        .items(estimate.getEstimateItems().stream()
-                                                        .map(item -> EstimateVersionData.EstimateItemData.builder()
-                                                                        .productName(item.getProduct().getName())
-                                                                        .productCode(item.getProduct().getCode())
-                                                                        .quantity(item.getQuantity())
-                                                                        .unitPrice(item.getUnitPrice())
-                                                                        .discountRate(item.getDiscountRate())
-                                                                        .subtotal(item.getSubtotal())
-                                                                        .vatAmount(item.getVatAmount())
-                                                                        .isVatApplicable(item.getProduct()
-                                                                                        .isVatApplicable())
-                                                                        .build())
-                                                        .collect(Collectors.toList()))
-                                        .build();
-
-                        // 단순 DTO를 JSON으로 저장 (안전함)
-                        String estimateJson = objectMapper.writeValueAsString(versionData);
+                        log.info("저장될 Clean JSON: {}", estimateJson);
 
                         EstimateVersion version = EstimateVersion.builder()
                                         .estimate(estimate)
@@ -317,8 +278,103 @@ public class EstimateService {
                         return versionRepository.save(version);
 
                 } catch (Exception e) {
+                        log.error("견적서 버전 저장 실패. Estimate ID: {}", estimateId, e);
                         throw new RuntimeException("견적서 버전 저장에 실패했습니다.", e);
                 }
+        }
+
+        private EstimateDataDto createCleanEstimateData(EstimateDataDto original) {
+                EstimateDataDto clean = new EstimateDataDto();
+
+                clean.setCustomerName(original.getCustomerName());
+                clean.setCustomerEmail(original.getCustomerEmail());
+                clean.setCustomerPhone(original.getCustomerPhone());
+                clean.setCustomerCompanyName(original.getCustomerCompanyName());
+                clean.setCustomerPosition(original.getCustomerPosition());
+                clean.setSpecialTerms(original.getSpecialTerms());
+                clean.setDealStatus(original.getDealStatus());
+                clean.setExpirationDate(original.getExpirationDate());
+                clean.setSentDate(original.getSentDate());
+                clean.setTotalAmount(original.getTotalAmount());
+                clean.setSupplyAmount(original.getSupplyAmount());
+                clean.setDiscountAmount(original.getDiscountAmount());
+                clean.setVatAmount(original.getVatAmount());
+
+                if (original.getItems() != null) {
+                        List<ItemDto> cleanItems = original.getItems().stream()
+                                        .map(item -> {
+                                                ItemDto cleanItem = new ItemDto();
+                                                // ID 필드 제외하고 비즈니스 데이터만 복사
+                                                cleanItem.setProductName(item.getProductName());
+                                                cleanItem.setProductCode(item.getProductCode());
+                                                cleanItem.setQuantity(item.getQuantity());
+                                                cleanItem.setUnitPrice(item.getUnitPrice());
+                                                cleanItem.setDiscountRate(item.getDiscountRate());
+                                                cleanItem.setSubtotal(item.getSubtotal());
+                                                // ID는 설정하지 않음 (null로 유지)
+                                                return cleanItem;
+                                        })
+                                        .collect(Collectors.toList());
+
+                        clean.setItems(cleanItems);
+                } else {
+                        clean.setItems(new ArrayList<>());
+                }
+
+                return clean;
+        }
+
+        @Transactional
+        public void restoreEstimateFromData(Long estimateId, EstimateDataDto versionData) {
+                Estimate estimate = estimateRepository.findByIdWithItems(estimateId)
+                                .orElseThrow(() -> new EntityNotFoundException("견적서를 찾을 수 없습니다. ID: " + estimateId));
+
+                estimate.updateCustomerInfo(
+                                versionData.getCustomerName(),
+                                versionData.getCustomerEmail(),
+                                versionData.getCustomerPhone(),
+                                versionData.getCustomerCompanyName(),
+                                versionData.getCustomerPosition(),
+                                versionData.getSpecialTerms(),
+                                versionData.getDealStatus(),
+                                versionData.getExpirationDate(),
+                                versionData.getSentDate());
+
+                estimate.getEstimateItems().clear();
+
+                if (versionData.getItems() != null) {
+                        versionData.getItems().forEach(itemDto -> {
+                                Product product = productRepository.findByCode(itemDto.getProductCode())
+                                                .orElseThrow(() -> new EntityNotFoundException(
+                                                                "복원 중 상품을 찾을 수 없습니다. Code: "
+                                                                                + itemDto.getProductCode()));
+
+                                BigDecimal unitPrice = product.getBasePrice();
+                                BigDecimal discountRate = BigDecimal.valueOf(itemDto.getDiscountRate());
+                                BigDecimal supplyPrice = unitPrice.multiply(BigDecimal.valueOf(itemDto.getQuantity()));
+                                BigDecimal discountAmount = supplyPrice.multiply(discountRate);
+                                BigDecimal subtotal = supplyPrice.subtract(discountAmount);
+                                BigDecimal vatAmount = BigDecimal.ZERO;
+                                if (product.isVatApplicable()) {
+                                        vatAmount = subtotal.multiply(new BigDecimal("0.1")).setScale(0,
+                                                        RoundingMode.DOWN);
+                                }
+
+                                EstimateItem newItem = EstimateItem.builder()
+                                                .product(product)
+                                                .quantity(itemDto.getQuantity())
+                                                .unitPrice(unitPrice)
+                                                .discountRate(discountRate)
+                                                .vatAmount(vatAmount)
+                                                .subtotal(subtotal)
+                                                .build();
+
+                                estimate.addItem(newItem);
+                        });
+                }
+
+                estimate.recalculateTotalAmount();
+                estimateRepository.save(estimate);
         }
 
         @Transactional(readOnly = true)
@@ -348,7 +404,8 @@ public class EstimateService {
         @Transactional(readOnly = true)
         public String loadVersionData(Long versionId) {
                 EstimateVersion version = versionRepository.findById(versionId)
-                                .orElseThrow(() -> new EntityNotFoundException("해당 버전을 찾을 수 없습니다. ID: " + versionId));
+                                .orElseThrow(() -> new EntityNotFoundException("해당 버전을 찾을 수 없습니다."));
+
                 return version.getEstimateData();
         }
 

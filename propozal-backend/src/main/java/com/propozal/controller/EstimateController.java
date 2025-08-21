@@ -166,4 +166,13 @@ public class EstimateController {
         EstimateDetailResponse responseBody = EstimateDetailResponse.from(estimate, profile);
         return ResponseEntity.ok(responseBody);
     }
+
+    // 13. 특정 버전의 견적서를 복원
+    @PostMapping("/{estimateId}/restore")
+    public ResponseEntity<Void> restoreFromVersionData(
+            @PathVariable("estimateId") Long estimateId,
+            @RequestBody EstimateDataDto versionData) {
+        estimateService.restoreEstimateFromData(estimateId, versionData);
+        return ResponseEntity.ok().build();
+    }
 }
