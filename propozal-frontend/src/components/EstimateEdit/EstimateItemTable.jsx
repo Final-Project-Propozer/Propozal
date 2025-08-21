@@ -27,7 +27,6 @@ const EstimateItemTable = ({
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  const navigate = useNavigate();
   const isProcessingRef = useRef(false);
 
   useEffect(() => {
