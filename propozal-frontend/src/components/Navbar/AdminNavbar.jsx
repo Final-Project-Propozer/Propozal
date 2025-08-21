@@ -29,7 +29,7 @@ const AdminNavbar = () => {
 
       <div className="container-fluid">
         {/* 🔰 로고 */}
-        <Link className="navbar-brand logo" to="/">
+        <Link className="navbar-brand logo" to="/admin/companydataview">
           <span className="pro">Pro</span>
           <span className="pozal">poZal</span>
         </Link>

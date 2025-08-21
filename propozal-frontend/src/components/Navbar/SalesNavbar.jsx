@@ -19,7 +19,7 @@ const SalesNavbar = () => {
     <nav className="navbar navbar-expand-lg navbar-light bg-light custom-navbar">
       <div className="container-fluid">
         {/* 🔰 로고 */}
-        <Link className="navbar-brand logo" to="/">
+        <Link className="navbar-brand logo" to="/sales">
           <span className="pro">Pro</span>
           <span className="pozal">poZal</span>
         </Link>
