@@ -41,12 +41,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // ✅ OPTIONS 요청 허용
                         .requestMatchers(
-                                "/auth/login", "/auth/signup", "/auth/social/**",
+                                "/auth/login", "/auth/social/**",
+                                "/auth/signup", "/auth/check-email",
                                 "/estimate/response",
-                                "/actuator/health", "/actuator/health/**",
-                                "/actuator/liveness", "/actuator/readiness",
-                                "/actuator/info",
-                                "/auth/send-verification", "/auth/password-reset/**", "/auth/verify-email")
+                                "/actuator/health", "/actuator/health/**", "/actuator/liveness", "/actuator/readiness", "/actuator/info",
+                                "/auth/verify-email", "/auth/send-verification", "/auth/password-reset/**")
                         .permitAll()
                         .requestMatchers("/estimate/response").permitAll()
                         .requestMatchers("/auth/me").hasAnyRole("ADMIN", "SALESPERSON")
