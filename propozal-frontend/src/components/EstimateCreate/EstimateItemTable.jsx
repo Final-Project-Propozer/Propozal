@@ -60,7 +60,7 @@ const EstimateItemTable = ({
       setSuccess(false);
 
       try {
-        await axiosInstance.post(`/api/estimate/${estimateId}/items`, {
+        await axiosInstance.post(`/estimate/${estimateId}/items`, {
           productId: parseInt(productToAdd.id),
           quantity: 1,
           discountRate: 0,
@@ -97,7 +97,7 @@ const EstimateItemTable = ({
     setError("");
     setSuccess(false);
     try {
-      await axiosInstance.post(`/api/estimate/${estimateId}/items`, {
+      await axiosInstance.post(`/estimate/${estimateId}/items`, {
         productId: parseInt(newItem.productId),
         quantity: parseInt(newItem.quantity),
         discountRate: parseFloat(newItem.discountRate) / 100, // ✅ 소수로 변환
@@ -117,7 +117,7 @@ const EstimateItemTable = ({
   const handleDeleteItem = async (itemId) => {
     if (readOnly) return;
     try {
-      await axiosInstance.delete(`/api/estimate/${estimateId}/items/${itemId}`);
+      await axiosInstance.delete(`/estimate/${estimateId}/items/${itemId}`);
       if (onItemsChange) {
         onItemsChange();
       }
@@ -137,7 +137,7 @@ const EstimateItemTable = ({
     setError("");
     try {
       await axiosInstance.patch(
-        `/api/estimate/${estimateId}/items/${selectedItemId}`,
+        `/estimate/${estimateId}/items/${selectedItemId}`,
         {
           discountRate: selectedDiscount / 100, // ✅ 소수로 변환
         }

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import axiosInstance from '../../api/axiosInstance';
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import axiosInstance from "../../api/axiosInstance";
 
 const EstimateVersionDetail = () => {
   const { versionId } = useParams();
@@ -10,10 +10,10 @@ const EstimateVersionDetail = () => {
   useEffect(() => {
     const fetchVersionDetail = async () => {
       try {
-        const res = await axiosInstance.get(`/api/estimate/versions/${versionId}`);
+        const res = await axiosInstance.get(`/estimate/versions/${versionId}`);
         setVersionData(res.data); // ✅ JSON.parse 제거
       } catch (error) {
-        console.error('상세 조회 실패:', error);
+        console.error("상세 조회 실패:", error);
       } finally {
         setLoading(false);
       }

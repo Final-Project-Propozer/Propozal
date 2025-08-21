@@ -10,7 +10,7 @@ import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/files")
+@RequestMapping("/files")
 public class FileController {
 
     private final S3Service s3Service;
@@ -19,8 +19,7 @@ public class FileController {
     @PostMapping("/upload/{folder}")
     public ResponseEntity<String> upload(
             @PathVariable String folder,
-            @RequestParam("file") MultipartFile file
-    ) throws IOException {
+            @RequestParam("file") MultipartFile file) throws IOException {
         String key = s3Service.uploadFile(folder, file.getOriginalFilename(), file);
         return ResponseEntity.ok(key);
     }
@@ -29,8 +28,7 @@ public class FileController {
     @GetMapping("/download/{folder}/{fileName}")
     public ResponseEntity<String> download(
             @PathVariable String folder,
-            @PathVariable String fileName
-    ) {
+            @PathVariable String fileName) {
         String url = s3Service.generatePresignedUrl(folder, fileName);
         return ResponseEntity.ok(url);
     }

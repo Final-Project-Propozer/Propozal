@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Form, Button, Row, Col, Alert, Spinner, Modal } from "react-bootstrap";
 import axiosInstance from "../../api/axiosInstance";
-import { BsPencilSquare } from 'react-icons/bs';
+import { BsPencilSquare } from "react-icons/bs";
 
 const EstimateForm = ({ estimateId, initialData, readOnly = false }) => {
   const [formData, setFormData] = useState({
@@ -44,9 +44,7 @@ const EstimateForm = ({ estimateId, initialData, readOnly = false }) => {
 
     const fetchMemos = async () => {
       try {
-        const res = await axiosInstance.get(
-          `/api/estimates/${estimateId}/memos`
-        );
+        const res = await axiosInstance.get(`/estimates/${estimateId}/memos`);
         setMemoList(res.data);
       } catch (err) {
         console.error("메모 조회 실패:", err);
@@ -73,7 +71,7 @@ const EstimateForm = ({ estimateId, initialData, readOnly = false }) => {
     setSuccess(false);
 
     try {
-      await axiosInstance.patch(`/api/estimate/${estimateId}`, formData);
+      await axiosInstance.patch(`/estimate/${estimateId}`, formData);
       setSuccess(true);
     } catch {
       setError("저장 중 오류가 발생했습니다.");
@@ -84,9 +82,7 @@ const EstimateForm = ({ estimateId, initialData, readOnly = false }) => {
 
   const handleLoad = async () => {
     try {
-      const res = await axiosInstance.get(
-        `/api/estimate/${estimateId}/versions`
-      );
+      const res = await axiosInstance.get(`/estimate/${estimateId}/versions`);
       console.log("버전 목록 응답:", res.data);
       setVersionList(res.data);
       setShowLoadModal(true);
@@ -102,9 +98,7 @@ const EstimateForm = ({ estimateId, initialData, readOnly = false }) => {
     }
 
     try {
-      const res = await axiosInstance.get(
-        `/api/estimate/versions/${versionId}`
-      );
+      const res = await axiosInstance.get(`/estimate/versions/${versionId}`);
       const parsed =
         typeof res.data === "string" ? JSON.parse(res.data) : res.data;
       setSelectedVersion(versionId);
@@ -141,7 +135,7 @@ const EstimateForm = ({ estimateId, initialData, readOnly = false }) => {
     if (!window.confirm("정말 삭제하시겠습니까?")) return;
 
     try {
-      await axiosInstance.delete(`/api/estimate/${estimateId}`);
+      await axiosInstance.delete(`/estimate/${estimateId}`);
       alert("삭제되었습니다.");
     } catch {
       alert("삭제 중 오류가 발생했습니다.");
@@ -150,12 +144,12 @@ const EstimateForm = ({ estimateId, initialData, readOnly = false }) => {
 
   const handleMemoSave = async () => {
     try {
-      await axiosInstance.post(`/api/estimates/${estimateId}/memos`, {
+      await axiosInstance.post(`/estimates/${estimateId}/memos`, {
         content: memoText,
       });
       setMemoText("");
       setShowMemoModal(false);
-      const res = await axiosInstance.get(`/api/estimates/${estimateId}/memos`);
+      const res = await axiosInstance.get(`/estimates/${estimateId}/memos`);
       setMemoList(res.data);
     } catch {
       alert("메모 저장 중 오류가 발생했습니다.");
@@ -168,29 +162,29 @@ const EstimateForm = ({ estimateId, initialData, readOnly = false }) => {
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h3 className="mb-0">견적서 작성</h3>
           <div className="d-flex gap-2">
-          <Button
-            variant="outline-secondary"
-            className="rounded-pill d-flex align-items-center gap-2"
-            style={{
-              paddingLeft: '20px',
-              paddingRight: '20px',
-              paddingTop: '8px',
-              paddingBottom: '8px',
-              fontSize: '15px',
-              fontWeight: 'bold',         // 텍스트 굵게
-              borderWidth: '2px'
-            }}
-            onClick={() => setShowMemoModal(true)}
-          >
-            <BsPencilSquare />
-            메모하기
-          </Button>
-{/*             <Button variant="outline-success" onClick={handleLoad}> */}
-{/*               불러오기 */}
-{/*             </Button> */}
-{/*             <Button variant="outline-danger" onClick={handleDelete}> */}
-{/*               삭제하기 */}
-{/*             </Button> */}
+            <Button
+              variant="outline-secondary"
+              className="rounded-pill d-flex align-items-center gap-2"
+              style={{
+                paddingLeft: "20px",
+                paddingRight: "20px",
+                paddingTop: "8px",
+                paddingBottom: "8px",
+                fontSize: "15px",
+                fontWeight: "bold", // 텍스트 굵게
+                borderWidth: "2px",
+              }}
+              onClick={() => setShowMemoModal(true)}
+            >
+              <BsPencilSquare />
+              메모하기
+            </Button>
+            {/*             <Button variant="outline-success" onClick={handleLoad}> */}
+            {/*               불러오기 */}
+            {/*             </Button> */}
+            {/*             <Button variant="outline-danger" onClick={handleDelete}> */}
+            {/*               삭제하기 */}
+            {/*             </Button> */}
           </div>
         </div>
 
@@ -490,4 +484,3 @@ const EstimateForm = ({ estimateId, initialData, readOnly = false }) => {
 };
 
 export default EstimateForm;
-

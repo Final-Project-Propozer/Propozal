@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Table,
   Container,
@@ -6,35 +6,35 @@ import {
   Alert,
   Badge,
   Pagination,
-  Form
-} from 'react-bootstrap';
-import SalesNavbar from '../../components/Navbar/SalesNavbar';
-import Footer from '../../components/Footer/Footer';
-import axiosInstance from '../../api/axiosInstance';
-import { Link } from 'react-router-dom';
+  Form,
+} from "react-bootstrap";
+import SalesNavbar from "../../components/Navbar/SalesNavbar";
+import Footer from "../../components/Footer/Footer";
+import axiosInstance from "../../api/axiosInstance";
+import { Link } from "react-router-dom";
 
 const EstimateCompletedListPage = () => {
   const [estimates, setEstimates] = useState([]);
   const [filteredEstimates, setFilteredEstimates] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
   // 검색 관련 상태
-  const [searchType, setSearchType] = useState('company'); // 'company' or 'id'
-  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchType, setSearchType] = useState("company"); // 'company' or 'id'
+  const [searchKeyword, setSearchKeyword] = useState("");
 
   const itemsPerPage = 15;
 
   useEffect(() => {
     const fetchEstimates = async () => {
       try {
-        const res = await axiosInstance.get('/api/estimate/completed');
+        const res = await axiosInstance.get("/estimate/completed");
         const data = res.data || [];
         setEstimates(data);
         setFilteredEstimates(data);
       } catch (err) {
-        setError('완료된 견적서 목록을 불러오는 데 실패했습니다.');
+        setError("완료된 견적서 목록을 불러오는 데 실패했습니다.");
       } finally {
         setLoading(false);
       }
@@ -63,12 +63,14 @@ const EstimateCompletedListPage = () => {
     let filtered = [...estimates];
 
     if (searchKeyword.trim()) {
-      if (searchType === 'company') {
-        filtered = filtered.filter(e =>
-          e.customerCompanyName?.toLowerCase().includes(searchKeyword.toLowerCase())
+      if (searchType === "company") {
+        filtered = filtered.filter((e) =>
+          e.customerCompanyName
+            ?.toLowerCase()
+            .includes(searchKeyword.toLowerCase())
         );
-      } else if (searchType === 'id') {
-        filtered = filtered.filter(e =>
+      } else if (searchType === "id") {
+        filtered = filtered.filter((e) =>
           e.id.toString().includes(searchKeyword.trim())
         );
       }
@@ -85,11 +87,13 @@ const EstimateCompletedListPage = () => {
   );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <div
+      style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+    >
       <SalesNavbar />
 
       <main style={{ flex: 1 }}>
-        <Container className="py-4" style={{ marginTop: '30px' }}>
+        <Container className="py-4" style={{ marginTop: "30px" }}>
           <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
             <h2 className="mb-0 fw-bold">📄 완료된 견적서 목록</h2>
 
@@ -99,9 +103,9 @@ const EstimateCompletedListPage = () => {
                 value={searchType}
                 onChange={(e) => setSearchType(e.target.value)}
                 style={{
-                  height: '38px',
-                  width: '100px',
-                  fontSize: '0.9rem'
+                  height: "38px",
+                  width: "100px",
+                  fontSize: "0.9rem",
                 }}
               >
                 <option value="company">회사명</option>
@@ -112,14 +116,16 @@ const EstimateCompletedListPage = () => {
               <Form.Control
                 type="text"
                 placeholder={
-                  searchType === 'company' ? '회사명으로 검색' : '견적서 번호로 검색'
+                  searchType === "company"
+                    ? "회사명으로 검색"
+                    : "견적서 번호로 검색"
                 }
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
                 style={{
-                  height: '38px',
-                  width: '160px',
-                  fontSize: '0.9rem'
+                  height: "38px",
+                  width: "160px",
+                  fontSize: "0.9rem",
                 }}
               />
 
@@ -127,7 +133,7 @@ const EstimateCompletedListPage = () => {
               <Link
                 to="/estimate"
                 className="btn btn-success btn-pill"
-                style={{ marginLeft: '32px' }} // 👈 탭 간격 추가
+                style={{ marginLeft: "32px" }} // 👈 탭 간격 추가
               >
                 + 새 견적서
               </Link>
@@ -153,7 +159,9 @@ const EstimateCompletedListPage = () => {
                 <tbody>
                   {paginatedEstimates.length === 0 ? (
                     <tr>
-                      <td colSpan="6" className="text-center text-muted">견적서가 없습니다.</td>
+                      <td colSpan="6" className="text-center text-muted">
+                        견적서가 없습니다.
+                      </td>
                     </tr>
                   ) : (
                     paginatedEstimates.map((estimate) => (
@@ -164,10 +172,20 @@ const EstimateCompletedListPage = () => {
                             견적서 #{estimate.id}
                           </Link>
                         </td>
-                        <td>{estimate.customerCompanyName?.trim() || '미입력'}</td>
-                        <td>{estimate.totalAmount?.toLocaleString() || '0'}원</td>
+                        <td>
+                          {estimate.customerCompanyName?.trim() || "미입력"}
+                        </td>
+                        <td>
+                          {estimate.totalAmount?.toLocaleString() || "0"}원
+                        </td>
                         <td>{renderDealStatus(estimate.dealStatus)}</td>
-                        <td>{estimate.updatedAt ? new Date(estimate.updatedAt).toLocaleDateString('ko-KR') : '날짜 없음'}</td>
+                        <td>
+                          {estimate.updatedAt
+                            ? new Date(estimate.updatedAt).toLocaleDateString(
+                                "ko-KR"
+                              )
+                            : "날짜 없음"}
+                        </td>
                       </tr>
                     ))
                   )}

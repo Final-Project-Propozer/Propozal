@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/estimates/{estimateId}/memos")
+@RequestMapping("/estimates/{estimateId}/memos")
 @RequiredArgsConstructor
 public class EstimateMemoController {
 
@@ -22,8 +22,7 @@ public class EstimateMemoController {
     public ResponseEntity<Void> createMemo(
             @PathVariable Long estimateId,
             @RequestBody EstimateMemoRequest requestDto,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         estimateMemoService.createMemo(estimateId, userDetails.getUser().getId(), requestDto);
         return ResponseEntity.ok().build();
     }
@@ -37,8 +36,7 @@ public class EstimateMemoController {
     public ResponseEntity<Void> updateMemo(
             @PathVariable Long memoId,
             @RequestBody EstimateMemoRequest requestDto,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         estimateMemoService.updateMemo(memoId, userDetails.getUser().getId(), requestDto);
         return ResponseEntity.ok().build();
     }
@@ -46,8 +44,7 @@ public class EstimateMemoController {
     @DeleteMapping("/{memoId}")
     public ResponseEntity<Void> deleteMemo(
             @PathVariable Long memoId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         estimateMemoService.deleteMemo(memoId, userDetails.getUser().getId());
         return ResponseEntity.ok().build();
     }
