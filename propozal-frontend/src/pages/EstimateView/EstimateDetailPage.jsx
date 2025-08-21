@@ -7,6 +7,7 @@ import {
   Modal,
   ListGroup,
   Form,
+  Card,
 } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 import axiosInstance from "../../api/axiosInstance";
@@ -31,7 +32,11 @@ const EstimateDetailPage = () => {
   const [displayData, setDisplayData] = useState(null);
   const [viewInfo, setViewInfo] = useState(" (최신 상태)");
 
-  // 🔥 컴포넌트 리렌더링을 강제하기 위한 key 추가
+  // 🆕 메모 관련 상태 추가
+  const [memos, setMemos] = useState([]);
+  const [memosLoading, setMemosLoading] = useState(false);
+
+  // 컴포넌트 리렌더링을 강제하기 위한 key 추가
   const [componentKey, setComponentKey] = useState(0);
 
   const [isViewingLatest, setIsViewingLatest] = useState(true);
@@ -46,6 +51,23 @@ const EstimateDetailPage = () => {
   const [isSending, setIsSending] = useState(false);
   const [sendError, setSendError] = useState("");
 
+  // 🆕 메모 조회 함수
+  const fetchMemos = async () => {
+    if (!estimateId) return;
+
+    setMemosLoading(true);
+    try {
+      const res = await axiosInstance.get(`/estimates/${estimateId}/memos`);
+      console.log("📝 메모 조회 성공:", res.data);
+      setMemos(res.data || []);
+    } catch (err) {
+      console.error("📝 메모 조회 실패:", err);
+      setMemos([]);
+    } finally {
+      setMemosLoading(false);
+    }
+  };
+
   const handleLoadLatest = async () => {
     setLoading(true);
     try {
@@ -53,8 +75,11 @@ const EstimateDetailPage = () => {
       setDisplayData(res.data);
       setViewInfo(" (최신 상태)");
       setIsViewingLatest(true);
-      // 🔥 컴포넌트 key 업데이트로 강제 리렌더링
+      // 컴포넌트 key 업데이트로 강제 리렌더링
       setComponentKey((prev) => prev + 1);
+
+      // 🆕 최신 상태 로드 시 메모도 함께 조회
+      await fetchMemos();
     } catch (err) {
       setError("최신 견적서를 불러오는 데 실패했습니다.");
     } finally {
@@ -117,10 +142,10 @@ const EstimateDetailPage = () => {
     );
     const versionNumber = versions.length - versionIndex;
 
-    // 🔥 버전 데이터를 로드할 때 완전히 새로운 객체로 설정하고 컴포넌트 key 업데이트
+    // 버전 데이터를 로드할 때 완전히 새로운 객체로 설정하고 컴포넌트 key 업데이트
     const newDisplayData = {
       ...selectedVersion,
-      // 🔥 items 배열도 완전히 새로운 배열로 복사
+      // items 배열도 완전히 새로운 배열로 복사
       items: selectedVersion.items ? [...selectedVersion.items] : [],
     };
 
@@ -128,12 +153,15 @@ const EstimateDetailPage = () => {
     setViewInfo(` (버전 ${versionNumber} 불러옴)`);
     setIsViewingLatest(false);
 
-    // 🔥 컴포넌트들이 새 데이터를 인식하도록 key 변경
+    // 🆕 버전 로드 시에는 메모를 비움 (버전 데이터에는 메모가 포함되지 않음)
+    setMemos([]);
+
+    // 컴포넌트들이 새 데이터를 인식하도록 key 변경
     setComponentKey((prev) => prev + 1);
 
     handleCloseVersionModal();
 
-    console.log("🔄 버전 데이터 로드 완료:", newDisplayData);
+    console.log("📄 버전 데이터 로드 완료:", newDisplayData);
   };
 
   const handleNavigateToEdit = () => {
@@ -305,55 +333,78 @@ const EstimateDetailPage = () => {
 
         {loading && <Spinner animation="border" />}
         {error && <Alert variant="danger">{error}</Alert>}
+
         {!loading && displayData && (
-          <div ref={pdfRef}>
-            {/* PDF 다운로드 시에만 포함될 숨겨진 영역 */}
-            <div style={{ display: "none" }}>
-              <div
-                style={{
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                  marginBottom: "4px",
-                }}
-              >
-                출력 날짜: {formattedDate}
+          <>
+            {/* 🆕 메모 섹션 추가 - 최신 상태일 때만 표시 */}
+            {isViewingLatest && memos.length > 0 && (
+              <div className="mb-4">
+                <h5 className="mb-3">📝 메모</h5>
+                {memos.map((memo, index) => (
+                  <div
+                    key={memo.id || index}
+                    className="mb-3 p-3 bg-light rounded"
+                  >
+                    <div className="mb-2">{memo.content}</div>
+                    <small className="text-muted">
+                      작성일: {new Date(memo.createdAt).toLocaleString("ko-KR")}
+                    </small>
+                  </div>
+                ))}
               </div>
-              <div
-                style={{
-                  fontSize: "22px",
-                  fontWeight: "bold",
-                  marginBottom: "10px",
-                }}
-              >
-                견적서 상세 정보
+            )}
+
+            {/* 기존 견적서 내용 */}
+            <div ref={pdfRef}>
+              {/* PDF 다운로드 시에만 포함될 숨겨진 영역 */}
+              <div style={{ display: "none" }}>
+                <div
+                  style={{
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    marginBottom: "4px",
+                  }}
+                >
+                  출력 날짜: {formattedDate}
+                </div>
+                <div
+                  style={{
+                    fontSize: "22px",
+                    fontWeight: "bold",
+                    marginBottom: "10px",
+                  }}
+                >
+                  견적서 상세 정보
+                </div>
               </div>
+
+              {/* key props 추가로 강제 리렌더링 */}
+              <EstimateForm
+                key={`form-${componentKey}`}
+                estimateId={estimateId}
+                formData={displayData}
+                readOnly
+              />
+
+              <EstimateItemTable
+                key={`table-${componentKey}`}
+                estimateId={estimateId}
+                initialItems={displayData.items || []}
+                readOnly
+              />
+
+              <EstimateActions
+                key={`actions-${componentKey}`}
+                estimateId={estimateId}
+                estimateData={displayData}
+                readOnly
+              />
             </div>
-
-            {/* 🔥 key props 추가로 강제 리렌더링 */}
-            <EstimateForm
-              key={`form-${componentKey}`}
-              estimateId={estimateId}
-              formData={displayData}
-              readOnly
-            />
-
-            <EstimateItemTable
-              key={`table-${componentKey}`}
-              estimateId={estimateId}
-              initialItems={displayData.items || []}
-              readOnly
-            />
-
-            <EstimateActions
-              key={`actions-${componentKey}`}
-              estimateId={estimateId}
-              estimateData={displayData}
-              readOnly
-            />
-          </div>
+          </>
         )}
       </Container>
 
+      {/* 버전 모달 */}
       <Modal
         show={showVersionModal}
         onHide={handleCloseVersionModal}
@@ -543,6 +594,7 @@ const EstimateDetailPage = () => {
         </Modal.Footer>
       </Modal>
 
+      {/* 이메일 모달 */}
       <Modal show={showEmailModal} onHide={handleCloseEmailModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>이메일 전송</Modal.Title>
