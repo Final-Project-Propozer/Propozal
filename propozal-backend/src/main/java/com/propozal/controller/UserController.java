@@ -38,12 +38,6 @@ public class UserController {
         return ResponseEntity.ok(loginResponse);
     }
 
-    @PostMapping("/social/login")
-    public ResponseEntity<?> socialLogin(@RequestParam String provider,
-                                         @RequestParam String authCode) {
-        return ResponseEntity.ok(userService.socialLogin(provider, authCode));
-    }
-
     @GetMapping("/pending-approvals")
     public ResponseEntity<List<User>> getPendingApprovals() {
         return ResponseEntity.ok(userService.getPendingApprovals());
@@ -68,7 +62,6 @@ public class UserController {
         return ResponseEntity.ok("{\"message\": \"이메일 인증 완료\"}");
     }
 
-    // 로그인 시 추가한 코드
     @GetMapping("/me")
     public ResponseEntity<?> getMyPage(@AuthenticationPrincipal CustomUserDetails userDetails) {
         if (userDetails == null) {
@@ -76,8 +69,6 @@ public class UserController {
         }
 
         UserInfoResponse response = UserInfoResponse.from(userDetails.getUser());
-
         return ResponseEntity.ok(response);
     }
-
 }

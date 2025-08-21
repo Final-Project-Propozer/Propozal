@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth/social")
+@RequestMapping("/api/auth/social")
 @RequiredArgsConstructor
 public class SocialLoginController {
 
