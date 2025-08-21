@@ -41,7 +41,7 @@ import EstimateListPageAll from "./pages/EstimateList/EstimateListPageAll";
 import KakaoCallback from "./pages/KakaoCallback/KakaoCallback";
 
 import AuthProvider from "./context/AuthContext";
-import { RequireAuth, RequireRole, GuestOnly } from "./routes/guards";
+import { RequireAuth, RequireRole, GuestOnly } from "./routes/guards.jsx";
 
 function LandingRedirect() {
   const hasToken = !!localStorage.getItem("accessToken");
