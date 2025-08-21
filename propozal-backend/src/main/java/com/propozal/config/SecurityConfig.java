@@ -50,7 +50,8 @@ public class SecurityConfig {
                                 "/api/auth/verify-email")
                         .permitAll()
                         .requestMatchers("/estimate/response").permitAll()
-                        .requestMatchers("/api/auth/me").hasAnyRole("ADMIN", "SALESPERSON")
+                        .requestMatchers("/auth/me").hasAnyRole("ADMIN", "SALESPERSON")
+                        .requestMatchers("/dashboard/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> response
