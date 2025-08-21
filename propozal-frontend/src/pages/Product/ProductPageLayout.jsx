@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../api/axiosInstance";
 
 import SalesNavbar from "../../components/Navbar/SalesNavbar";
@@ -12,9 +12,6 @@ import QuoteModal from "../../components/Product/QuoteModal";
 
 const ProductPageLayout = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const isFavoritesListPage = location.pathname === "/products/favorites";
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategories, setSelectedCategories] = useState({
@@ -28,13 +25,6 @@ const ProductPageLayout = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
-
-  // 모드 전환 시 검색/필터/페이지 초기화
-  useEffect(() => {
-    setSearchTerm("");
-    setSelectedCategories({ lv1: null, lv2: null, lv3: null });
-    setCurrentPage(0);
-  }, [isFavoritesListPage]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -52,13 +42,9 @@ const ProductPageLayout = () => {
       }
 
       try {
-        const endpoint = isFavoritesListPage
-          ? "/products/favorites"
-          : "/products/";
-
-        const res = await axiosInstance.get(endpoint, { params });
-        setAllProducts(res.data.content || []);
-        setTotalPages(res.data.totalPages ?? 1);
+        const res = await axiosInstance.get("/products/search", { params });
+        setAllProducts(res.data.content);
+        setTotalPages(res.data.totalPages);
       } catch (err) {
         console.error("제품 목록 불러오기 실패:", err);
         if (err.response?.status === 401) {
@@ -69,7 +55,7 @@ const ProductPageLayout = () => {
     };
 
     fetchProducts();
-  }, [currentPage, searchTerm, selectedCategories, isFavoritesListPage]);
+  }, [currentPage, searchTerm, selectedCategories]);
 
   const handleSearchChange = (term) => {
     setSearchTerm(term);
@@ -103,48 +89,31 @@ const ProductPageLayout = () => {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+    <div
+      style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+    >
       <SalesNavbar />
 
       <main style={{ flex: 1 }}>
         <Container fluid className="py-4 px-5">
-          {/* 상단: 타이틀 + 새 견적서 + 모드 전환 버튼 */}
+          {/* ✅ 상단에 견적서 작성 버튼 추가 */}
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <h4 className="fw-bold mb-0">
-              {isFavoritesListPage ? "즐겨찾기 목록" : "전체 제품 목록"}
-            </h4>
-
-            <div className="d-flex gap-2">
-              <Button
-                variant="outline-secondary"
-                onClick={() =>
-                  navigate(isFavoritesListPage ? "/products" : "/products/favorites")
-                }
-                style={{
-                  borderRadius: "25px",
-                  padding: "8px 16px",
-                  fontWeight: 600,
-                }}
-              >
-                {isFavoritesListPage ? "📦 전체 제품 목록" : "⭐ 즐겨찾기 목록"}
-              </Button>
-
-              <Button
-                variant="success"
-                onClick={() => navigate("/estimate")}
-                style={{
-                  borderRadius: "25px",
-                  padding: "8px 20px",
-                  fontWeight: "bold",
-                }}
-              >
-                📄 새 견적서 작성
-              </Button>
-            </div>
+            <h4 className="fw-bold mb-0">제품 목록</h4>
+            <Button
+              variant="success"
+              onClick={() => navigate("/estimate")}
+              style={{
+                borderRadius: "25px",
+                padding: "8px 20px",
+                fontWeight: "bold",
+              }}
+            >
+              📄 새 견적서 작성
+            </Button>
           </div>
 
           <Row>
-            {/* 왼쪽 필터: ✅ 항상 표시 */}
+            {/* 왼쪽 필터 영역 */}
             <Col xs={12} md={3} className="mb-4">
               <ProductSearchBar
                 searchTerm={searchTerm}
@@ -158,12 +127,11 @@ const ProductPageLayout = () => {
               />
             </Col>
 
-            {/* 오른쪽 제품 영역 */}
+            {/* 오른쪽 제품 목록 */}
             <Col xs={12} md={9}>
               <ProductList
                 products={allProducts}
                 onProductClick={handleProductClick}
-                favoriteToggleMode={isFavoritesListPage ? "remove" : "add"}
               />
 
               {/* 페이지네이션 */}
@@ -171,7 +139,9 @@ const ProductPageLayout = () => {
                 {[...Array(totalPages)].map((_, idx) => (
                   <Button
                     key={idx}
-                    variant={idx === currentPage ? "primary" : "outline-secondary"}
+                    variant={
+                      idx === currentPage ? "primary" : "outline-secondary"
+                    }
                     size="sm"
                     className="mx-1"
                     onClick={() => setCurrentPage(idx)}
@@ -187,7 +157,7 @@ const ProductPageLayout = () => {
 
       <Footer />
 
-      {/* 견적 모달 */}
+      {/* Quote Modal */}
       <QuoteModal
         show={isModalOpen}
         handleClose={() => setIsModalOpen(false)}
