@@ -167,31 +167,7 @@ const EstimateActions = ({ estimateId, readOnly = false }) => {
               placeholder="예: 납품일은 계약 후 2주 이내"
             />
           </Form.Group>
-
-          <Form.Group className="mb-3">
-            <Form.Label>담당자 정보</Form.Label>
-            <Form.Control
-              type="text"
-              value={managerNote}
-              onChange={(e) => setManagerNote(e.target.value)}
-              placeholder="홍길동 / 010-1234-5678 / sales@company.com"
-              readOnly={readOnly}
-              style={{ backgroundColor: '#f8f9fa' }}
-            />
-          </Form.Group>
-
-          <Row className="mb-5">
-            <Col className="text-end">
-              <Button variant="outline-primary" className="me-2">미리보기</Button>
-              <Button variant="success" onClick={handleSaveVersion} disabled={saving}>
-                {saving ? '저장 중...' : '저장하기'}
-              </Button>
-            </Col>
-          </Row>
         </Form>
       )}
-    </>
-  );
-};
 
 export default EstimateActions;

@@ -213,7 +213,7 @@ public class EstimateService {
 
         @Transactional(readOnly = true)
         public Estimate findEstimateById(Long estimateId) {
-                return estimateRepository.findById(estimateId)
+                return estimateRepository.findByIdWithItems(estimateId)
                                 .orElseThrow(() -> new EntityNotFoundException("해당 견적서를 찾을 수 없습니다. ID: " + estimateId));
         }
 

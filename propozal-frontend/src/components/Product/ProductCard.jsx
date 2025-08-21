@@ -4,7 +4,7 @@ import { StarFill, Star } from 'react-bootstrap-icons';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
 
-const ProductCard = ({ product, onFavoriteRemove }) => {
+const ProductCard = ({ product, onFavoriteRemove, onProductClick }) => {
   const [isFavorite, setIsFavorite] = useState(product.isFavorite !== false);
   const [loadingFavorite, setLoadingFavorite] = useState(false);
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ const ProductCard = ({ product, onFavoriteRemove }) => {
     setLoadingFavorite(true);
     try {
       if (isFavorite) {
-        await axiosInstance.delete(`/api/products/favorites/${product.id}`);
+        await axiosInstance.delete(`/products/favorites/${product.id}`);
         setIsFavorite(false);
 
         // ✅ 부모에게 알림: 즐겨찾기 목록에서 제거
@@ -23,7 +23,7 @@ const ProductCard = ({ product, onFavoriteRemove }) => {
           onFavoriteRemove(product.id);
         }
       } else {
-        await axiosInstance.post('/api/products/favorites', { productId: product.id });
+        await axiosInstance.post('/products/favorites', { productId: product.id });
         setIsFavorite(true);
       }
     } catch (err) {
@@ -35,12 +35,8 @@ const ProductCard = ({ product, onFavoriteRemove }) => {
   };
 
   const handleAddToEstimate = () => {
-    if (estimateId) {
-      // ✅ 기존 견적서 수정 페이지로 이동
-      navigate(`/estimate/${estimateId}/edit`, { state: { product } });
-    } else {
-      // ✅ 새 견적서 작성 페이지로 이동
-      navigate(`/estimate`, { state: { product } });
+    if (onProductClick) {
+      onProductClick(product.id); // 상위에서 모달 열도록 호출
     }
   };
 

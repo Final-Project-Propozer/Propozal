@@ -17,7 +17,8 @@ export default function LoginPage() {
     e.preventDefault();
 
     try {
-      const response = await axios.post("http://localhost:8080/api/auth/login", {
+      // ✅ /api 제거
+      const response = await axios.post("http://localhost:8080/auth/login", {
         email,
         password,
       });
@@ -26,20 +27,21 @@ export default function LoginPage() {
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
 
-      const userRes = await axiosInstance.get("/api/auth/me");
+      // ✅ /api 제거
+      const userRes = await axiosInstance.get("/auth/me");
       const user = userRes.data;
       localStorage.setItem("user", JSON.stringify(user));
 
       if (user.role === "SALESPERSON") {
-        navigate("/sales"); // 영업사원 홈
+        navigate("/sales");
       } else if (user.role === "ADMIN") {
-        navigate("/admin/test"); // 관리자 페이지
+        navigate("/admin/test");
       } else {
         alert("알 수 없는 사용자 권한입니다.");
       }
     } catch (error) {
       if (error.response) {
-        const msg = error.response.data.message;
+        const msg = error.response.data.message || "";
         if (msg.includes("이메일 인증과 관리자 승인")) {
           alert("이메일 인증과 관리자 승인이 모두 필요합니다.");
         } else if (msg.includes("이메일 인증")) {

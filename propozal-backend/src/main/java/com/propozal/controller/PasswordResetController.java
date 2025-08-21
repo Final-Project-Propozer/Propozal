@@ -8,7 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/auth/password-reset")
+@RequestMapping("/auth/password-reset")
 public class PasswordResetController {
 
     private final PasswordResetService passwordResetService;

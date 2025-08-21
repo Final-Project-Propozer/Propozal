@@ -91,6 +91,12 @@ public class DashboardController {
         return ResponseEntity.ok(dashboardService.getDashboardSummary(start, end));
     }
 
+    // 업종 분포
+    @GetMapping("/industry-distribution")
+    public ResponseEntity<List<DashboardIndustryDistributionDto>> getIndustryDistribution() {
+        return ResponseEntity.ok(dashboardService.getIndustryDistribution());
+    }
+
     // 필터/검색 기능
     @GetMapping("/search")
     public ResponseEntity<DashboardSummaryDto> searchDashboard(

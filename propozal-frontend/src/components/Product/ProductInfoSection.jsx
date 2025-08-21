@@ -15,7 +15,7 @@ const ProductInfoSection = ({ product }) => {
   useEffect(() => {
     const fetchFavoriteStatus = async () => {
       try {
-        const res = await axiosInstance.get('/api/products/favorites');
+        const res = await axiosInstance.get('/products/favorites');
         const favoriteIds = res.data.content?.map((item) => item.id) || [];
         setIsFavorite(favoriteIds.includes(product.id));
       } catch (err) {
@@ -34,9 +34,9 @@ const ProductInfoSection = ({ product }) => {
     setLoadingFavorite(true);
     try {
       if (isFavorite) {
-        await axiosInstance.delete(`/api/products/favorites/${product.id}`);
+        await axiosInstance.delete(`/products/favorites/${product.id}`);
       } else {
-        await axiosInstance.post('/api/products/favorites', { productId: product.id });
+        await axiosInstance.post('/products/favorites', { productId: product.id });
       }
       setIsFavorite(!isFavorite);
     } catch (err) {
@@ -88,7 +88,8 @@ const ProductInfoSection = ({ product }) => {
 
       {/* 코드 정보 */}
       <div className="mb-2 text-secondary">
-        카테고리: {product.category?.name || '없음'} | 남은 수량: {product.stock || '정보 없음'} | 코드번호: {product.code}
+{/*         카테고리: {product.category?.name || '없음'} | 남은 수량: {product.stock || '정보 없음'} |  */}
+        코드번호: {product.code}
       </div>
 
       {/* 가격 */}

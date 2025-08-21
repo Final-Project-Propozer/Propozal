@@ -8,7 +8,7 @@ const PasswordReset = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
-  const token = params.get("token"); // ✅ URL에서 토큰 추출
+  const token = params.get("token");
 
   const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -19,7 +19,8 @@ const PasswordReset = () => {
   // ✅ Step 1: 메일 발송
   const handleSendEmail = async () => {
     try {
-      await axios.post('http://localhost:8080/api/auth/password-reset/request', { email });
+      // ✅ /api 제거
+      await axios.post('http://localhost:8080/auth/password-reset/request', { email });
       alert('비밀번호 재설정 메일이 발송되었습니다. 이메일을 확인하세요.');
     } catch (error) {
       console.error(error);
@@ -35,7 +36,8 @@ const PasswordReset = () => {
     }
 
     try {
-      await axios.post('http://localhost:8080/api/auth/password-reset/confirm', {
+      // ✅ /api 제거
+      await axios.post('http://localhost:8080/auth/password-reset/confirm', {
         token,
         newPassword,
       });

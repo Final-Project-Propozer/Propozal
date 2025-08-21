@@ -14,7 +14,7 @@ const ProductDetailPage = () => {
   const [product, setProduct] = useState(null);
 
   useEffect(() => {
-    axiosInstance.get(`/api/products/${productId}`)
+    axiosInstance.get(`/products/${productId}`)
       .then((res) => setProduct(res.data))
       .catch((err) => {
         console.error('제품 상세 불러오기 실패:', err);
