@@ -256,7 +256,7 @@ public class EstimateService {
         }
 
         @Transactional
-        public void saveVersion(Long estimateId, Long userId, String memo, EstimateDataDto estimateData) {
+        public EstimateVersion saveVersion(Long estimateId, Long userId, String memo, EstimateDataDto estimateData) {
                 Estimate estimate = estimateRepository.findById(estimateId)
                                 .orElseThrow(() -> new EntityNotFoundException("견적서를 찾을 수 없습니다."));
                 User user = userRepository.findById(userId)
@@ -314,7 +314,7 @@ public class EstimateService {
                                         .memo(memo)
                                         .build();
 
-                        versionRepository.save(version);
+                        return versionRepository.save(version);
 
                 } catch (Exception e) {
                         throw new RuntimeException("견적서 버전 저장에 실패했습니다.", e);
