@@ -122,48 +122,6 @@ export default function LoginPage() {
               SIGN IN
             </button>
 
-            <div className="or-divider">
-              <hr className="line" />
-              <span className="or-text">OR</span>
-              <hr className="line" />
-            </div>
-
-            <button className="btn btn-outline-dark w-100 mb-2">
-              <img
-                src="/google.png"
-                alt="Google"
-                style={{
-                  width: "20px",
-                  marginRight: "10px",
-                  verticalAlign: "middle",
-                }}
-              />
-              Sign in with Google
-            </button>
-
-            {/* ✅ 카카오 로그인 버튼 */}
-            <button
-              className="btn w-100 mb-4"
-              style={{
-                backgroundColor: "#FEE500",
-                color: "#000",
-                border: "none",
-                fontWeight: "400",
-              }}
-              onClick={() => (window.location.href = KAKAO_AUTH_URL)}
-            >
-              <img
-                src="/kakao.png"
-                alt="Kakao"
-                style={{
-                  width: "25px",
-                  marginRight: "10px",
-                  verticalAlign: "middle",
-                }}
-              />
-              카카오 로그인
-            </button>
-
             <div className="d-flex justify-content-between flex-wrap gap-2">
               <button
                 type="button"

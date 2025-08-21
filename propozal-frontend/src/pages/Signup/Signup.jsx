@@ -265,41 +265,7 @@ const SignupPage = () => {
           </button>
         </div>
 
-        <button type="button" className="btn btn-outline-dark w-100 mb-2">
-          <img
-            src="/google.png"
-            alt="Google"
-            style={{ width: "20px", marginRight: "10px", verticalAlign: "middle" }}
-          />
-          Google로 시작하기
-        </button>
 
-        <button
-          type="button"
-          className="btn w-100 mb-4"
-          style={{
-            backgroundColor: "#FEE500",
-            color: "#000",
-            border: "none",
-            fontWeight: "400"
-          }}
-          onClick={() => (window.location.href = KAKAO_AUTH_URL)}
-          onMouseEnter={(e) => {
-            e.target.style.backgroundColor = "#FEE500";
-            e.target.style.border = "1px solid #000000";
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.backgroundColor = "#FEE500";
-            e.target.style.border = "1px solid #FEE500";
-          }}
-        >
-          <img
-            src="/kakao.png"
-            alt="Kakao"
-            style={{ width: "25px", marginRight: "10px", verticalAlign: "middle" }}
-          />
-          카카오로 시작하기
-        </button>
       </form>
     </div>
   );
