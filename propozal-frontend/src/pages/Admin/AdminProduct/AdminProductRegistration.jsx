@@ -80,7 +80,7 @@ const AdminProductRegistration = () => {
       return;
     }
     try {
-      const response = await axios.get('http://localhost:8080/admin/categories', {
+      const response = await axios.get('/api/admin/categories', {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }
@@ -113,7 +113,7 @@ const AdminProductRegistration = () => {
         const formData = new FormData();
         formData.append('file', file);
         const uploadResponse = await axios.post(
-          'http://localhost:8080/api/files/upload/product-images',
+          '/api/files/upload/product-images',
           formData,
           {
             headers: {
@@ -186,7 +186,7 @@ const AdminProductRegistration = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:8080/admin/categories/insert', 
+        '/api/admin/categories/insert', 
         requestBody,
         {
           headers: {
@@ -230,7 +230,7 @@ const AdminProductRegistration = () => {
       const accessToken = localStorage.getItem('accessToken');
       try {
         await axios.patch(
-          `http://localhost:8080/admin/categories/${selected.id}/update`,
+          `/api/admin/categories/${selected.id}/update`,
           { name: newName },
           { headers: { 'Authorization': `Bearer ${accessToken}` } }
         );
@@ -253,7 +253,7 @@ const AdminProductRegistration = () => {
     if (window.confirm(`'${selected.name}'을(를) 삭제하시겠습니까?`)) {
       const accessToken = localStorage.getItem('accessToken');
       try {
-        await axios.delete(`http://localhost:8080/admin/categories/${selected.id}/delete`, {
+        await axios.delete(`/api/admin/categories/${selected.id}/delete`, {
           headers: { 'Authorization': `Bearer ${accessToken}` }
         });
         alert("선택된 카테고리가 삭제되었습니다.");
@@ -370,7 +370,7 @@ const AdminProductRegistration = () => {
 
     console.log('백엔드로 전송할 데이터:', productData);
 
-    const API_URL = 'http://localhost:8080/admin/products/insert';
+    const API_URL = '/api/admin/products/insert';
     const accessToken = localStorage.getItem('accessToken');
     if (!accessToken) {
         alert("로그인이 필요합니다.");

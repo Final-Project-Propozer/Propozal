@@ -27,7 +27,7 @@ const AdminClientList = () => {
     }
     
     try {
-      const response = await axios.get('http://localhost:8080/admin/company/search', {
+      const response = await axios.get('/api/admin/company/search', {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         },
@@ -111,7 +111,7 @@ const AdminClientList = () => {
           }
           
           for (const companyId of selectedCompanies) { // 🟢 선택된 회사 ID 목록을 순회
-            await axios.delete(`http://localhost:8080/admin/company/profile/${companyId}`, {
+            await axios.delete(`/api/admin/company/profile/${companyId}`, {
               headers: {
                 'Authorization': `Bearer ${accessToken}`
               }

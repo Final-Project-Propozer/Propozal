@@ -13,7 +13,7 @@ const AdminUserAuth = () => {
   const [error, setError] = useState(null); // 에러 상태 추가
 
   // 백엔드 서버 주소 (실제 배포 환경에 맞게 변경)
-  const API_BASE_URL = 'http://localhost:8080';
+  const API_BASE_URL = 'https://propozal.app';
 
   useEffect(() => {
     const fetchPendingUsers = async () => {

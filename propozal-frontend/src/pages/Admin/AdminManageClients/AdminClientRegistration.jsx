@@ -36,7 +36,7 @@ const AdminClientRegistration = () => {
       
       console.log('백엔드로 전송할 회사 데이터:', companyData);
       
-      const API_URL = 'http://localhost:8080/admin/company/register';
+      const API_URL = '/api/company/register';
       const accessToken = localStorage.getItem('accessToken');
       if (!accessToken) {
           alert("로그인이 필요합니다.");
