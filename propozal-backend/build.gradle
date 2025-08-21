@@ -61,6 +61,8 @@ dependencies {
 	// HTML을 PDF로 변환하기 위한 라이브러리
     implementation 'com.openhtmltopdf:openhtmltopdf-pdfbox:1.0.10'
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate6'
+
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 }
 
 tasks.named('test') {

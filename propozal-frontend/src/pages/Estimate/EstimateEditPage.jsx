@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Container, Spinner, Alert } from "react-bootstrap";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import axiosInstance from "../../api/axiosInstance";
 
 import SalesNavbar from "../../components/Navbar/SalesNavbar";
@@ -12,17 +12,55 @@ import EstimateActions from "../../components/EstimateCreate/EstimateActions";
 
 const EstimateEditPage = () => {
   const { id: estimateId } = useParams();
+  const location = useLocation(); // location 객체를 가져옵니다.
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [estimateData, setEstimateData] = useState(null);
-  const [refreshKey, setRefreshKey] = useState(0); // 새로고침 트리거
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const calculateTotals = (items) => {
+    if (!Array.isArray(items) || items.length === 0) {
+      return {
+        supplyAmount: 0,
+        discountAmount: 0,
+        vatAmount: 0,
+        totalAmount: 0,
+      };
+    }
+
+    let supply = 0;
+    let discount = 0;
+
+    items.forEach((item) => {
+      const unitPrice = Number(item.unitPrice || 0);
+      const quantity = Number(item.quantity || 1);
+      const rate = Number(item.discountRate || 0);
+      const subtotal = Number(item.subtotal || 0); // subtotal을 직접 활용
+
+      // subtotal이 있다면 공급가액과 할인액을 역산하거나 subtotal을 기반으로 계산
+      const originalPrice = unitPrice * quantity;
+      supply += originalPrice;
+      discount += originalPrice - subtotal;
+    });
+
+    const netAmount = supply - discount;
+    const vat = Math.round(netAmount * 0.1);
+    const total = netAmount + vat;
+
+    return {
+      supplyAmount: supply,
+      discountAmount: discount,
+      vatAmount: vat,
+      totalAmount: total,
+    };
+  };
 
   const fetchEstimateData = async () => {
     try {
-      setError(""); // 에러 초기화
+      setError("");
       const res = await axiosInstance.get(`/estimate/${estimateId}`);
-      console.log("견적서 조회 성공:", res.data);
-
+      console.log("최신 견적서 조회 성공:", res.data);
       setEstimateData(res.data);
     } catch (err) {
       console.error("견적서 조회 실패:", err);
@@ -33,13 +71,33 @@ const EstimateEditPage = () => {
   };
 
   useEffect(() => {
-    if (estimateId) {
-      fetchEstimateData();
+    if (location.state?.versionData) {
+      console.log("버전 데이터를 사용하여 페이지를 렌더링합니다.");
+      setEstimateData(location.state.versionData);
+      setLoading(false);
+    } else {
+      console.log("최신 데이터를 API로 조회합니다.");
+      if (estimateId) {
+        fetchEstimateData();
+      }
     }
-  }, [estimateId]);
+  }, [estimateId, location.state]);
+
+  const handleDataChange = (updatedData) => {
+    setEstimateData((prevData) => ({ ...prevData, ...updatedData }));
+  };
+
+  const handleItemsChange = (newItems) => {
+    const newTotals = calculateTotals(newItems);
+
+    setEstimateData((prevData) => ({
+      ...prevData,
+      items: newItems,
+      ...newTotals,
+    }));
+  };
 
   const refreshEstimateData = () => {
-    // 모든 컴포넌트가 새로고침되도록 key 업데이트
     setRefreshKey((prev) => prev + 1);
     fetchEstimateData();
   };
@@ -47,11 +105,10 @@ const EstimateEditPage = () => {
   return (
     <>
       <SalesNavbar />
-
       <Container className="py-4" style={{ marginTop: "70px" }}>
-        {/*         <h2 className="mb-4" style={{ fontWeight: "bold" }}> */}
-        {/*           견적서 수정 */}
-        {/*         </h2> */}
+        <h2 className="mb-4" style={{ fontWeight: "bold" }}>
+          견적서 수정
+        </h2>
 
         {loading && (
           <div className="text-center py-4">
@@ -65,29 +122,24 @@ const EstimateEditPage = () => {
         {!loading && estimateData && (
           <>
             <EstimateForm
-              key={`form-${refreshKey}`}
               estimateId={estimateId}
-              initialData={estimateData}
-              readOnly={false}
+              onDataChange={handleDataChange}
+              formData={estimateData}
             />
             <hr className="my-4" />
             <EstimateItemTable
-              key={`items-${refreshKey}`}
               estimateId={estimateId}
+              onItemsChange={handleItemsChange}
               initialItems={estimateData.items}
-              onItemsChange={refreshEstimateData}
-              readOnly={false}
             />
             <hr className="my-4" />
             <EstimateActions
-              key={`actions-${refreshKey}`}
               estimateId={estimateId}
-              readOnly={false}
+              estimateData={estimateData}
             />
           </>
         )}
       </Container>
-
       <Footer />
     </>
   );

@@ -3,7 +3,6 @@ import { Button, Row, Col, Alert, Spinner, Form, Table } from "react-bootstrap";
 import axiosInstance from "../../api/axiosInstance";
 
 const EstimateActions = ({ estimateId, estimateData, readOnly = false }) => {
-  // ✅ estimateData props에서 items 우선 사용
   const [items, setItems] = useState([]);
   const [supplyAmount, setSupplyAmount] = useState(0);
   const [discountAmount, setDiscountAmount] = useState(0);
@@ -13,7 +12,7 @@ const EstimateActions = ({ estimateId, estimateData, readOnly = false }) => {
   const [specialTerms, setSpecialTerms] = useState("");
   const [managerNote, setManagerNote] = useState("");
 
-  const [loading, setLoading] = useState(false); // ✅ props 있으면 로딩 안함
+  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -59,34 +58,24 @@ const EstimateActions = ({ estimateId, estimateData, readOnly = false }) => {
     setTotalAmount(total);
   };
 
-  // ✅ estimateData props가 있으면 해당 데이터 사용
   useEffect(() => {
     if (estimateData && estimateData.items) {
-      console.log(
-        "✅ EstimateActions - props에서 items 사용:",
-        estimateData.items
-      );
       setItems(estimateData.items);
       setLoading(false);
     } else if (estimateId) {
-      console.log("🔄 EstimateActions - API 호출로 데이터 조회");
       fetchItems();
     }
   }, [estimateId, estimateData]);
 
   useEffect(() => {
     if (items.length > 0) {
-      console.log("💰 금액 계산 시작 - items:", items);
       calculateTotals();
     } else {
-      console.log("❌ items가 없어서 금액 계산 안함");
     }
   }, [items]);
 
   const handleSaveVersion = async () => {
     if (readOnly) return;
-
-    console.log("✅ 저장 함수 실행됨");
 
     setSaving(true);
     setMessage("");
@@ -101,8 +90,6 @@ const EstimateActions = ({ estimateId, estimateData, readOnly = false }) => {
         totalAmount,
         specialTerms,
       };
-
-      console.log("📦 전송할 데이터:", estimateDataForSave);
 
       await axiosInstance.post(`/estimate/${estimateId}/versions`, {
         estimateData: estimateDataForSave,

@@ -3,14 +3,25 @@ import axiosInstance from "../../api/axiosInstance";
 
 const PreviewComponent = ({ estimateId, onClose }) => {
   const [estimate, setEstimate] = useState(null);
+  const [memos, setMemos] = useState([]);
 
   useEffect(() => {
     const fetchPreview = async () => {
       try {
         const res = await axiosInstance.get(`/estimate/${estimateId}`);
-        console.log(res.data);
-
+        console.log("미리보기 데이터:", res.data);
         setEstimate(res.data);
+
+        try {
+          const memoRes = await axiosInstance.get(
+            `/estimates/${estimateId}/memos`
+          );
+          console.log("메모 데이터:", memoRes.data);
+          setMemos(memoRes.data || []);
+        } catch (memoErr) {
+          console.error("메모 조회 실패:", memoErr);
+          setMemos([]);
+        }
       } catch (err) {
         console.error("견적서 미리보기 조회 실패:", err);
       }
@@ -68,6 +79,24 @@ const PreviewComponent = ({ estimateId, onClose }) => {
       <p>
         <strong>견적 번호:</strong> {estimateId}
       </p>
+
+      {/* 메모 섹션 */}
+      {memos.length > 0 && (
+        <>
+          <h5 className="mt-4">📝 메모</h5>
+          <div className="bg-light p-3 rounded mb-3">
+            {memos.map((memo, index) => (
+              <div key={memo.id || index} className="mb-2">
+                <div className="fw-bold">{memo.content}</div>
+                <small className="text-muted">
+                  작성일: {new Date(memo.createdAt).toLocaleString()}
+                </small>
+                {index < memos.length - 1 && <hr className="my-2" />}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
 
       <h5 className="mt-4">👥 고객 정보</h5>
       <ul>
@@ -129,16 +158,10 @@ const PreviewComponent = ({ estimateId, onClose }) => {
         {specialTerms?.trim() ? specialTerms : "입력된 특약 사항이 없습니다."}
       </p>
 
-      {/*       <h5 className="mt-4">👤 담당자 정보</h5> */}
-      {/*       <ul> */}
-      {/*         <li>담당자명: {managerName || '입력되지 않음'}</li> */}
-      {/*         <li>비고: {managerNote || '입력된 비고가 없습니다.'}</li> */}
-      {/*       </ul> */}
-
       <div className="mt-4 text-end">
-        {/*         <button className="btn btn-secondary" onClick={onClose}> */}
-        {/*           닫기 */}
-        {/*         </button> */}
+        {/* <button className="btn btn-secondary" onClick={onClose}>
+          닫기
+        </button> */}
       </div>
     </div>
   );

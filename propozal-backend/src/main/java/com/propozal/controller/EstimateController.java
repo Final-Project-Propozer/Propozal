@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.propozal.domain.EmployeeProfile;
 import com.propozal.domain.Estimate;
+import com.propozal.domain.EstimateVersion;
 import com.propozal.domain.User;
 import com.propozal.dto.email.EstimateSendRequest;
 import com.propozal.jwt.CustomUserDetails;
@@ -38,6 +39,7 @@ public class EstimateController {
 
     private final EstimateService estimateService;
     private final EmployeeProfileRepository employeeProfileRepository;
+    private final ObjectMapper objectMapper;
 
     // 1. 빈 견적서 생성 (견적 번호 할당)
     @PostMapping
@@ -113,13 +115,14 @@ public class EstimateController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody(required = false) Map<String, Object> payload) {
 
-        ObjectMapper mapper = new ObjectMapper();
-
-        EstimateDataDto estimateData = mapper.convertValue(payload.get("estimateData"), EstimateDataDto.class);
+        EstimateDataDto estimateData = objectMapper.convertValue(payload.get("estimateData"), EstimateDataDto.class);
         String memo = (String) payload.get("memo");
 
-        estimateService.saveVersion(estimateId, userDetails.getUser().getId(), memo, estimateData);
-        return ResponseEntity.ok(Map.of("message", "견적서가 임시 저장되었습니다."));
+        EstimateVersion newVersion = estimateService.saveVersion(estimateId, userDetails.getUser().getId(), memo,
+                estimateData);
+        return ResponseEntity.ok(Map.of(
+                "message", "견적서가 저장되었습니다.",
+                "versionId", newVersion.getId()));
     }
 
     // 9. 특정 견적서의 모든 버전 목록 조회
@@ -162,5 +165,14 @@ public class EstimateController {
                 .orElse(null);
         EstimateDetailResponse responseBody = EstimateDetailResponse.from(estimate, profile);
         return ResponseEntity.ok(responseBody);
+    }
+
+    // 13. 특정 버전의 견적서를 복원
+    @PostMapping("/{estimateId}/restore")
+    public ResponseEntity<Void> restoreFromVersionData(
+            @PathVariable("estimateId") Long estimateId,
+            @RequestBody EstimateDataDto versionData) {
+        estimateService.restoreEstimateFromData(estimateId, versionData);
+        return ResponseEntity.ok().build();
     }
 }
