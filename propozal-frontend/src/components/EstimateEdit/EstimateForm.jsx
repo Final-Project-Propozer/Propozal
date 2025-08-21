@@ -33,19 +33,12 @@ const EstimateForm = ({
   }, [estimateId, readOnly]);
 
   const handleChange = async (e) => {
-    if (readOnly) return;
+    if (readOnly) return; // 🔥 readOnly일 때 아무것도 하지 않음
+
     const { name, value } = e.target;
 
     if (onDataChange) {
       onDataChange({ [name]: value });
-    }
-
-    try {
-      await axiosInstance.patch(`/estimate/${estimateId}`, {
-        [name]: value,
-      });
-    } catch (error) {
-      console.error("고객 정보 업데이트 실패:", error);
     }
   };
 

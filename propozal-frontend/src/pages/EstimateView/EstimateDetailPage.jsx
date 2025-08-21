@@ -29,6 +29,7 @@ const EstimateDetailPage = () => {
   const [error, setError] = useState("");
 
   const [displayData, setDisplayData] = useState(null);
+  const [memos, setMemos] = useState([]);
   const [viewInfo, setViewInfo] = useState(" (최신 상태)");
 
   const [componentKey, setComponentKey] = useState(0);
@@ -52,6 +53,17 @@ const EstimateDetailPage = () => {
       setDisplayData(res.data);
       setViewInfo(" (최신 상태)");
       setIsViewingLatest(true);
+
+      try {
+        const memoRes = await axiosInstance.get(
+          `/estimates/${estimateId}/memos`
+        );
+        setMemos(memoRes.data || []);
+      } catch (memoErr) {
+        console.error("메모 조회 실패:", memoErr);
+        setMemos([]);
+      }
+
       setComponentKey((prev) => prev + 1);
     } catch (err) {
       setError("최신 견적서를 불러오는 데 실패했습니다.");
@@ -128,6 +140,7 @@ const EstimateDetailPage = () => {
     const versionNumber = versions.length - versionIndex;
 
     const newDisplayData = {
+      // 기본 정보
       id: selectedVersion.id || estimateId,
       customerName: selectedVersion.customerName || "",
       customerEmail: selectedVersion.customerEmail || "",
@@ -139,17 +152,21 @@ const EstimateDetailPage = () => {
       dealStatus: selectedVersion.dealStatus || "",
       specialTerms: selectedVersion.specialTerms || "",
 
+      // 금액 정보
       supplyAmount: selectedVersion.supplyAmount || 0,
       discountAmount: selectedVersion.discountAmount || 0,
       vatAmount: selectedVersion.vatAmount || 0,
       totalAmount: selectedVersion.totalAmount || 0,
 
+      // 품목 정보 - 완전히 새로운 배열로 복사
       items: selectedVersion.items
         ? selectedVersion.items.map((item) => ({ ...item }))
         : [],
 
+      // 사용자 정보 (기존 데이터 유지)
       user: displayData?.user || null,
 
+      // 메타 정보
       versionId: selectedVersion.versionId,
     };
 
@@ -180,6 +197,7 @@ const EstimateDetailPage = () => {
       return;
     }
 
+    // 버전 데이터일 때 경고
     if (!isViewingLatest) {
       const confirmed = window.confirm(
         "현재 이전 버전을 보고 있습니다. 이 버전의 PDF를 다운로드하시겠습니까?"
@@ -361,7 +379,24 @@ const EstimateDetailPage = () => {
               </div>
             </div>
 
-            {/* key props 추가로 강제 리렌더링 */}
+            {/* 메모 섹션 */}
+            {memos.length > 0 && (
+              <div className="mb-4">
+                <div className="bg-light p-3 rounded">
+                  {memos.map((memo, index) => (
+                    <div key={memo.id || index} className="mb-2">
+                      <div className="fw-bold">{memo.content}</div>
+                      <small className="text-muted">
+                        작성일: {new Date(memo.createdAt).toLocaleString()}
+                      </small>
+                      {index < memos.length - 1 && <hr className="my-2" />}
+                    </div>
+                  ))}
+                </div>
+                <hr className="my-4" />
+              </div>
+            )}
+
             <EstimateForm
               key={`form-${componentKey}-${
                 displayData.customerName || "empty"

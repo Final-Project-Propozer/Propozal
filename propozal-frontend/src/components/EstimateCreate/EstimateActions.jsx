@@ -11,29 +11,20 @@ import {
   Modal,
 } from "react-bootstrap";
 import axiosInstance from "../../api/axiosInstance";
-import PreviewComponent from "./PreviewComponent"; // 미리보기 컴포넌트 (경로 확인 필요)
+import PreviewComponent from "./PreviewComponent";
 
-// ✅ 1. Props 변경: estimateId와 함께 estimateData를 받음
 const EstimateActions = ({ estimateId, estimateData, readOnly = false }) => {
   const navigate = useNavigate();
 
-  // ✅ 2. 자체 데이터 상태와 로딩 상태 대부분 제거. 저장 로직을 위한 최소한의 상태만 남김
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [showPreview, setShowPreview] = useState(false);
 
-  // ✅ 수정된 코드
   const handleSaveVersion = async () => {
     if (readOnly || !estimateData) return;
 
-    const memo = prompt(
-      "변경 사항에 대한 메모를 남겨주세요 (선택 사항):",
-      "내용 수정"
-    );
-    if (memo === null) {
-      return;
-    }
+    const memo = "버전 저장";
 
     setSaving(true);
     setMessage("");
@@ -64,6 +55,7 @@ const EstimateActions = ({ estimateId, estimateData, readOnly = false }) => {
       alert("새로운 버전으로 저장되었습니다.");
       navigate(`/estimate/${estimateId}`);
     } catch (err) {
+      console.error("❌ 버전 저장 실패:", err);
       setError("버전 저장 중 오류가 발생했습니다.");
     } finally {
       setSaving(false);
@@ -80,7 +72,6 @@ const EstimateActions = ({ estimateId, estimateData, readOnly = false }) => {
     return isNaN(num) ? "0" : num.toLocaleString();
   };
 
-  // ✅ 4. JSX는 부모로부터 받은 estimateData를 사용해 렌더링
   return (
     <>
       <h4 className="mb-3">견적금액 요약</h4>

@@ -15,6 +15,10 @@ const EstimateForm = ({
   const [isSaving, setIsSaving] = useState(false);
   const [editingMemo, setEditingMemo] = useState(null);
 
+  // 🔥 수동 저장을 위한 상태
+  const [hasChanges, setHasChanges] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
+
   // 🔥 formData가 변경될 때마다 로그 출력
   useEffect(() => {
     console.log("EstimateForm: formData 변경됨:", formData);
@@ -37,20 +41,80 @@ const EstimateForm = ({
     fetchMemos();
   }, [estimateId, readOnly]);
 
-  const handleChange = async (e) => {
+  const handleChange = (e) => {
     if (readOnly) return;
+
     const { name, value } = e.target;
 
+    // 🔥 즉시 UI 업데이트 (로컬 상태만)
     if (onDataChange) {
       onDataChange({ [name]: value });
     }
 
+    // 🔥 변경사항 플래그 설정
+    setHasChanges(true);
+    setSaveMessage("");
+  };
+
+  // 🔥 수동 저장 함수
+  const handleSaveCustomerInfo = async () => {
+    if (readOnly || !hasChanges) return;
+
+    // 🔥 필수 필드 검증
+    if (!formData.customerName || formData.customerName.trim() === "") {
+      setSaveMessage("고객명은 필수입니다.");
+      return;
+    }
+
+    if (!formData.customerEmail || formData.customerEmail.trim() === "") {
+      setSaveMessage("고객 이메일은 필수입니다.");
+      return;
+    }
+
+    // 🔥 이메일 형식 검증
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.customerEmail)) {
+      setSaveMessage("올바른 이메일 형식을 입력해주세요.");
+      return;
+    }
+
+    setIsSaving(true);
+    setSaveMessage("");
+
     try {
-      await axiosInstance.patch(`/estimate/${estimateId}`, {
-        [name]: value,
-      });
+      const updateData = {
+        customerName: formData.customerName,
+        customerEmail: formData.customerEmail,
+        customerPhone: formData.customerPhone || "",
+        customerCompanyName: formData.customerCompanyName || "",
+        customerPosition: formData.customerPosition || "",
+        sentDate: formData.sentDate || null,
+        expirationDate: formData.expirationDate || null,
+        dealStatus: formData.dealStatus || "",
+      };
+
+      console.log("🔄 고객 정보 저장:", updateData);
+
+      await axiosInstance.patch(`/estimate/${estimateId}`, updateData);
+
+      setHasChanges(false);
+      setSaveMessage("고객 정보가 저장되었습니다.");
+
+      // 3초 후 메시지 제거
+      setTimeout(() => setSaveMessage(""), 3000);
     } catch (error) {
-      console.error("고객 정보 업데이트 실패:", error);
+      console.error("❌ 고객 정보 저장 실패:", error);
+
+      if (error.response?.status === 500) {
+        console.error("❌ 서버 오류 상세:", error.response?.data);
+        setSaveMessage(
+          error.response?.data?.message || "서버 오류가 발생했습니다."
+        );
+      } else {
+        setSaveMessage("저장 중 오류가 발생했습니다.");
+      }
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -196,7 +260,43 @@ const EstimateForm = ({
 
       <hr className="my-4" />
 
-      <h4 className="mb-3">고객 정보</h4>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h4 className="mb-0">고객 정보</h4>
+
+        {!readOnly && (
+          <div className="d-flex align-items-center gap-2">
+            {/* 🔥 저장 상태 메시지 */}
+            {saveMessage && (
+              <span
+                className={`text-${
+                  saveMessage.includes("저장되었습니다") ? "success" : "danger"
+                }`}
+              >
+                {saveMessage}
+              </span>
+            )}
+
+            {/* 🔥 수동 저장 버튼 */}
+            <Button
+              variant={hasChanges ? "primary" : "outline-secondary"}
+              size="sm"
+              onClick={handleSaveCustomerInfo}
+              disabled={isSaving || !hasChanges}
+            >
+              {isSaving ? (
+                <>
+                  <Spinner as="span" size="sm" className="me-1" />
+                  저장 중...
+                </>
+              ) : hasChanges ? (
+                "저장하기"
+              ) : (
+                "저장됨"
+              )}
+            </Button>
+          </div>
+        )}
+      </div>
 
       <Row>
         <Col md={6}>
@@ -212,13 +312,22 @@ const EstimateForm = ({
         </Col>
         <Col md={6}>
           <Form.Group className="mb-3">
-            <Form.Label>고객명 *</Form.Label>
+            <Form.Label>
+              고객명 *
+              {!readOnly && <small className="text-muted">(필수)</small>}
+            </Form.Label>
             <Form.Control
               name="customerName"
               value={safeFormData.customerName || ""}
               onChange={handleChange}
               readOnly={readOnly}
               style={readOnly ? { backgroundColor: "#f8f9fa" } : {}}
+              isInvalid={
+                !readOnly &&
+                hasChanges &&
+                (!safeFormData.customerName ||
+                  safeFormData.customerName.trim() === "")
+              }
             />
           </Form.Group>
         </Col>
@@ -226,7 +335,10 @@ const EstimateForm = ({
       <Row>
         <Col md={6}>
           <Form.Group className="mb-3">
-            <Form.Label>이메일 *</Form.Label>
+            <Form.Label>
+              이메일 *
+              {!readOnly && <small className="text-muted">(필수)</small>}
+            </Form.Label>
             <Form.Control
               name="customerEmail"
               type="email"
@@ -234,6 +346,12 @@ const EstimateForm = ({
               onChange={handleChange}
               readOnly={readOnly}
               style={readOnly ? { backgroundColor: "#f8f9fa" } : {}}
+              isInvalid={
+                !readOnly &&
+                hasChanges &&
+                (!safeFormData.customerEmail ||
+                  safeFormData.customerEmail.trim() === "")
+              }
             />
           </Form.Group>
         </Col>
