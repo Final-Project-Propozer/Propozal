@@ -17,7 +17,7 @@ import com.propozal.service.EstimateAdminService;
 import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/api/admin/estimates")
+@RequestMapping("/admin/estimates")
 @RequiredArgsConstructor
 public class EstimateAdminController {
 

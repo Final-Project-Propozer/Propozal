@@ -15,7 +15,7 @@ import com.propozal.service.ApprovalService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/admin/users/pending")
+@RequestMapping("/admin/users/pending")
 @RequiredArgsConstructor
 public class ApprovalController {
 

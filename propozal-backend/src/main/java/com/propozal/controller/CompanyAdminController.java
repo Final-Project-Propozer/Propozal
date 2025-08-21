@@ -12,7 +12,7 @@ import com.propozal.dto.admin.*;
 import com.propozal.service.CompanyAdminService;
 
 @RestController
-@RequestMapping("/api/admin/company")
+@RequestMapping("/admin/company")
 @RequiredArgsConstructor
 public class CompanyAdminController {
 

@@ -13,7 +13,7 @@ public class EstimateResponseController {
 
     private final EstimateService estimateService;
 
-    @GetMapping("/api/estimate/response")
+    @GetMapping("/estimate/response")
     public String handleEstimateResponse(@RequestParam("token") String token, Model model) {
         String message;
         try {

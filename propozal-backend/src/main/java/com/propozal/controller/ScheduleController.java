@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
         import java.util.List;
 
 @RestController
-@RequestMapping("/api/schedule")
+@RequestMapping("/schedule")
 @RequiredArgsConstructor
 public class ScheduleController {
 
