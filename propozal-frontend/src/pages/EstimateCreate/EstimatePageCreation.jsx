@@ -38,6 +38,10 @@ const EstimatePageCreation = () => {
         const res = await axiosInstance.post("/estimate");
         const newEstimateId = res.data.id;
         setEstimateId(newEstimateId);
+
+        // ✅ sessionStorage에 현재 작성 중인 견적서 ID 저장
+        sessionStorage.setItem("currentEstimateId", newEstimateId);
+
         await fetchEstimateData(newEstimateId);
       } catch (err) {
         console.error("견적서 생성 오류:", err);
@@ -49,6 +53,14 @@ const EstimatePageCreation = () => {
 
     createAndFetchEstimate();
   }, [fetchEstimateData]);
+
+  useEffect(() => {
+    return () => {};
+  }, []);
+
+  const clearCurrentEstimate = () => {
+    sessionStorage.removeItem("currentEstimateId");
+  };
 
   const handleItemsChange = useCallback(() => {
     fetchEstimateData(estimateId);

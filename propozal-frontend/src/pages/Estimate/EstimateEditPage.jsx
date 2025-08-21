@@ -12,12 +12,23 @@ import EstimateActions from "../../components/EstimateCreate/EstimateActions";
 
 const EstimateEditPage = () => {
   const { id: estimateId } = useParams();
-  const location = useLocation(); // location 객체를 가져옵니다.
+  const location = useLocation();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [estimateData, setEstimateData] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
+
+  // ✅ 페이지 로드 시 sessionStorage에 현재 견적서 ID 저장
+  useEffect(() => {
+    if (estimateId) {
+      sessionStorage.setItem("currentEstimateId", estimateId);
+      console.log(
+        "🔧 EstimateEditPage: sessionStorage에 견적서 ID 저장:",
+        estimateId
+      );
+    }
+  }, [estimateId]);
 
   const calculateTotals = (items) => {
     if (!Array.isArray(items) || items.length === 0) {
@@ -36,9 +47,8 @@ const EstimateEditPage = () => {
       const unitPrice = Number(item.unitPrice || 0);
       const quantity = Number(item.quantity || 1);
       const rate = Number(item.discountRate || 0);
-      const subtotal = Number(item.subtotal || 0); // subtotal을 직접 활용
+      const subtotal = Number(item.subtotal || 0);
 
-      // subtotal이 있다면 공급가액과 할인액을 역산하거나 subtotal을 기반으로 계산
       const originalPrice = unitPrice * quantity;
       supply += originalPrice;
       discount += originalPrice - subtotal;
@@ -101,6 +111,14 @@ const EstimateEditPage = () => {
     setRefreshKey((prev) => prev + 1);
     fetchEstimateData();
   };
+
+  // ✅ 컴포넌트 언마운트 시 sessionStorage 정리 (선택사항)
+  useEffect(() => {
+    return () => {
+      // 페이지를 완전히 떠날 때만 정리 (예: 견적서 목록으로 이동할 때)
+      // 제품 페이지로 갔다가 다시 돌아올 수 있으므로 여기서는 정리하지 않음
+    };
+  }, []);
 
   return (
     <>
