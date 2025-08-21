@@ -33,7 +33,7 @@ export default function LoginPage() {
       if (user.role === "SALESPERSON") {
         navigate("/sales");
       } else if (user.role === "ADMIN") {
-        navigate("/admin/test");
+        navigate("/admin/companydataview");
       } else {
         alert("알 수 없는 사용자 권한입니다.");
       }
