@@ -8,7 +8,7 @@ const PasswordReset = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
-  const token = params.get("token"); // ✅ URL에서 토큰 추출
+  const token = params.get("token");
 
   const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');

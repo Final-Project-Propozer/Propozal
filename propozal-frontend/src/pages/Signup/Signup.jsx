@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";  // ✅ 기본 axios 사용
+import axios from "axios";
 
 // 🔹 카카오 인증 URL
 const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=3fdf6a1c367635a4dbc945a816c7a2b1&redirect_uri=https://propozal.app/kakao/callback&response_type=code`;
@@ -9,7 +9,7 @@ const SignupPage = () => {
   const navigate = useNavigate();
 
   const [company, setCompany] = useState("");
-  const [name, setName] = useState("");   // ✅ 사용자 이름 상태 추가
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [emailChecked, setEmailChecked] = useState(false);
   const [password, setPassword] = useState("");
@@ -35,7 +35,7 @@ const SignupPage = () => {
     const signupData = {
       email,
       password,
-      name, // ✅ 사용자 이름 (company가 아니라 name으로 보냄)
+      name,
       role: jobTitle === "USER" ? "SALESPERSON" : jobTitle
     };
 
@@ -99,7 +99,6 @@ const SignupPage = () => {
           />
         </div>
 
-        {/* ✅ 이름 입력 필드 추가 */}
         <div className="mb-3">
           <label>이름 *</label>
           <input
@@ -273,7 +272,6 @@ const SignupPage = () => {
           Google로 시작하기
         </button>
 
-        {/* ✅ 카카오 로그인 버튼 */}
         <button
           type="button"
           className="btn w-100 mb-4"
