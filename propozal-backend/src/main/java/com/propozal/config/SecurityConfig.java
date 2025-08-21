@@ -29,6 +29,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserDetailsService userDetailsService;
 
     @Bean
@@ -60,8 +61,7 @@ public class SecurityConfig {
                         );
                     })
                 )
-                .addFilterBefore(new JwtAuthenticationFilter(jwtUtil, userDetailsService),
-                        UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
