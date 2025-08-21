@@ -54,8 +54,8 @@ const ProductPageLayout = () => {
 
       try {
         const endpoint = isFavoritesListPage
-          ? "/products/favorites"
-          : "/products";
+          ? "/products"
+          : "/products/favorites";
 
         const res = await axiosInstance.get(endpoint, { params });
         setAllProducts(res.data.content || []);
