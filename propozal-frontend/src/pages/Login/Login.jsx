@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import axiosInstance from "../../api/axiosInstance"; // 인증된 요청용
+// import axiosInstance from "../../api/axiosInstance"; // 인증된 요청용
 import { useAuth } from "../../context/AuthContext";
 import "./Login.css";
 
@@ -25,11 +25,16 @@ export default function LoginPage() {
       });
 
       const { accessToken, refreshToken } = response.data;
-      const userRes = await axiosInstance.get("/auth/me");
-      const user = userRes.data;
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
 
-      // 컨텍스트에 반영(토큰/유저 동기화)
+      const userRes = await axios.get("/api/auth/me", {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      
+      const user = userRes.data;
       login(accessToken, refreshToken, user);
+
       navigate(user.role === "ADMIN" ? "/admin/companydataview" : "/sales");
       } catch (error) {
       if (error.response) {
