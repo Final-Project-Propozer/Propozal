@@ -29,10 +29,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String uri = request.getRequestURI();
-        return uri.startsWith("/api/auth/login")
-            || uri.startsWith("/api/auth/signup")
-            || uri.startsWith("/api/auth/check-email")
-            || uri.startsWith("/api/auth/send-verification")
+        return uri.startsWith("/auth/login")
+            || uri.startsWith("/auth/signup")
+            || uri.startsWith("/auth/check-email")
+            || uri.startsWith("/auth/send-verification")
             || uri.startsWith("/actuator/")
             || uri.startsWith("/estimate/response");
     }
