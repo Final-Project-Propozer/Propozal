@@ -10,9 +10,12 @@ const EstimateVersionDetailPage = () => {
     <>
       <SalesNavbar />
 
-      <Container className="py-4" style={{ marginTop: '70px' }}>
-        <EstimateVersionDetail />
-      </Container>
+      {/* 본문을 main으로 감싸고 flex: 1 적용 */}
+      <main style={{ flex: 1, marginTop: '70px' }}>
+        <Container className="py-4">
+          <EstimateVersionDetail />
+        </Container>
+      </main>
 
       <Footer />
     </>
