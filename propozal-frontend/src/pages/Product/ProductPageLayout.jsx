@@ -92,12 +92,13 @@ const ProductPageLayout = () => {
           <Row>
             {/* 왼쪽 필터 영역 */}
             <Col xs={12} md={3} className="mb-4">
+              {/* 검색 바 */}
               <ProductSearchBar
                 searchTerm={searchTerm}
                 onSearchChange={handleSearchChange}
               />
 
-              {/* ✅ 즐겨찾기 버튼 추가 */}
+              {/* 즐겨찾기 버튼 */}
               <div className="my-3">
                 <Button
                   variant="outline-warning"
@@ -109,6 +110,7 @@ const ProductPageLayout = () => {
                 </Button>
               </div>
 
+              {/* 카테고리 필터 메뉴 */}
               <CategoryFilterMenu
                 selectedCategories={selectedCategories}
                 onCategoryChange={handleCategoryChange}
