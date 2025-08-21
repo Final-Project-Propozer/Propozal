@@ -20,7 +20,7 @@ const EstimateEditPage = () => {
   const fetchEstimateData = async () => {
     try {
       setError(""); // 에러 초기화
-      const res = await axiosInstance.get(`/api/estimate/${estimateId}`);
+      const res = await axiosInstance.get(`/estimate/${estimateId}`);
       console.log("견적서 조회 성공:", res.data);
       setEstimateData(res.data);
     } catch (err) {
@@ -48,9 +48,9 @@ const EstimateEditPage = () => {
       <SalesNavbar />
 
       <Container className="py-4" style={{ marginTop: "70px" }}>
-{/*         <h2 className="mb-4" style={{ fontWeight: "bold" }}> */}
-{/*           견적서 수정 */}
-{/*         </h2> */}
+        {/*         <h2 className="mb-4" style={{ fontWeight: "bold" }}> */}
+        {/*           견적서 수정 */}
+        {/*         </h2> */}
 
         {loading && (
           <div className="text-center py-4">
