@@ -3,6 +3,7 @@ import AdminNavbar from '../../../components/Navbar/AdminNavbar.jsx';
 import Footer from '../../../components/Footer/Footer.jsx';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import axios from 'axios';
 
 const AdminClientRegistration = () => {
   const [clientType, setClientType] = useState('개인');
@@ -17,35 +18,63 @@ const AdminClientRegistration = () => {
   const [businessCategory, setBusinessCategory] = useState('');
   const [businessRegistrationNumber, setBusinessRegistrationNumber] = useState('');
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    let clientData = {
-      clientType,
-      name,
-      phone,
-      address,
-      email,
-    };
     
-    // 법인 추가정보
     if (clientType === '법인') {
-      clientData = {
-        ...clientData,
-        representativeName,
-        businessType,
-        businessCategory,
-        businessRegistrationNumber,
+      // 🟢 백엔드 DTO 필드명에 맞춰 객체 구성
+      const companyData = {
+        adminUserId: 12, // ⚠️ 실제 관리자 ID로 교체 필요
+        companyName: name,
+        businessNumber: businessRegistrationNumber,
+        ceoName: representativeName,
+        businessType: businessType,
+        businessItem: businessCategory, // 🟢 businessCategory -> businessItem으로 변경
+        address: address,
+        contactPhone: phone, // 🟢 phone -> contactPhone으로 변경
       };
+      
+      console.log('백엔드로 전송할 회사 데이터:', companyData);
+      
+      const API_URL = 'http://localhost:8080/admin/company/register';
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) {
+          alert("로그인이 필요합니다.");
+          return;
+      }
+
+      try {
+        await axios.post(API_URL, companyData, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        alert('회사 정보가 성공적으로 등록되었습니다!');
+        
+        // 폼 초기화
+        setClientType('개인');
+        setName('');
+        setPhone('');
+        setAddress('');
+        setEmail('');
+        setRepresentativeName('');
+        setBusinessType('');
+        setBusinessCategory('');
+        setBusinessRegistrationNumber('');
+
+      } catch (error) {
+        console.error('회사 정보 등록 실패:', error.response || error.message);
+        alert('회사 정보 등록에 실패했습니다. 상세한 오류를 콘솔에서 확인하세요.');
+      }
+    } else {
+        alert('개인 고객 정보는 현재 등록할 수 없습니다. 법인 고객 정보만 등록 가능합니다.');
     }
-    
-    console.log('고객 등록 데이터:', clientData);
-    alert('고객 정보가 성공적으로 저장되었습니다!');
-    // 백엔드 연동지점: 데이터 서버로 전송하는 호출
   };
 
   const handleCancel = () => {
     alert('고객 등록이 취소되었습니다.');
-    // 이전 페이지로 이동
+    // TODO: 이전 페이지로 이동 로직 추가
   };
 
   return (

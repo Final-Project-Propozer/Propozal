@@ -88,7 +88,8 @@ const ProductInfoSection = ({ product }) => {
 
       {/* 코드 정보 */}
       <div className="mb-2 text-secondary">
-        카테고리: {product.category?.name || '없음'} | 남은 수량: {product.stock || '정보 없음'} | 코드번호: {product.code}
+{/*         카테고리: {product.category?.name || '없음'} | 남은 수량: {product.stock || '정보 없음'} |  */}
+        코드번호: {product.code}
       </div>
 
       {/* 가격 */}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Pagination } from 'react-bootstrap';
+import { Container, Row, Col, Pagination, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import ProductCard from './ProductCard';
 import axiosInstance from '../../api/axiosInstance';
 
@@ -8,13 +9,12 @@ const ProductList = ({ products }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [favoriteIds, setFavoriteIds] = useState([]);
   const [localProducts, setLocalProducts] = useState([]);
+  const navigate = useNavigate(); // ✅ 추가
 
-  // ✅ 초기 제품 목록 복사
   useEffect(() => {
     setLocalProducts(products);
   }, [products]);
 
-  // ✅ 즐겨찾기 목록 불러오기
   useEffect(() => {
     const fetchFavorites = async () => {
       try {
@@ -29,7 +29,6 @@ const ProductList = ({ products }) => {
     fetchFavorites();
   }, []);
 
-  // ✅ 즐겨찾기 상태 반영된 제품 목록
   const productsWithFavorite = localProducts.map((product) => ({
     ...product,
     isFavorite: product.isFavorite ?? favoriteIds.includes(product.id)
@@ -37,7 +36,6 @@ const ProductList = ({ products }) => {
 
   const totalPages = Math.ceil(productsWithFavorite.length / itemsPerPage);
 
-  // ✅ 페이지 번호 보정 (즐겨찾기 해제 후)
   useEffect(() => {
     const maxPage = Math.ceil(productsWithFavorite.length / itemsPerPage);
     if (currentPage > maxPage) {
@@ -51,6 +49,10 @@ const ProductList = ({ products }) => {
 
   const handleFavoriteRemove = (productId) => {
     setLocalProducts((prev) => prev.filter((p) => p.id !== productId));
+  };
+
+  const handleGoToFavorites = () => {
+    navigate('/products/favorites'); // ✅ 경로 이동
   };
 
   const paginatedProducts = productsWithFavorite.slice(
@@ -77,7 +79,38 @@ const ProductList = ({ products }) => {
 
   return (
     <Container fluid>
-      <h4 className="mb-4">제품 목록</h4>
+      <Row className="align-items-center mb-3">
+        <Col>
+          <h4 className="mb-0">제품 목록</h4>
+        </Col>
+        <Col className="text-end">
+         <Button
+           onClick={handleGoToFavorites}
+           style={{
+             backgroundColor: 'white',
+             border: '2px solid #ffc107',     // 얇은 노란 테두리
+             color: 'black',                  // 얇은 검정 텍스트
+             fontWeight: '400',              // 텍스트 얇게
+             borderRadius: '50px',
+             padding: '7px 16px',            // 버튼 높이 줄임
+             fontSize: '16px',
+             cursor: 'pointer',
+             transition: 'all 0.3s ease'
+           }}
+           onMouseEnter={(e) => {
+             e.target.style.backgroundColor = '#ffc107';
+             e.target.style.color = 'black'; // 호버 시에도 검정 텍스트 유지
+           }}
+           onMouseLeave={(e) => {
+             e.target.style.backgroundColor = 'white';
+             e.target.style.color = 'black';
+           }}
+         >
+           ⭐ 즐겨찾기 목록
+         </Button>
+
+        </Col>
+      </Row>
 
       <Row>
         {paginatedProducts.map((product, index) => (

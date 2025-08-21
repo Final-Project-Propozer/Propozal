@@ -98,17 +98,17 @@ const ProductPageLayout = () => {
                 onSearchChange={handleSearchChange}
               />
 
-              {/* 즐겨찾기 버튼 */}
-              <div className="my-3">
-                <Button
-                  variant="outline-warning"
-                  className="w-100"
-                  style={{ color: 'black' }}
-                  onClick={handleGoToFavorites}
-                >
-                  ⭐ 즐겨찾기 목록
-                </Button>
-              </div>
+{/*                */}{/* 즐겨찾기 버튼 */}
+{/*               <div className="my-3"> */}
+{/*                 <Button */}
+{/*                   variant="outline-warning" */}
+{/*                   className="w-100" */}
+{/*                   style={{ color: 'black' }} */}
+{/*                   onClick={handleGoToFavorites} */}
+{/*                 > */}
+{/*                   ⭐ 즐겨찾기 목록 */}
+{/*                 </Button> */}
+{/*               </div> */}
 
               {/* 카테고리 필터 메뉴 */}
               <CategoryFilterMenu

@@ -4,34 +4,72 @@ import Footer from '../../../components/Footer/Footer.jsx';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import Pagination from 'react-bootstrap/Pagination';
+import axios from 'axios';
 
 const AdminClientList = () => {
-  // 더미데이터
-  const [clients, setClients] = useState([]);
-  const [selectedClients, setSelectedClients] = useState(new Set());
+  const [companies, setCompanies] = useState([]);
+  const [selectedCompanies, setSelectedCompanies] = useState(new Set());
+  const [searchParams, setSearchParams] = useState({
+    companyName: '',
+    businessNumber: '',
+    ceoName: '',
+    address: '',
+  });
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+
+  const fetchCompanies = async (page = 0) => {
+    const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+    
+    try {
+      const response = await axios.get('http://localhost:8080/admin/company/search', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        },
+        params: {
+          ...searchParams,
+          page: page,
+          size: 10 // 페이지 당 10개 항목
+        }
+      });
+      setCompanies(response.data.content);
+      setTotalPages(response.data.totalPages);
+      setCurrentPage(response.data.number);
+      setSelectedCompanies(new Set()); // 데이터 갱신 시 선택 초기화
+    } catch (error) {
+      console.error('회사 목록 조회 실패:', error.response?.data || error.message);
+      alert('회사 목록을 불러오는 데 실패했습니다.');
+    }
+  };
 
   useEffect(() => {
-    const fetchClients = () => {
-      const dummyData = [
-        { id: 'user_001', name: '김민준', type: '개인', phone: '010-1234-5678', email: 'kim.mj@example.com' },
-        { id: 'user_002', name: '이서윤', type: '법인', phone: '02-987-6543', email: 'lee.sy@corp.com' },
-        { id: 'user_003', name: '박하은', type: '개인', phone: '010-2345-6789', email: 'park.he@example.com' },
-        { id: 'user_004', name: '최준혁', type: '개인', phone: '010-3456-7890', email: 'choi.jh@example.com' },
-        { id: 'user_005', name: '정수아', type: '법인', phone: '070-4567-8901', email: 'jung.sa@corp.com' },
-      ];
-      setClients(dummyData);
-    };
-
-    fetchClients();
+    fetchCompanies();
   }, []);
 
-  const handleCheckboxChange = (clientId) => {
-    setSelectedClients(prevSelected => {
+  const handleSearchChange = (e) => {
+    setSearchParams({
+      ...searchParams,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchCompanies(0); // 검색 시 첫 페이지로 이동
+  };
+
+  const handleCheckboxChange = (companyId) => {
+    setSelectedCompanies(prevSelected => {
       const newSet = new Set(prevSelected);
-      if (newSet.has(clientId)) {
-        newSet.delete(clientId);
+      if (newSet.has(companyId)) {
+        newSet.delete(companyId);
       } else {
-        newSet.add(clientId);
+        newSet.add(companyId);
       }
       return newSet;
     });
@@ -39,80 +77,146 @@ const AdminClientList = () => {
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      const allClientIds = new Set(clients.map(client => client.id));
-      setSelectedClients(allClientIds);
+      const allCompanyIds = new Set(companies.map(company => company.id));
+      setSelectedCompanies(allCompanyIds);
     } else {
-      setSelectedClients(new Set());
+      setSelectedCompanies(new Set());
     }
   };
-  
+
   const handleAdd = () => {
-    alert('고객 추가 버튼이 클릭되었습니다.');
-    // 백엔드 연동: 추가직
+    alert('회사 추가 페이지로 이동');
+    // TODO: 회사 등록 페이지로 라우팅 로직 추가
   };
 
   const handleModify = () => {
-    if (selectedClients.size > 0) {
-      alert(`${selectedClients.size}명의 고객 정보가 수정될 예정입니다.`);
-      // 백엔드 연동: 수정
+    if (selectedCompanies.size === 1) {
+      const companyId = Array.from(selectedCompanies)[0];
+      alert(`ID ${companyId} 회사 정보 수정 페이지로 이동`);
+      // TODO: 수정 페이지로 라우팅 로직 추가 (선택된 ID를 전달)
     } else {
-      alert('수정할 고객을 선택해주세요.');
+      alert('수정할 회사를 하나만 선택해주세요.');
     }
   };
 
-  const handleDelete = () => {
-    if (selectedClients.size > 0) {
-      const confirmDelete = window.confirm(`${selectedClients.size}명의 고객을 정말 삭제하시겠습니까?`);
+  const handleDelete = async () => {
+    if (selectedCompanies.size > 0) {
+      const confirmDelete = window.confirm(`${selectedCompanies.size}개의 회사 정보를 정말 삭제하시겠습니까?`);
       if (confirmDelete) {
-        setClients(clients.filter(client => !selectedClients.has(client.id)));
-        setSelectedClients(new Set());
-        alert('선택된 고객이 삭제되었습니다.');
+        try {
+          const accessToken = localStorage.getItem('accessToken');
+          if (!accessToken) {
+            alert("로그인이 필요합니다.");
+            return;
+          }
+          
+          for (const companyId of selectedCompanies) { // 🟢 선택된 회사 ID 목록을 순회
+            await axios.delete(`http://localhost:8080/admin/company/profile/${companyId}`, {
+              headers: {
+                'Authorization': `Bearer ${accessToken}`
+              }
+            });
+          }
+          alert('선택된 회사가 삭제되었습니다.');
+          fetchCompanies(currentPage); // 현재 페이지 목록 갱신
+        } catch (error) {
+          console.error('회사 삭제 실패:', error.response?.data || error.message);
+          alert('회사 삭제에 실패했습니다.');
+        }
       }
     } else {
-      alert('삭제할 고객을 선택해주세요.');
+      alert('삭제할 회사를 선택해주세요.');
     }
   };
-  
+
   return (
     <div className="d-flex flex-column min-vh-100">
       <AdminNavbar />
       <div className="container-fluid flex-grow-1" style={{ paddingTop: '100px' }}>
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <h2>고객 목록</h2>
+          <h2>회사 목록</h2>
           <div>
             <Button variant="success" className="me-2" onClick={handleAdd}>추가</Button>
             <Button variant="warning" className="me-2" onClick={handleModify}>수정</Button>
             <Button variant="danger" onClick={handleDelete}>삭제</Button>
           </div>
         </div>
+        
+        {/* 검색 폼 */}
+        <Form onSubmit={handleSearch} className="mb-4">
+          <div className="row">
+            <Form.Group className="col-md-3 mb-2">
+              <Form.Control type="text" placeholder="회사명" name="companyName" value={searchParams.companyName} onChange={handleSearchChange} />
+            </Form.Group>
+            <Form.Group className="col-md-3 mb-2">
+              <Form.Control type="text" placeholder="사업자등록번호" name="businessNumber" value={searchParams.businessNumber} onChange={handleSearchChange} />
+            </Form.Group>
+            <Form.Group className="col-md-3 mb-2">
+              <Form.Control type="text" placeholder="대표자명" name="ceoName" value={searchParams.ceoName} onChange={handleSearchChange} />
+            </Form.Group>
+            <div className="col-md-3 mb-2">
+              <Button variant="primary" type="submit">검색</Button>
+            </div>
+          </div>
+        </Form>
+        
         <Table striped bordered hover responsive>
           <thead>
             <tr>
-              <th><Form.Check type="checkbox" onChange={handleSelectAll} checked={selectedClients.size === clients.length && clients.length > 0} /></th>
-              <th>고객명</th>
-              <th>구분</th>
+              <th><Form.Check type="checkbox" onChange={handleSelectAll} checked={selectedCompanies.size === companies.length && companies.length > 0} /></th>
+              <th>회사명</th>
+              <th>사업자등록번호</th>
+              <th>대표자명</th>
               <th>연락처</th>
-              <th>이메일 주소</th>
+              <th>이메일</th>
             </tr>
           </thead>
           <tbody>
-            {clients.map(client => (
-              <tr key={client.id}>
-                <td>
-                  <Form.Check 
-                    type="checkbox"
-                    checked={selectedClients.has(client.id)}
-                    onChange={() => handleCheckboxChange(client.id)}
-                  />
-                </td>
-                <td>{client.name}</td>
-                <td>{client.type}</td>
-                <td>{client.phone}</td>
-                <td>{client.email}</td>
+            {companies.length > 0 ? (
+              companies.map(company => (
+                <tr key={company.id}>
+                  <td>
+                    <Form.Check 
+                      type="checkbox"
+                      checked={selectedCompanies.has(company.id)}
+                      onChange={() => handleCheckboxChange(company.id)}
+                    />
+                  </td>
+                  <td>{company.companyName}</td>
+                  <td>{company.businessNumber}</td>
+                  <td>{company.ceoName}</td>
+                  <td>{company.contactPhone}</td>
+                  <td>{company.email}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="6" className="text-center">등록된 회사 정보가 없습니다.</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </Table>
+
+        {/* 페이지네이션 */}
+        {totalPages > 0 && (
+          <div className="d-flex justify-content-center">
+            <Pagination>
+              <Pagination.First onClick={() => fetchCompanies(0)} disabled={currentPage === 0} />
+              <Pagination.Prev onClick={() => fetchCompanies(currentPage - 1)} disabled={currentPage === 0} />
+              {[...Array(totalPages)].map((_, index) => (
+                <Pagination.Item 
+                  key={index} 
+                  active={index === currentPage}
+                  onClick={() => fetchCompanies(index)}
+                >
+                  {index + 1}
+                </Pagination.Item>
+              ))}
+              <Pagination.Next onClick={() => fetchCompanies(currentPage + 1)} disabled={currentPage === totalPages - 1} />
+              <Pagination.Last onClick={() => fetchCompanies(totalPages - 1)} disabled={currentPage === totalPages - 1} />
+            </Pagination>
+          </div>
+        )}
       </div>
       <Footer />
     </div>
