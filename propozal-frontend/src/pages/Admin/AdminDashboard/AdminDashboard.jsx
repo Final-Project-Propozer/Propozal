@@ -11,10 +11,56 @@ const AdminDashboard = () => {
   // useState로 현재 접속중인 사용자 ID 불러옴.
   const [userId, setUserId] = useState('');
 
+<<<<<<< Updated upstream
   // 백엔드 연동 지점
   useEffect(() => {
     // 더미데이터= ID: "admin123"
     setUserId("admin123"); 
+=======
+  // 대시보드 데이터 상태
+  const [dashboard, setDashboard] = useState(null);
+  const [industryData, setIndustryData] = useState([]);
+  const [salesPersonPerformanceData, setSalesPersonPerformanceData] = useState([]);
+  const [statusDistributionData, setStatusDistributionData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // 백엔드 연동 지점
+  useEffect(() => {
+    // 더미데이터= ID: "admin123"
+    setUserId("admin123");
+
+    const fetchData = async () => {
+      try {
+        const [summaryRes, industryRes, salesPersonRes, statusDistributionRes] = await Promise.all([
+          fetch('/api/dashboard/summary'),
+          fetch('/api/dashboard/industry-distribution'),
+          fetch('/api/dashboard/sales-person-performance'),
+          fetch('/api/dashboard/status-distribution')
+        ]);
+        if (!summaryRes.ok || !industryRes.ok || !salesPersonRes.ok || !statusDistributionRes.ok) {
+          throw new Error('대시보드 데이터를 불러오지 못했습니다.');
+        }
+        const [summary, industry, salesPerson, statusDistribution] = await Promise.all([
+          summaryRes.json(),
+          industryRes.json(),
+          salesPersonRes.json(),
+          statusDistributionRes.json()
+        ]);
+        setDashboard(summary);
+        setIndustryData(industry);
+        setSalesPersonPerformanceData(salesPerson);
+        setStatusDistributionData(statusDistribution);
+      } catch (e) {
+        console.error(e);
+        setError(e.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+>>>>>>> Stashed changes
   }, []);
 
   return (
@@ -51,18 +97,20 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* 2번째 행: 용도 지정X -> 삭제 또는 차트 or 정보 나열 컴포넌트로 활용 가능. */}
+        {/* 2번째 행: 영업사원별 실적 / 상태 분포 */}
         <div className="row mt-4">
-          <div className="col-md-8">
-            <div className="card p-3 bg-secondary" style={{height: '180px'}}>
-              <h5 className="card-title">네 번째 카드</h5>
-              <p className="card-text">여기에 내용이 들어갑니다.</p>
+          <div className="col-md-6">
+            <div className="card p-3 bg-light" style={{height: '180px'}}>
+              <h5 className="card-title">영업사원별 실적</h5>
+              {/* 영업사원별 실적 시각화 차트 컴포넌트 */}
+              <DashboardChart data={salesPersonPerformanceData || []} />
             </div>
           </div>
-          <div className="col-md-4">
-            <div className="card p-3 bg-secondary" style={{height: '180px'}}>
-              <h5 className="card-title">다섯 번째 카드</h5>
-              <p className="card-text">여기에 내용이 들어갑니다.</p>
+          <div className="col-md-6">
+            <div className="card p-3 bg-light" style={{height: '180px'}}>
+              <h5 className="card-title">상태 분포</h5>
+              {/* 견적서 상태 분포 시각화 차트 컴포넌트 */}
+              <DashboardDoughnutChart data={statusDistributionData || []} />
             </div>
           </div>
         </div>
