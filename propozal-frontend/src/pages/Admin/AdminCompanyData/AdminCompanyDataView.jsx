@@ -29,8 +29,8 @@ const AdminCompanyDataView = () => {
     <div className="d-flex flex-column min-vh-100">
       <AdminNavbar />
       <div 
-        className="container flex-grow-1 py-5"
-        style={{ paddingTop: '120px' }}
+        className="container flex-grow-1"
+        style={{ paddingTop: '100px' }}
       >
         <h2 className="mb-4">저장된 기업 정보</h2>
         

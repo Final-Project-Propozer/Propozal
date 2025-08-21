@@ -37,7 +37,7 @@ const AdminSalesRecordsList = () => {
   return (
     <div className="d-flex flex-column min-vh-100">
       <AdminNavbar />
-      <div className="container flex-grow-1 py-5" style={{ paddingTop: '60px' }}>
+      <div className="container flex-grow-1" style={{ paddingTop: '100px' }}>
         <h2 className="mb-4">영업사원 기록 확인</h2>
         
         {/* 기록 목록 테이블 */}

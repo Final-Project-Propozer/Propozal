@@ -45,7 +45,7 @@ const EstimateListPagetemp = () => {
       case 0:
         return <Badge bg="secondary">임시저장</Badge>;
       case 1:
-        return <Badge bg="primary">발송 완료</Badge>;
+        return <Badge bg="info">작성중</Badge>;
       case 2:
         return <Badge bg="success">계약 완료</Badge>;
       case 3:

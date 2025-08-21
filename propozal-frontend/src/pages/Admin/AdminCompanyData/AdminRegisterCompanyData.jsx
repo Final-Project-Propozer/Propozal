@@ -39,8 +39,8 @@ const AdminCompanyRegistration = () => {
     <div className="d-flex flex-column min-vh-100">
       <AdminNavbar />
       <div 
-        className="container flex-grow-1 py-5" // ✅ className에서 top-padding을 제거합니다.
-        style={{ paddingTop: '120px' }}       // ✅ 인라인 스타일을 추가해 줍니다.
+        className="container flex-grow-1" // ✅ className에서 top-padding을 제거합니다.
+        style={{ paddingTop: '100px' }}       // ✅ 인라인 스타일을 추가해 줍니다.
       >
         <h2 className="mb-4">기업 정보 등록</h2>
         

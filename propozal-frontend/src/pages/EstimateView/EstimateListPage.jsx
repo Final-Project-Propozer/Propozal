@@ -46,13 +46,13 @@ const EstimateListPage = () => {
   const renderDealStatus = (status) => {
     switch (status) {
       case 0:
-        return <Badge bg="secondary">임시저장</Badge>;
+        return <Badge bg="secondary">거래 취소</Badge>;
       case 1:
-        return <Badge bg="primary">발송 완료</Badge>;
+        return <Badge bg="warning">임시 저장</Badge>;
       case 2:
-        return <Badge bg="success">계약 완료</Badge>;
+        return <Badge bg="success">거래 성사</Badge>;
       case 3:
-        return <Badge bg="danger">거절</Badge>;
+        return <Badge bg="primary">발송 완료</Badge>;
       default:
         return <Badge bg="dark">알 수 없음</Badge>;
     }
