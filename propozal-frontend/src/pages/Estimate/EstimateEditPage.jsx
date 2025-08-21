@@ -48,9 +48,9 @@ const EstimateEditPage = () => {
       <SalesNavbar />
 
       <Container className="py-4" style={{ marginTop: "70px" }}>
-        <h2 className="mb-4" style={{ fontWeight: "bold" }}>
-          견적서 수정
-        </h2>
+{/*         <h2 className="mb-4" style={{ fontWeight: "bold" }}> */}
+{/*           견적서 수정 */}
+{/*         </h2> */}
 
         {loading && (
           <div className="text-center py-4">
