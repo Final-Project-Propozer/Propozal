@@ -21,7 +21,7 @@ import com.propozal.service.ProductAdminService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/admin/products")
+@RequestMapping("/api/admin/products")
 @RequiredArgsConstructor
 public class ProductAdminController {
 

@@ -5,7 +5,7 @@ import com.propozal.repository.UserRepository;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/test")
+@RequestMapping("/api/test")
 public class TestController {
 
     private final UserRepository userRepository;

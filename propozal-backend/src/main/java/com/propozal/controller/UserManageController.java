@@ -20,7 +20,7 @@ import com.propozal.service.UserManageService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/admin/users")
+@RequestMapping("/api/admin/users")
 @RequiredArgsConstructor
 public class UserManageController {
 

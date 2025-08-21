@@ -21,7 +21,7 @@ import com.propozal.service.CategoryAdminService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/admin/categories")
+@RequestMapping("/api/admin/categories")
 @RequiredArgsConstructor
 public class CategoryAdminController {
 
