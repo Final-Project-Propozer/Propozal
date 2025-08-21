@@ -25,8 +25,8 @@ const AdminDashboard = () => {
     const fetchData = async () => {
       try {
         const [summaryRes, industryRes] = await Promise.all([
-          fetch('/api/dashboard/summary'),
-          fetch('/api/dashboard/industry-distribution')
+          fetch('/dashboard/summary'),
+          fetch('/dashboard/industry-distribution')
         ]);
         if (!summaryRes.ok || !industryRes.ok) throw new Error('대시보드 데이터를 불러오지 못했습니다.');
         const [summary, industry] = await Promise.all([

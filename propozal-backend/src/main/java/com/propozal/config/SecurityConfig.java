@@ -41,12 +41,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // ✅ OPTIONS 요청 허용
                         .requestMatchers(
                                 "/auth/**", // ✅ 카카오 소셜 로그인 콜백 허용
-                                "/api/auth/**", // ✅ 기존 API
-                                "/api/auth/send-verification",
-                                "/api/auth/verify-email")
+                                "/auth/**", // ✅ 기존 API
+                                "/auth/send-verification",
+                                "/auth/verify-email")
                         .permitAll()
                         .requestMatchers("/estimate/response").permitAll()
-                        .requestMatchers("/api/auth/me").hasAnyRole("ADMIN", "SALESPERSON")
+                        .requestMatchers("/auth/me").hasAnyRole("ADMIN", "SALESPERSON")
+                        .requestMatchers("/dashboard/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> response
