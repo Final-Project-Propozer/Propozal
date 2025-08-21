@@ -41,13 +41,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // ✅ OPTIONS 요청 허용
                         .requestMatchers(
                                 "/auth/**",
-                                "/api/auth/**",
+                                "/auth/**",
                                 "/estimate/response",
                                 "/actuator/health", "/actuator/health/**",
                                 "/actuator/liveness", "/actuator/readiness",
                                 "/actuator/info",
-                                "/api/auth/send-verification",
-                                "/api/auth/verify-email")
+                                "/auth/send-verification",
+                                "/auth/verify-email")
                         .permitAll()
                         .requestMatchers("/estimate/response").permitAll()
                         .requestMatchers("/auth/me").hasAnyRole("ADMIN", "SALESPERSON")
