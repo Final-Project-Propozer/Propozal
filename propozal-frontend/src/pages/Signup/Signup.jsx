@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";  // ✅ 기본 axios 사용
+import axios from "axios";
 
 // 🔹 카카오 인증 URL
 const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=3fdf6a1c367635a4dbc945a816c7a2b1&redirect_uri=http://localhost:5173/kakao/callback&response_type=code`;
@@ -9,7 +9,7 @@ const SignupPage = () => {
   const navigate = useNavigate();
 
   const [company, setCompany] = useState("");
-  const [name, setName] = useState("");   // ✅ 사용자 이름 상태 추가
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [emailChecked, setEmailChecked] = useState(false);
   const [password, setPassword] = useState("");
@@ -35,14 +35,15 @@ const SignupPage = () => {
     const signupData = {
       email,
       password,
-      name, // ✅ 사용자 이름 (company가 아니라 name으로 보냄)
+      name,
       role: jobTitle === "USER" ? "SALESPERSON" : jobTitle
     };
 
     setIsSubmitting(true);
 
     try {
-      await axios.post("http://localhost:8080/api/auth/signup", signupData);
+      // ✅ /api 제거
+      await axios.post("http://localhost:8080/auth/signup", signupData);
       alert("회원가입 성공!");
       navigate("/login");
     } catch (error) {
@@ -55,7 +56,8 @@ const SignupPage = () => {
 
   const handleEmailCheck = async () => {
     try {
-      const res = await axios.get(`http://localhost:8080/api/auth/check-email?email=${email}`);
+      // ✅ /api 제거
+      const res = await axios.get(`http://localhost:8080/auth/check-email?email=${email}`);
 
       if (res.data === true) {
         alert("이미 사용 중인 이메일입니다.");
@@ -99,7 +101,6 @@ const SignupPage = () => {
           />
         </div>
 
-        {/* ✅ 이름 입력 필드 추가 */}
         <div className="mb-3">
           <label>이름 *</label>
           <input
@@ -273,7 +274,6 @@ const SignupPage = () => {
           Google로 시작하기
         </button>
 
-        {/* ✅ 카카오 로그인 버튼 */}
         <button
           type="button"
           className="btn w-100 mb-4"
