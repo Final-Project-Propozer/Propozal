@@ -63,9 +63,17 @@ const AdminNavbar = () => {
               <Link className="nav-link" to="/admin/client-list">고객관리</Link>
             </li>
             <li className="nav-item">
-              <Link className="btn btn-outline-dark rounded-pill px-3 py-1 login-btn" to="/login">
+              <button
+                className="btn btn-outline-dark rounded-pill px-3 py-1 login-btn"
+                onClick={() => {
+                  localStorage.removeItem("accessToken");
+                  localStorage.removeItem("refreshToken");
+                  localStorage.removeItem("user");
+                  window.location.replace("/login");
+                }}
+              >
                 로그아웃
-              </Link>
+              </button>
             </li>
           </ul>
         </div>
