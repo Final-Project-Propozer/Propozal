@@ -27,16 +27,14 @@ const AdminDashboard = () => {
     const fetchData = async () => {
       try {
         const [summaryRes, industryRes, salesPersonRes, statusDistributionRes] = await Promise.all([
-          fetch('/api/dashboard/summary'),
-          fetch('/api/dashboard/industry-distribution'),
-          fetch('/api/dashboard/sales-person-performance'),
-          fetch('/api/dashboard/status-distribution')
+          fetch('/dashboard/summary'),
+          fetch('/dashboard/industry-distribution'),
+          fetch('/dashboard/sales-person-performance'),
+          fetch('/dashboard/status-distribution')
         ]);
-        
         if (!summaryRes.ok || !industryRes.ok || !salesPersonRes.ok || !statusDistributionRes.ok) {
           throw new Error('대시보드 데이터를 불러오지 못했습니다.');
         }
-
         const [summary, industry, salesPerson, statusDistribution] = await Promise.all([
           summaryRes.json(),
           industryRes.json(),
@@ -65,19 +63,10 @@ const AdminDashboard = () => {
       <AdminNavbar />
 
       {/* 대시보드 */}
-      <div
-        className="container flex-grow-1"
+      <div 
+        className="container flex-grow-1" 
         style={{ paddingTop: navbarHeight }}
       >
-        {/* 로딩/에러 표시 */}
-        {(loading || error) && (
-          <div className="row mt-3">
-            <div className="col-12">
-              {loading && <div className="alert alert-secondary">대시보드 데이터를 불러오는 중...</div>}
-              {error && <div className="alert alert-danger">{error}</div>}
-            </div>
-          </div>
-        )}
         {/* 1번째 행: 제목/관리자ID */}
         <div className="row mt-4">
           <div className="col-md-4">
@@ -90,14 +79,14 @@ const AdminDashboard = () => {
         <div className="col-md-4">
             <div className="card p-3 bg-light" style={{height: '200px'}}>
                 <h5 className="card-title">업종별 고객 비율</h5>
-                    <DashboardDoughnutChart data={industryData} />
+                    <DashboardDoughnutChart />
                 </div>
             </div>
           {/* 1번째 행: 견적 실적 통계 차트 */}
           <div className="col-md-4">
             <div className="card p-3 bg-light" style={{height: '200px'}}>
               <h5 className="card-title">월별 견적 추이</h5>
-              <DashboardChart data={dashboard?.monthlyPerformance || []} />
+              <DashboardChart />
             </div>
           </div>
         </div>
@@ -124,8 +113,8 @@ const AdminDashboard = () => {
         <div className="row mt-4 mb-4">
           <div className="col-md-12">
             <div className="card p-3 bg-light" style={{height: '471px'}}>
-              <h5 className="card-title mb-4">미확정/지연 견적</h5>
-              <DashboardQuoteList items={dashboard?.delayedEstimates || []} />
+              <h5 className="card-title mb-4">최근 견적</h5>
+              <DashboardQuoteList />
             </div>
           </div>
         </div>
