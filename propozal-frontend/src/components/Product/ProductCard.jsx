@@ -1,54 +1,31 @@
 import React, { useState } from 'react';
 import { Card, Button, Spinner } from 'react-bootstrap';
 import { StarFill, Star } from 'react-bootstrap-icons';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import axiosInstance from '../../api/axiosInstance';
+import { Link } from 'react-router-dom';
 
-const ProductCard = ({ product, onFavoriteRemove, onProductClick }) => {
-  const [isFavorite, setIsFavorite] = useState(product.isFavorite !== false);
-  const [loadingFavorite, setLoadingFavorite] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { estimateId } = location.state || {};
+const ProductCard = ({ product, onFavoriteToggle, onProductClick }) => {
+  const [loading, setLoading] = useState(false);
 
-  const toggleFavorite = async () => {
-    setLoadingFavorite(true);
-    try {
-      if (isFavorite) {
-        await axiosInstance.delete(`/products/favorites/${product.id}`);
-        setIsFavorite(false);
-
-        // ✅ 부모에게 알림: 즐겨찾기 목록에서 제거
-        if (onFavoriteRemove) {
-          onFavoriteRemove(product.id);
-        }
-      } else {
-        await axiosInstance.post('/products/favorites', { productId: product.id });
-        setIsFavorite(true);
-      }
-    } catch (err) {
-      console.error('즐겨찾기 변경 실패:', err);
-      alert('즐겨찾기 처리 중 오류가 발생했습니다.');
-    } finally {
-      setLoadingFavorite(false);
-    }
+  const handleToggle = async () => {
+    setLoading(true);
+    await onFavoriteToggle(product.id, !product.isFavorite);
+    setLoading(false);
   };
 
   const handleAddToEstimate = () => {
-    if (onProductClick) {
-      onProductClick(product.id); // 상위에서 모달 열도록 호출
-    }
+    if (onProductClick) onProductClick(product.id);
   };
 
+  const isFavorite = product.isFavorite;
+
   return (
-    <>
       <Card className="mb-4 shadow-sm">
         <Link to={`/products/${product.id}`}>
           <Card.Img
-            variant="top"
-            src={product.imageUrl || 'https://placehold.co/300x200?text=No+Image'}
-            alt={product.name}
-            style={{ cursor: 'pointer' }}
+              variant="top"
+              src={product.imageUrl || 'https://placehold.co/300x200?text=No+Image'}
+              alt={product.name}
+              style={{ cursor: 'pointer' }}
           />
         </Link>
 
@@ -61,29 +38,23 @@ const ProductCard = ({ product, onFavoriteRemove, onProductClick }) => {
             </Card.Title>
 
             <span
-              onClick={toggleFavorite}
-              style={{
-                cursor: loadingFavorite ? 'not-allowed' : 'pointer',
-                color: isFavorite ? '#fcbf49' : '#ccc',
-                fontSize: '1.4rem',
-                pointerEvents: loadingFavorite ? 'none' : 'auto'
-              }}
-              title={isFavorite ? '즐겨찾기 취소' : '즐겨찾기 추가'}
+                onClick={handleToggle}
+                style={{
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  color: isFavorite ? '#fcbf49' : '#ccc',
+                  fontSize: '1.4rem',
+                  pointerEvents: loading ? 'none' : 'auto',
+                }}
+                title={isFavorite ? '즐겨찾기 취소' : '즐겨찾기 추가'}
             >
-              {loadingFavorite ? (
-                <Spinner animation="border" size="sm" />
-              ) : isFavorite ? (
-                <StarFill size={24} />
-              ) : (
-                <Star size={24} />
-              )}
-            </span>
+            {loading ? <Spinner animation="border" size="sm" /> : isFavorite ? <StarFill size={24} /> : <Star size={24} />}
+          </span>
           </div>
 
           <Card.Text className="text-muted" style={{ fontSize: '0.9rem' }}>
             코드번호: {product.code}
             <br />
-            [소분류] {product.category?.name || '카테고리 없음'}
+            [소분류] {product.category?.nameLv3 || '카테고리 없음'}
             <br />
             <strong>{product.basePrice?.toLocaleString()}원</strong>
           </Card.Text>
@@ -93,7 +64,6 @@ const ProductCard = ({ product, onFavoriteRemove, onProductClick }) => {
           </Button>
         </Card.Body>
       </Card>
-    </>
   );
 };
 
