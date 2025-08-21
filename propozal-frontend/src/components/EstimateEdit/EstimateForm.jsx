@@ -165,24 +165,7 @@ const EstimateForm = ({ estimateId, readOnly = false }) => {
     <>
       <div ref={pdfRef}>
         <Form onSubmit={handleSubmit}>
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h3 className="mb-0">견적서 조회</h3>
-            <div className="d-flex gap-2">
-              <Button
-                variant="outline-secondary"
-                onClick={() => setShowMemoModal(true)}
-              >
-                메모하기
-              </Button>
-              <Button variant="outline-warning" onClick={handleEdit}>
-                수정하기
-              </Button>
-              <Button variant="outline-primary" onClick={handleDownloadPDF}>
-                다운로드
-              </Button>
-            </div>
-          </div>
-
+        
           <h4 className="mb-3">고객 정보</h4>
 
           {!readOnly && error && <Alert variant="danger">{error}</Alert>}

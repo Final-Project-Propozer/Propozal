@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Form, Button, Row, Col, Alert, Spinner, Modal } from "react-bootstrap";
 import axiosInstance from "../../api/axiosInstance";
+import { BsPencilSquare } from 'react-icons/bs';
 
 const EstimateForm = ({ estimateId, initialData, readOnly = false }) => {
   const [formData, setFormData] = useState({
@@ -160,18 +161,29 @@ const EstimateForm = ({ estimateId, initialData, readOnly = false }) => {
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h3 className="mb-0">견적서 작성</h3>
           <div className="d-flex gap-2">
-            <Button
-              variant="outline-secondary"
-              onClick={() => setShowMemoModal(true)}
-            >
-              메모하기
-            </Button>
-            <Button variant="outline-success" onClick={handleLoad}>
-              불러오기
-            </Button>
-            <Button variant="outline-danger" onClick={handleDelete}>
-              삭제하기
-            </Button>
+          <Button
+            variant="outline-secondary"
+            className="rounded-pill d-flex align-items-center gap-2"
+            style={{
+              paddingLeft: '20px',
+              paddingRight: '20px',
+              paddingTop: '8px',
+              paddingBottom: '8px',
+              fontSize: '15px',
+              fontWeight: 'bold',         // 텍스트 굵게
+              borderWidth: '2px'
+            }}
+            onClick={() => setShowMemoModal(true)}
+          >
+            <BsPencilSquare />
+            메모하기
+          </Button>
+{/*             <Button variant="outline-success" onClick={handleLoad}> */}
+{/*               불러오기 */}
+{/*             </Button> */}
+{/*             <Button variant="outline-danger" onClick={handleDelete}> */}
+{/*               삭제하기 */}
+{/*             </Button> */}
           </div>
         </div>
 

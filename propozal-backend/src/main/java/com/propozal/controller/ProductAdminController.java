@@ -34,7 +34,7 @@ public class ProductAdminController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ProductResponseDto>> getProducts() {
         return ResponseEntity.ok(productService.getProducts());
     }
