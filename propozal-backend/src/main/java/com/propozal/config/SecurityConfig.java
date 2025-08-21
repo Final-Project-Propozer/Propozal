@@ -40,13 +40,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // ✅ OPTIONS 요청 허용
                         .requestMatchers(
-                                "/auth/login", "/auth/signup", "/auth/social/**",
+                                "/api/auth/login", "/api/auth/signup", "/api/auth/social/**",
                                 "/estimate/response",
                                 "/actuator/health", "/actuator/health/**",
                                 "/actuator/liveness", "/actuator/readiness",
                                 "/actuator/info",
-                                "/auth/send-verification", "/auth/password-reset/**", 
-                                "/auth/verify-email")
+                                "/api/auth/send-verification", "/api/auth/password-reset/**", "/api/auth/verify-email")
                         .permitAll()
                         .requestMatchers("/estimate/response").permitAll()
                         .requestMatchers("/auth/me").hasAnyRole("ADMIN", "SALESPERSON")
