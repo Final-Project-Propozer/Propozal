@@ -43,12 +43,13 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/auth/login", "/auth/social/**",
                                 "/auth/signup", "/auth/check-email",
-                                "/estimate/response",
+                                "/auth/refresh", "/estimate/response",
                                 "/actuator/health", "/actuator/health/**", "/actuator/liveness", "/actuator/readiness", "/actuator/info",
                                 "/auth/verify-email", "/auth/send-verification", "/auth/password-reset/**")
                         .permitAll()
                         .requestMatchers("/estimate/response").permitAll()
                         .requestMatchers("/auth/me").hasAnyRole("ADMIN", "SALESPERSON")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/dashboard/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex

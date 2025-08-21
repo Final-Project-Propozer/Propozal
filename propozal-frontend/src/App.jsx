@@ -1,15 +1,12 @@
-import React from "react";
-import { Routes, Route, BrowserRouter } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout/Layout";
 
 import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
 import Signup from "./pages/Signup/Signup";
 import SalesMainPage from "./pages/SalesMainPage/SalesMainPage";
-
 import AdminTestPage from "./pages/AdminTestPage";
 import PasswordResetForm from "./components/PasswordResetForm/PasswordResetForm";
-//관리자
 import AdminDashboard from "./pages/Admin/AdminDashboard/AdminDashboard";
 import AdminCompanyRegistration from "./pages/Admin/AdminCompanyData/AdminRegisterCompanyData";
 import AdminSalesRecordsList from "./pages/Admin/AdminSalesRecords/AdminSalesRecordsList";
@@ -21,9 +18,6 @@ import AdminViewProduct from "./pages/Admin/AdminProduct/AdminViewProduct";
 import AdminClientList from "./pages/Admin/AdminManageClients/AdminClientList";
 import AdminClientRegistration from "./pages/Admin/AdminManageClients/AdminClientRegistration";
 import AdminProductList from "./pages/Admin/AdminProduct/AdminProductList";
-
-// import EstimateView from './pages/EstimateView/EstimateView'; // ✅ 견적서 조회 페이지
-// import EstimatePage from './pages/EstimateCreate/EstimatePage'; // ✅ 견적서 생성 페이지 추가
 import ScheduleCreatePage from "./pages/Schedule/ScheduleCreatePage";
 import ScheduleEditPage from "./pages/Schedule/ScheduleEditPage";
 import ScheduleDetailPage from "./pages/Schedule/ScheduleDetailPage";
@@ -43,95 +37,81 @@ import EstimateEditPage from "./pages/Estimate/EstimateEditPage";
 import EstimateVersionListPage from "./pages/EstimateVersion/EstimateVersionListPage";
 import EstimateVersionDetailPage from "./pages/EstimateVersion/EstimateVersionDetailPage";
 import EstimateCompletedListPage from "./pages/EstimateView/EstimateCompletedListPage";
-import EstimateListPageAll from './pages/EstimateList/EstimateListPageAll';
-
-// ✅ 새로 추가
+import EstimateListPageAll from "./pages/EstimateList/EstimateListPageAll";
 import KakaoCallback from "./pages/KakaoCallback/KakaoCallback";
+
+import AuthProvider from "./context/AuthContext";
+import { RequireAuth, RequireRole, GuestOnly } from "./routes/guards";
+
+function LandingRedirect() {
+  const hasToken = !!localStorage.getItem("accessToken");
+  const userRaw = localStorage.getItem("user");
+  const role = userRaw ? JSON.parse(userRaw).role : null;
+  if (!hasToken) return <Navigate to="/login" replace />;
+  return <Navigate to={role === "ADMIN" ? "/admin/dashboard" : "/sales"} replace />;
+}
 
 const App = () => {
   return (
-    <Routes>
-      {/* 공통 레이아웃이 필요한 페이지들 */}
-      <Route
-        path="/"
-        element={
-          <Layout>
-            <Home />
-          </Layout>
-        }
-      />
-      <Route
-        path="/signup"
-        element={
-          <Layout>
-            <Signup />
-          </Layout>
-        }
-      />
-      {/* <Route path="/estimate" element={<Layout><EstimateDetail /></Layout>} /> */}
-      <Route
-        path="/password-reset"
-        element={
-          <Layout>
-            <PasswordResetForm />
-          </Layout>
-        }
-      />
-      {/* ✅ 카카오 로그인 콜백 */}
-      <Route path="/kakao/callback" element={<KakaoCallback />} />
-      {/* 레이아웃이 필요 없는 페이지들 */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/sales" element={<SalesMainPage />} />
-      {/* <Route path="/estimate/:id" element={<EstimateView />} /> */}
-      {/* <Route path="/estimate/create" element={<EstimatePage />} /> */}{" "}
-      {/* ✅ 견적서 생성 페이지 */}
-      <Route path="/admin/test" element={<AdminTestPage />} />
-      <Route path="/admin/dashboard" element={<AdminDashboard />} />
-      <Route
-        path="/admin/company-registration"
-        element={<AdminCompanyRegistration />}
-      />
-      <Route path="/admin/salesrecords" element={<AdminSalesRecordsList />} />
-      <Route path="/admin/companydataview" element={<AdminCompanyDataView />} />
-      <Route path="/admin/estimatelist" element={<AdminEstimateList />} />
-      <Route path="/admin/userauthorization" element={<AdminUserAuth />} />
-      <Route
-        path="/admin/product-registration"
-        element={<AdminProductRegistration />}
-      />
-      <Route path="/admin/product-view" element={<AdminViewProduct />} />
-      <Route path="/admin/client-list" element={<AdminClientList />} />
-      <Route
-        path="/admin/client-registration"
-        element={<AdminClientRegistration />}
-      />
-      <Route path="/admin/product-list" element={<AdminProductList />} />
-      <Route path="/schedule/create" element={<ScheduleCreatePage />} />
-      <Route path="/schedule/edit" element={<ScheduleEditPage />} />
-      <Route path="/schedule/:id" element={<ScheduleDetailPage />} />
-      <Route path="/schedule/list" element={<ScheduleListPage />} />
-      <Route path="/products/:productId" element={<ProductDetailPage />} />
-      <Route path="/products" element={<ProductPageLayout />} />
-      <Route path="/products/favorites" element={<ProductFavorite />} />
-      <Route path="/estimate/list" element={<EstimateListPage />} />
-      <Route path="/signup/pending" element={<ApprovalPendingPage />} />
-      <Route path="/customer/register" element={<CustomerRegister />} />
-      <Route path="/customer/:id" element={<CustomerDetail />} />
-      <Route path="/customer/list" element={<CustomerList />} />
-      {/* ✅ 견적 관련 페이지들 */}
-      <Route path="/estimate" element={<EstimatePageCreation />} />
-      <Route path="/estimate/:id" element={<EstimateDetailPage />} />
-      <Route path="/schedule/:scheduleId/edit" element={<ScheduleEdit />} />
-      <Route path="/estimate/:id/edit" element={<EstimateEditPage />} />
-      <Route path="/estimate/:estimateId/versions" element={<EstimateVersionListPage />} />
-      <Route path="/estimate-version/:versionId" element={<EstimateVersionDetailPage />} />
-      <Route path="/estimate/completedlist" element={<EstimateCompletedListPage />} />
-      <Route path="/estimate/list-all" element={<EstimateListPageAll />} />
+    <AuthProvider>
+      <Routes>
+        {/* 루트 → 역할 홈으로 정규화 */}
+        <Route path="/" element={<Layout><LandingRedirect /></Layout>} />
 
-    </Routes>
+        {/* 로그인/회원가입은 게스트 전용 */}
+        <Route element={<GuestOnly />}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Layout><Signup /></Layout>} />
+          <Route path="/password-reset" element={<Layout><PasswordResetForm /></Layout>} />
+          <Route path="/kakao/callback" element={<KakaoCallback />} />
+          <Route path="/signup/pending" element={<ApprovalPendingPage />} />
+        </Route>
+
+        {/* 인증 필요 */}
+        <Route element={<RequireAuth />}>
+          <Route path="/sales" element={<SalesMainPage />} />
+          <Route path="/schedule/create" element={<ScheduleCreatePage />} />
+          <Route path="/schedule/edit" element={<ScheduleEditPage />} />
+          <Route path="/schedule/:id" element={<ScheduleDetailPage />} />
+          <Route path="/schedule/list" element={<ScheduleListPage />} />
+          <Route path="/products/:productId" element={<ProductDetailPage />} />
+          <Route path="/products" element={<ProductPageLayout />} />
+          <Route path="/products/favorites" element={<ProductFavorite />} />
+          <Route path="/estimate/list" element={<EstimateListPage />} />
+          <Route path="/customer/register" element={<CustomerRegister />} />
+          <Route path="/customer/:id" element={<CustomerDetail />} />
+          <Route path="/customer/list" element={<CustomerList />} />
+          <Route path="/estimate" element={<EstimatePageCreation />} />
+          <Route path="/estimate/:id" element={<EstimateDetailPage />} />
+          <Route path="/schedule/:scheduleId/edit" element={<ScheduleEdit />} />
+          <Route path="/estimate/:id/edit" element={<EstimateEditPage />} />
+          <Route path="/estimate/:estimateId/versions" element={<EstimateVersionListPage />} />
+          <Route path="/estimate-version/:versionId" element={<EstimateVersionDetailPage />} />
+          <Route path="/estimate/completedlist" element={<EstimateCompletedListPage />} />
+          <Route path="/estimate/list-all" element={<EstimateListPageAll />} />
+          <Route path="/admin/test" element={<AdminTestPage />} />
+        </Route>
+
+        {/* 관리자 전용 */}
+        <Route element={<RequireRole roles={["ADMIN"]} />}>
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/company-registration" element={<AdminCompanyRegistration />} />
+          <Route path="/admin/salesrecords" element={<AdminSalesRecordsList />} />
+          <Route path="/admin/companydataview" element={<AdminCompanyDataView />} />
+          <Route path="/admin/estimatelist" element={<AdminEstimateList />} />
+          <Route path="/admin/userauthorization" element={<AdminUserAuth />} />
+          <Route path="/admin/product-registration" element={<AdminProductRegistration />} />
+          <Route path="/admin/product-view" element={<AdminViewProduct />} />
+          <Route path="/admin/client-list" element={<AdminClientList />} />
+          <Route path="/admin/client-registration" element={<AdminClientRegistration />} />
+          <Route path="/admin/product-list" element={<AdminProductList />} />
+        </Route>
+
+        <Route path="/forbidden" element={<div>권한이 없습니다.</div>} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </AuthProvider>
   );
 };
-
-// 레이아웃 유무로 페이지 구분해두신건 일단 그대로 두었습니다.
 
 export default App;

@@ -1,15 +1,20 @@
 package com.propozal.controller;
 
 import com.propozal.domain.User;
+import com.propozal.dto.jwt.TokenRefreshRequestDto;
+import com.propozal.dto.jwt.TokenRefreshResponseDto;
 import com.propozal.dto.user.LoginRequest;
 import com.propozal.dto.user.LoginResponse;
 import com.propozal.dto.user.SignupRequest;
 import com.propozal.dto.user.UserInfoResponse;
 import com.propozal.jwt.CustomUserDetails;
+import com.propozal.jwt.JwtUtil;
 import com.propozal.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +25,8 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final UserDetailsService userDetailsService;
+    private final JwtUtil jwtUtil;
 
     @GetMapping("/check-email")
     public ResponseEntity<?> checkEmail(@RequestParam String email) {
@@ -70,5 +77,29 @@ public class UserController {
 
         UserInfoResponse response = UserInfoResponse.from(userDetails.getUser());
         return ResponseEntity.ok(response);
+    }
+
+    // 액세스 토큰 재발급(리프레시 사용)
+    @PostMapping("/refresh")
+    public ResponseEntity<TokenRefreshResponseDto> refresh(@RequestBody TokenRefreshRequestDto req) {
+        String refresh = req.getRefreshToken();
+        if (refresh == null || refresh.isBlank()) {
+            return ResponseEntity.status(401).build();
+        }
+        // 리프레시 전용 키로 검증 + 만료 체크
+        if (jwtUtil.isTokenExpired(refresh)) {
+            return ResponseEntity.status(401).build();
+        }
+        String email;
+        try {
+            email = jwtUtil.extractEmail(refresh);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).build();
+        }
+        UserDetails user = userDetailsService.loadUserByUsername(email);
+        
+        String newAccess = jwtUtil.generateAccessToken(email);
+        String newRefresh = jwtUtil.generateRefreshToken(email); // 회전 권장
+        return ResponseEntity.ok(new TokenRefreshResponseDto(newAccess, newRefresh));
     }
 }

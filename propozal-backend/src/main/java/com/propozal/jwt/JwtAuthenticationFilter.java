@@ -35,6 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             || uri.startsWith("/auth/signup")
             || uri.startsWith("/auth/check-email")
             || uri.startsWith("/auth/send-verification")
+            || uri.startsWith("/auth/refresh")
             || uri.startsWith("/actuator/")
             || uri.startsWith("/estimate/response");
     }

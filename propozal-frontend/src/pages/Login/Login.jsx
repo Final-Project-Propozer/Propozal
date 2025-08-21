@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import axiosInstance from "../../api/axiosInstance"; // 인증된 요청용
+import { useAuth } from "../../context/AuthContext";
 import "./Login.css";
 
 // 🔹 카카오 인증 URL
@@ -9,6 +10,7 @@ const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=3fdf6a
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,21 +25,13 @@ export default function LoginPage() {
       });
 
       const { accessToken, refreshToken } = response.data;
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-
       const userRes = await axiosInstance.get("/auth/me");
       const user = userRes.data;
-      localStorage.setItem("user", JSON.stringify(user));
 
-      if (user.role === "SALESPERSON") {
-        navigate("/sales");
-      } else if (user.role === "ADMIN") {
-        navigate("/admin/companydataview");
-      } else {
-        alert("알 수 없는 사용자 권한입니다.");
-      }
-    } catch (error) {
+      // 컨텍스트에 반영(토큰/유저 동기화)
+      login(accessToken, refreshToken, user);
+      navigate(user.role === "ADMIN" ? "/admin/companydataview" : "/sales");
+      } catch (error) {
       if (error.response) {
         const msg = error.response.data.message || "";
         if (msg.includes("이메일 인증과 관리자 승인")) {
