@@ -31,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("/api/estimate")
+@RequestMapping("/estimate")
 @RequiredArgsConstructor
 @Slf4j
 public class EstimateController {

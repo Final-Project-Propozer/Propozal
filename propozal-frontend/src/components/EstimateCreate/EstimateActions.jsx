@@ -37,7 +37,7 @@ const EstimateActions = ({ estimateId, readOnly = false }) => {
     setError(""); // 에러 초기화
 
     try {
-      const res = await axiosInstance.get(`/api/estimate/${estimateId}`);
+      const res = await axiosInstance.get(`/estimate/${estimateId}`);
       console.log("📋 견적서 데이터 로드:", res.data);
 
       const estimateData = res.data || {};
@@ -186,7 +186,7 @@ const EstimateActions = ({ estimateId, readOnly = false }) => {
 
       console.log("💾 저장할 데이터:", estimateData);
 
-      await axiosInstance.post(`/api/estimate/${estimateId}/versions`, {
+      await axiosInstance.post(`/estimate/${estimateId}/versions`, {
         estimateData,
         memo: managerNote,
       });

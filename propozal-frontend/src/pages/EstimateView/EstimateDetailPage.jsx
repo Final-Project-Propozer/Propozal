@@ -25,7 +25,7 @@ const EstimateDetailPage = () => {
   useEffect(() => {
     const fetchEstimate = async () => {
       try {
-        const res = await axiosInstance.get(`/api/estimate/${estimateId}`);
+        const res = await axiosInstance.get(`/estimate/${estimateId}`);
         setEstimateData(res.data);
         setExists(true);
       } catch (err) {
