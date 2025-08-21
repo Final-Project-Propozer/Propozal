@@ -29,9 +29,9 @@ const EstimateDetailPage = () => {
   const [error, setError] = useState("");
 
   const [displayData, setDisplayData] = useState(null);
-  const [memos, setMemos] = useState([]);
   const [viewInfo, setViewInfo] = useState(" (최신 상태)");
 
+  // 🔥 컴포넌트 리렌더링을 강제하기 위한 key 추가
   const [componentKey, setComponentKey] = useState(0);
 
   const [isViewingLatest, setIsViewingLatest] = useState(true);
@@ -53,17 +53,7 @@ const EstimateDetailPage = () => {
       setDisplayData(res.data);
       setViewInfo(" (최신 상태)");
       setIsViewingLatest(true);
-
-      try {
-        const memoRes = await axiosInstance.get(
-          `/estimates/${estimateId}/memos`
-        );
-        setMemos(memoRes.data || []);
-      } catch (memoErr) {
-        console.error("메모 조회 실패:", memoErr);
-        setMemos([]);
-      }
-
+      // 🔥 컴포넌트 key 업데이트로 강제 리렌더링
       setComponentKey((prev) => prev + 1);
     } catch (err) {
       setError("최신 견적서를 불러오는 데 실패했습니다.");
@@ -102,27 +92,15 @@ const EstimateDetailPage = () => {
     try {
       const res = await axiosInstance.get(`/estimate/versions/${versionId}`);
 
-      let parsedData;
-      if (typeof res.data === "string") {
-        parsedData = JSON.parse(res.data);
-      } else {
-        parsedData = res.data;
-      }
+      const parsedData =
+        typeof res.data === "string" ? JSON.parse(res.data) : res.data;
 
-      let versionData;
-      if (parsedData.estimateData) {
-        versionData = {
-          ...parsedData.estimateData,
-          versionId: versionId,
-        };
-      } else {
-        versionData = {
-          ...parsedData,
-          versionId: versionId,
-        };
-      }
+      setSelectedVersion({
+        ...parsedData,
+        versionId: versionId,
+      });
 
-      setSelectedVersion(versionData);
+      console.log("파싱된 버전 데이터:", parsedData);
     } catch (err) {
       console.error("버전 데이터 로딩 실패:", err);
       alert("버전 정보를 불러오는 데 실패했습니다.");
@@ -139,48 +117,23 @@ const EstimateDetailPage = () => {
     );
     const versionNumber = versions.length - versionIndex;
 
+    // 🔥 버전 데이터를 로드할 때 완전히 새로운 객체로 설정하고 컴포넌트 key 업데이트
     const newDisplayData = {
-      // 기본 정보
-      id: selectedVersion.id || estimateId,
-      customerName: selectedVersion.customerName || "",
-      customerEmail: selectedVersion.customerEmail || "",
-      customerPhone: selectedVersion.customerPhone || "",
-      customerCompanyName: selectedVersion.customerCompanyName || "",
-      customerPosition: selectedVersion.customerPosition || "",
-      sentDate: selectedVersion.sentDate || "",
-      expirationDate: selectedVersion.expirationDate || "",
-      dealStatus: selectedVersion.dealStatus || "",
-      specialTerms: selectedVersion.specialTerms || "",
-
-      // 금액 정보
-      supplyAmount: selectedVersion.supplyAmount || 0,
-      discountAmount: selectedVersion.discountAmount || 0,
-      vatAmount: selectedVersion.vatAmount || 0,
-      totalAmount: selectedVersion.totalAmount || 0,
-
-      // 품목 정보 - 완전히 새로운 배열로 복사
-      items: selectedVersion.items
-        ? selectedVersion.items.map((item) => ({ ...item }))
-        : [],
-
-      // 사용자 정보 (기존 데이터 유지)
-      user: displayData?.user || null,
-
-      // 메타 정보
-      versionId: selectedVersion.versionId,
+      ...selectedVersion,
+      // 🔥 items 배열도 완전히 새로운 배열로 복사
+      items: selectedVersion.items ? [...selectedVersion.items] : [],
     };
 
-    setDisplayData(null);
+    setDisplayData(newDisplayData);
+    setViewInfo(` (버전 ${versionNumber} 불러옴)`);
+    setIsViewingLatest(false);
 
-    setTimeout(() => {
-      setDisplayData(newDisplayData);
-      setViewInfo(` (버전 ${versionNumber} 불러옴)`);
-      setIsViewingLatest(false);
-
-      setComponentKey((prev) => prev + 1);
-    }, 100);
+    // 🔥 컴포넌트들이 새 데이터를 인식하도록 key 변경
+    setComponentKey((prev) => prev + 1);
 
     handleCloseVersionModal();
+
+    console.log("🔄 버전 데이터 로드 완료:", newDisplayData);
   };
 
   const handleNavigateToEdit = () => {
@@ -297,8 +250,6 @@ const EstimateDetailPage = () => {
     minute: "2-digit",
   });
 
-  useEffect(() => {}, [displayData, componentKey]);
-
   return (
     <>
       <SalesNavbar />
@@ -354,7 +305,6 @@ const EstimateDetailPage = () => {
 
         {loading && <Spinner animation="border" />}
         {error && <Alert variant="danger">{error}</Alert>}
-
         {!loading && displayData && (
           <div ref={pdfRef}>
             {/* PDF 다운로드 시에만 포함될 숨겨진 영역 */}
@@ -379,42 +329,23 @@ const EstimateDetailPage = () => {
               </div>
             </div>
 
-            {/* 메모 섹션 */}
-            {memos.length > 0 && (
-              <div className="mb-4">
-                <div className="bg-light p-3 rounded">
-                  {memos.map((memo, index) => (
-                    <div key={memo.id || index} className="mb-2">
-                      <div className="fw-bold">{memo.content}</div>
-                      <small className="text-muted">
-                        작성일: {new Date(memo.createdAt).toLocaleString()}
-                      </small>
-                      {index < memos.length - 1 && <hr className="my-2" />}
-                    </div>
-                  ))}
-                </div>
-                <hr className="my-4" />
-              </div>
-            )}
-
+            {/* 🔥 key props 추가로 강제 리렌더링 */}
             <EstimateForm
-              key={`form-${componentKey}-${
-                displayData.customerName || "empty"
-              }`}
+              key={`form-${componentKey}`}
               estimateId={estimateId}
               formData={displayData}
               readOnly
             />
 
             <EstimateItemTable
-              key={`table-${componentKey}-${displayData.items?.length || 0}`}
+              key={`table-${componentKey}`}
               estimateId={estimateId}
               initialItems={displayData.items || []}
               readOnly
             />
 
             <EstimateActions
-              key={`actions-${componentKey}-${displayData.totalAmount || 0}`}
+              key={`actions-${componentKey}`}
               estimateId={estimateId}
               estimateData={displayData}
               readOnly

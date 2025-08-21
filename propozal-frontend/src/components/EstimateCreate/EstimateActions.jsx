@@ -22,7 +22,14 @@ const EstimateActions = ({ estimateId, estimateData, readOnly = false }) => {
   const [showPreview, setShowPreview] = useState(false);
 
   const handleSaveVersion = async () => {
-    if (readOnly || !estimateData) return;
+    console.log("🔥 새 버전으로 저장 버튼 클릭됨!");
+    console.log("🔥 readOnly:", readOnly);
+    console.log("🔥 estimateData:", estimateData);
+
+    if (readOnly || !estimateData) {
+      console.log("🔥 조기 종료 - readOnly 또는 estimateData 없음");
+      return;
+    }
 
     const memo = "버전 저장";
 
