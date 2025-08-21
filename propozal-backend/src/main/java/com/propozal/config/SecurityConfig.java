@@ -49,6 +49,7 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers("/estimate/response").permitAll()
                         .requestMatchers("/auth/me").hasAnyRole("ADMIN", "SALESPERSON")
+                        .requestMatchers(HttpMethod.GET, "/admin/categories/**").hasAnyRole("ADMIN", "SALESPERSON")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/dashboard/**").permitAll()
                         .anyRequest().authenticated())
