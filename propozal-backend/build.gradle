@@ -60,6 +60,8 @@ dependencies {
     implementation 'com.openhtmltopdf:openhtmltopdf-pdfbox:1.0.10'
 
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate6'
+
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 }
 
 tasks.named('test') {

@@ -11,23 +11,21 @@ import EstimateActions from "../../components/EstimateCreate/EstimateActions";
 
 const EstimatePageCreation = () => {
   const [estimateId, setEstimateId] = useState(null);
-  const [estimateData, setEstimateData] = useState(null); // ✅ 전체 견적서 데이터를 관리할 state
+  const [estimateData, setEstimateData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const hasCreated = useRef(false);
 
-  // ✅ useCallback으로 데이터 갱신 함수를 생성 (불필요한 재실행 방지)
-  // 이 함수가 자식 컴포넌트(EstimateItemTable)에 전달될 onItemsChange의 본체입니다.
   const fetchEstimateData = useCallback(async (id) => {
     if (!id) return;
     try {
       const res = await axiosInstance.get(`/estimate/${id}`);
-      setEstimateData(res.data); // state를 최신 데이터로 업데이트
+      setEstimateData(res.data);
     } catch (err) {
       console.error("견적서 데이터 조회 오류:", err);
       setError("견적서 데이터를 불러오는 데 실패했습니다.");
     }
-  }, []); // 의존성 배열이 비어있어 함수가 한번만 생성됨
+  }, []);
 
   // 견적서 생성 및 최초 데이터 로딩
   useEffect(() => {
@@ -40,7 +38,7 @@ const EstimatePageCreation = () => {
         const res = await axiosInstance.post("/estimate");
         const newEstimateId = res.data.id;
         setEstimateId(newEstimateId);
-        await fetchEstimateData(newEstimateId); // ✅ 생성 직후 전체 데이터 가져오기
+        await fetchEstimateData(newEstimateId);
       } catch (err) {
         console.error("견적서 생성 오류:", err);
         setError("견적서 생성 중 오류가 발생했습니다.");
@@ -50,9 +48,8 @@ const EstimatePageCreation = () => {
     };
 
     createAndFetchEstimate();
-  }, [fetchEstimateData]); // fetchEstimateData를 의존성 배열에 추가
+  }, [fetchEstimateData]);
 
-  // ✅ EstimateItemTable에 전달할 최종 콜백 함수
   const handleItemsChange = useCallback(() => {
     fetchEstimateData(estimateId);
   }, [estimateId, fetchEstimateData]);
@@ -69,10 +66,9 @@ const EstimatePageCreation = () => {
         {loading && <Spinner animation="border" />}
         {error && <Alert variant="danger">{error}</Alert>}
 
-        {/* ✅ estimateData가 있을 때만 자식 컴포넌트들을 렌더링 */}
+        {/* estimateData가 있을 때만 자식 컴포넌트들을 렌더링 */}
         {!loading && !error && estimateData && (
           <>
-            {/* ✅ 자식들에게 필요한 데이터를 props로 전달 */}
             <EstimateForm estimateId={estimateId} initialData={estimateData} />
             <hr className="my-4" />
             <EstimateItemTable
@@ -81,7 +77,10 @@ const EstimatePageCreation = () => {
               onItemsChange={handleItemsChange}
             />
             <hr className="my-4" />
-            <EstimateActions estimateId={estimateId} />
+            <EstimateActions
+              estimateId={estimateId}
+              estimateData={estimateData}
+            />
           </>
         )}
       </Container>
