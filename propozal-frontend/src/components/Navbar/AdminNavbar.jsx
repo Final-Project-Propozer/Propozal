@@ -51,20 +51,20 @@ const AdminNavbar = () => {
         <div className="collapse navbar-collapse" id="mainNav">
           <ul className="navbar-nav ms-auto align-items-center nav-tab-group">
             <li className="nav-item">
-              <Link className="nav-link" to="/">대시보드</Link>
+              <Link className="nav-link" to="/admin/dashboard">대시보드</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="#">견적관리</Link>
+              <Link className="nav-link" to="/admin/estimatelist">견적관리</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="#">제품관리</Link>
+              <Link className="nav-link" to="/admin/product-list">제품관리</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="#">스케줄 관리</Link>
+              <Link className="nav-link" to="/admin/client-list">고객관리</Link>
             </li>
             <li className="nav-item">
               <Link className="btn btn-outline-dark rounded-pill px-3 py-1 login-btn" to="/login">
-                [관리자]나의 프로필
+                로그아웃
               </Link>
             </li>
           </ul>
