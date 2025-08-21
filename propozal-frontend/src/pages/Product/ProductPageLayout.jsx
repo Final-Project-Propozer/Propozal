@@ -13,7 +13,8 @@ import QuoteModal from "../../components/Product/QuoteModal";
 const ProductPageLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const isFavoritesListPage = location.pathname === "/products";
+
+  const isFavoritesListPage = location.pathname === "/products/favorites";
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategories, setSelectedCategories] = useState({
@@ -39,23 +40,21 @@ const ProductPageLayout = () => {
     const fetchProducts = async () => {
       const params = { page: currentPage, size: 8 };
 
-      if (!isFavoritesListPage) {
-        if (searchTerm.trim()) {
-          params.keyword = searchTerm;
-        } else {
-          if (selectedCategories.lv1)
-            params.categoryLv1Id = selectedCategories.lv1.id;
-          if (selectedCategories.lv2)
-            params.categoryLv2Id = selectedCategories.lv2.id;
-          if (selectedCategories.lv3)
-            params.categoryLv3Id = selectedCategories.lv3.id;
-        }
+      if (searchTerm.trim()) {
+        params.keyword = searchTerm;
+      } else {
+        if (selectedCategories.lv1)
+          params.categoryLv1Id = selectedCategories.lv1.id;
+        if (selectedCategories.lv2)
+          params.categoryLv2Id = selectedCategories.lv2.id;
+        if (selectedCategories.lv3)
+          params.categoryLv3Id = selectedCategories.lv3.id;
       }
 
       try {
         const endpoint = isFavoritesListPage
-          ? "/products"
-          : "/products/favorites";
+          ? "/products/favorites"
+          : "/products/";
 
         const res = await axiosInstance.get(endpoint, { params });
         setAllProducts(res.data.content || []);
@@ -73,14 +72,12 @@ const ProductPageLayout = () => {
   }, [currentPage, searchTerm, selectedCategories, isFavoritesListPage]);
 
   const handleSearchChange = (term) => {
-    if (isFavoritesListPage) return; // 즐겨찾기 페이지에서는 검색 비활성
     setSearchTerm(term);
     setSelectedCategories({ lv1: null, lv2: null, lv3: null });
     setCurrentPage(0);
   };
 
   const handleCategoryChange = (level, value) => {
-    if (isFavoritesListPage) return; // 즐겨찾기 페이지에서는 필터 비활성
     setSelectedCategories((prev) => {
       const updated = { ...prev, [level]: value };
       if (level === "lv1") {
@@ -96,7 +93,6 @@ const ProductPageLayout = () => {
   };
 
   const handleClearFilters = () => {
-    if (isFavoritesListPage) return; // 즐겨찾기 페이지에서는 필터 비활성
     setSelectedCategories({ lv1: null, lv2: null, lv3: null });
     setCurrentPage(0);
   };
@@ -112,43 +108,58 @@ const ProductPageLayout = () => {
 
       <main style={{ flex: 1 }}>
         <Container fluid className="py-4 px-5">
-          {/* 상단: 타이틀 + 새 견적서 작성 */}
+          {/* 상단: 타이틀 + 새 견적서 + 모드 전환 버튼 */}
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h4 className="fw-bold mb-0">
               {isFavoritesListPage ? "즐겨찾기 목록" : "전체 제품 목록"}
             </h4>
-            <Button
-              variant="success"
-              onClick={() => navigate("/estimate")}
-              style={{
-                borderRadius: "25px",
-                padding: "8px 20px",
-                fontWeight: "bold",
-              }}
-            >
-              📄 새 견적서 작성
-            </Button>
+
+            <div className="d-flex gap-2">
+              <Button
+                variant="outline-secondary"
+                onClick={() =>
+                  navigate(isFavoritesListPage ? "/products" : "/products/favorites")
+                }
+                style={{
+                  borderRadius: "25px",
+                  padding: "8px 16px",
+                  fontWeight: 600,
+                }}
+              >
+                {isFavoritesListPage ? "📦 전체 제품 목록" : "⭐ 즐겨찾기 목록"}
+              </Button>
+
+              <Button
+                variant="success"
+                onClick={() => navigate("/estimate")}
+                style={{
+                  borderRadius: "25px",
+                  padding: "8px 20px",
+                  fontWeight: "bold",
+                }}
+              >
+                📄 새 견적서 작성
+              </Button>
+            </div>
           </div>
 
           <Row>
-            {/* 왼쪽 필터: 전체 제품 목록에서만 표시 */}
-            {!isFavoritesListPage && (
-              <Col xs={12} md={3} className="mb-4">
-                <ProductSearchBar
-                  searchTerm={searchTerm}
-                  onSearchChange={handleSearchChange}
-                />
+            {/* 왼쪽 필터: ✅ 항상 표시 */}
+            <Col xs={12} md={3} className="mb-4">
+              <ProductSearchBar
+                searchTerm={searchTerm}
+                onSearchChange={handleSearchChange}
+              />
 
-                <CategoryFilterMenu
-                  selectedCategories={selectedCategories}
-                  onCategoryChange={handleCategoryChange}
-                  onClearFilters={handleClearFilters}
-                />
-              </Col>
-            )}
+              <CategoryFilterMenu
+                selectedCategories={selectedCategories}
+                onCategoryChange={handleCategoryChange}
+                onClearFilters={handleClearFilters}
+              />
+            </Col>
 
             {/* 오른쪽 제품 영역 */}
-            <Col xs={12} md={isFavoritesListPage ? 12 : 9}>
+            <Col xs={12} md={9}>
               <ProductList
                 products={allProducts}
                 onProductClick={handleProductClick}
