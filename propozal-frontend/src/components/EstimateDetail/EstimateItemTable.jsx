@@ -7,18 +7,18 @@ import { useNavigate } from "react-router-dom";
 const EstimateItemTable = ({ estimateId, readOnly = false }) => {
   const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState({
-    productId: '',
+    productId: "",
     quantity: 1,
-    discountRate: 0 // % 단위로 입력받음
+    discountRate: 0, // % 단위로 입력받음
   });
 
-  const [selectedItemId, setSelectedItemId] = useState('');
+  const [selectedItemId, setSelectedItemId] = useState("");
   const [selectedDiscount, setSelectedDiscount] = useState(5);
 
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
   const [discounting, setDiscounting] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
@@ -27,7 +27,7 @@ const EstimateItemTable = ({ estimateId, readOnly = false }) => {
       const res = await axiosInstance.get(`/estimate/${estimateId}`);
       setItems(res.data.items || []);
     } catch (err) {
-      setError('품목 정보를 불러오지 못했습니다.');
+      setError("품목 정보를 불러오지 못했습니다.");
     } finally {
       setLoading(false);
     }
@@ -40,7 +40,7 @@ const EstimateItemTable = ({ estimateId, readOnly = false }) => {
   const handleChange = (e) => {
     if (readOnly) return;
     const { name, value } = e.target;
-    setNewItem(prev => ({ ...prev, [name]: value }));
+    setNewItem((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleAddItem = async (e) => {
@@ -48,19 +48,19 @@ const EstimateItemTable = ({ estimateId, readOnly = false }) => {
     if (readOnly) return;
 
     setAdding(true);
-    setError('');
+    setError("");
     setSuccess(false);
     try {
       await axiosInstance.post(`/estimate/${estimateId}/items`, {
         productId: parseInt(newItem.productId),
         quantity: parseInt(newItem.quantity),
-        discountRate: parseFloat(newItem.discountRate) / 100 // ✅ 소수로 변환
+        discountRate: parseFloat(newItem.discountRate) / 100, // ✅ 소수로 변환
       });
-      setNewItem({ productId: '', quantity: 1, discountRate: 0 });
+      setNewItem({ productId: "", quantity: 1, discountRate: 0 });
       setSuccess(true);
       fetchItems();
     } catch (err) {
-      setError('품목 추가 중 오류가 발생했습니다.');
+      setError("품목 추가 중 오류가 발생했습니다.");
     } finally {
       setAdding(false);
     }
@@ -72,7 +72,7 @@ const EstimateItemTable = ({ estimateId, readOnly = false }) => {
       await axiosInstance.delete(`/estimate/${estimateId}/items/${itemId}`);
       fetchItems();
     } catch (err) {
-      setError('품목 삭제 중 오류가 발생했습니다.');
+      setError("품목 삭제 중 오류가 발생했습니다.");
     }
   };
 
@@ -84,16 +84,19 @@ const EstimateItemTable = ({ estimateId, readOnly = false }) => {
     if (readOnly || !selectedItemId) return;
 
     setDiscounting(true);
-    setError('');
+    setError("");
     try {
-      await axiosInstance.patch(`/estimate/${estimateId}/items/${selectedItemId}`, {
-        discountRate: selectedDiscount / 100 // ✅ 소수로 변환
-      });
-      setSelectedItemId('');
+      await axiosInstance.patch(
+        `/estimate/${estimateId}/items/${selectedItemId}`,
+        {
+          discountRate: selectedDiscount / 100, // ✅ 소수로 변환
+        }
+      );
+      setSelectedItemId("");
       setSelectedDiscount(5);
       fetchItems();
     } catch (err) {
-      setError('할인 적용 중 오류가 발생했습니다.');
+      setError("할인 적용 중 오류가 발생했습니다.");
     } finally {
       setDiscounting(false);
     }
@@ -106,7 +109,9 @@ const EstimateItemTable = ({ estimateId, readOnly = false }) => {
       <h4 className="mb-3">견적 품목</h4>
 
       {error && <Alert variant="danger">{error}</Alert>}
-      {success && !readOnly && <Alert variant="success">품목이 추가되었습니다.</Alert>}
+      {success && !readOnly && (
+        <Alert variant="success">품목이 추가되었습니다.</Alert>
+      )}
 
       <Table responsive bordered hover>
         <thead className="table-light">
@@ -123,16 +128,19 @@ const EstimateItemTable = ({ estimateId, readOnly = false }) => {
         <tbody>
           {items.length === 0 ? (
             <tr>
-              <td colSpan={readOnly ? 6 : 7} className="text-center text-muted">등록된 품목이 없습니다.</td>
+              <td colSpan={readOnly ? 6 : 7} className="text-center text-muted">
+                등록된 품목이 없습니다.
+              </td>
             </tr>
           ) : (
-            items.map(item => (
+            items.map((item) => (
               <tr key={item.id}>
                 <td>{item.productName}</td>
                 <td>{item.productCode}</td>
                 <td>{item.quantity}</td>
                 <td>{item.unitPrice.toLocaleString()}원</td>
-                <td>{(item.discountRate * 100).toFixed(0)}%</td> {/* ✅ 소수 → % 변환 */}
+                <td>{(item.discountRate * 100).toFixed(0)}%</td>{" "}
+                {/* ✅ 소수 → % 변환 */}
                 <td>{item.subtotal.toLocaleString()}원</td>
                 {!readOnly && (
                   <td>
@@ -215,7 +223,7 @@ const EstimateItemTable = ({ estimateId, readOnly = false }) => {
                     disabled={adding}
                     className="w-100"
                   >
-                    {adding ? '추가 중...' : '품목 추가'}
+                    {adding ? "추가 중..." : "품목 추가"}
                   </Button>
                 </div>
               </Col>

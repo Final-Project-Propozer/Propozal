@@ -113,14 +113,12 @@ const EstimateForm = ({ estimateId, readOnly = false }) => {
   const handleMemoSave = async () => {
     try {
       await axiosInstance.post(`/estimates/${estimateId}/memos`, {
-        content: memoTextev
+        content: memoText,
       });
       setMemoText("");
       setShowMemoModal(false);
-      alert('메모가 저장되었습니다.');
-      // 저장 후 목록 다시 불러오기
+      alert("메모가 저장되었습니다.");
       const res = await axiosInstance.get(`/estimates/${estimateId}/memos`);
-
       setMemoList(res.data);
     } catch (err) {
       alert("메모 저장 중 오류가 발생했습니다.");
@@ -165,7 +163,6 @@ const EstimateForm = ({ estimateId, readOnly = false }) => {
     <>
       <div ref={pdfRef}>
         <Form onSubmit={handleSubmit}>
-        
           <h4 className="mb-3">고객 정보</h4>
 
           {!readOnly && error && <Alert variant="danger">{error}</Alert>}

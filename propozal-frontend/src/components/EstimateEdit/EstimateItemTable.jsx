@@ -91,9 +91,13 @@ const EstimateItemTable = ({ estimateId, readOnly = false }) => {
     setDiscounting(true);
     setError("");
     try {
-      await axiosInstance.patch(`/estimate/${estimateId}/items/${selectedItemId}`, {
-        discountRate: selectedDiscount / 100
-      });
+      await axiosInstance.patch(
+        `/estimate/${estimateId}/items/${selectedItemId}`,
+        {
+          discountRate: selectedDiscount / 100,
+        }
+      );
+
       setSelectedItemId("");
       setSelectedDiscount(5);
       fetchItems();

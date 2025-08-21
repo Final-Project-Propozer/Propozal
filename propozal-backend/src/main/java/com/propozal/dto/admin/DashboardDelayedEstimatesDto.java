@@ -4,6 +4,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.sql.Date;
 
 @Data
 @NoArgsConstructor
@@ -17,13 +18,13 @@ public class DashboardDelayedEstimatesDto {
     private BigDecimal amount;
     private String status;
 
-    // JPA 네이티브 쿼리용 명시적 생성자
+    // JPA 네이티브 쿼리용 명시적 생성자 - java.sql.Date를 받아서 LocalDate로 변환
     public DashboardDelayedEstimatesDto(
             Long estimateId,
             String customerName,
             String customerCompanyName, 
             String salesPersonName,
-            LocalDate expirationDate,
+            Date expirationDate,  // java.sql.Date로 변경
             Long daysOverdue,
             BigDecimal amount,
             String status) {
@@ -31,7 +32,7 @@ public class DashboardDelayedEstimatesDto {
         this.customerName = customerName;
         this.customerCompanyName = customerCompanyName;
         this.salesPersonName = salesPersonName;
-        this.expirationDate = expirationDate;
+        this.expirationDate = expirationDate != null ? expirationDate.toLocalDate() : null; // LocalDate로 변환
         this.daysOverdue = daysOverdue;
         this.amount = amount;
         this.status = status;

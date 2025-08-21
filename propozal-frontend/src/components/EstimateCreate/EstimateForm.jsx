@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Form, Button, Row, Col, Alert, Spinner, Modal } from "react-bootstrap";
 import axiosInstance from "../../api/axiosInstance";
-import { BsPencilSquare } from 'react-icons/bs';
+import { BsPencilSquare } from "react-icons/bs";
 
 const EstimateForm = ({ estimateId, initialData, readOnly = false }) => {
   const [formData, setFormData] = useState({
@@ -27,6 +27,8 @@ const EstimateForm = ({ estimateId, initialData, readOnly = false }) => {
   const [versionList, setVersionList] = useState([]);
   const [selectedVersion, setSelectedVersion] = useState(null);
   const [previewData, setPreviewData] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [editingMemo, setEditingMemo] = useState(null);
 
   useEffect(() => {
     if (initialData) {
@@ -99,7 +101,8 @@ const EstimateForm = ({ estimateId, initialData, readOnly = false }) => {
 
     try {
       const res = await axiosInstance.get(`/estimate/versions/${versionId}`);
-      const parsed = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+      const parsed =
+        typeof res.data === "string" ? JSON.parse(res.data) : res.data;
       setSelectedVersion(versionId);
       setPreviewData(parsed);
     } catch {
@@ -141,17 +144,61 @@ const EstimateForm = ({ estimateId, initialData, readOnly = false }) => {
     }
   };
 
+  const handleEditClick = (memo) => {
+    setEditingMemo(memo);
+    setMemoText(memo.content);
+    setShowMemoModal(true);
+  };
+
   const handleMemoSave = async () => {
+    if (isSaving) return;
+    setIsSaving(true);
+
     try {
-      await axiosInstance.post(`/estimates/${estimateId}/memos`, {
-        content: memoText
-      });
-      setMemoText("");
-      setShowMemoModal(false);
+      if (editingMemo) {
+        await axiosInstance.put(
+          `/estimates/${estimateId}/memos/${editingMemo.id}`,
+          {
+            content: memoText,
+          }
+        );
+      } else {
+        await axiosInstance.post(`/estimates/${estimateId}/memos`, {
+          content: memoText,
+        });
+      }
       const res = await axiosInstance.get(`/estimates/${estimateId}/memos`);
       setMemoList(res.data);
-    } catch {
-      alert("메모 저장 중 오류가 발생했습니다.");
+      handleCloseModal();
+    } catch (error) {
+      console.error("메모 저장/수정 실패:", error);
+      alert("처리 중 오류가 발생했습니다.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowMemoModal(false);
+    setEditingMemo(null);
+    setMemoText("");
+  };
+
+  const handleDeleteMemo = async (memoId) => {
+    if (!window.confirm("정말 이 메모를 삭제하시겠습니까?")) {
+      return;
+    }
+
+    try {
+      await axiosInstance.delete(`/estimates/${estimateId}/memos/${memoId}`);
+
+      const res = await axiosInstance.get(`/estimates/${estimateId}/memos`);
+      setMemoList(res.data);
+
+      alert("메모가 삭제되었습니다.");
+    } catch (error) {
+      console.error("메모 삭제 실패:", error);
+      alert("메모를 삭제하는 중 오류가 발생했습니다.");
     }
   };
 
@@ -161,29 +208,29 @@ const EstimateForm = ({ estimateId, initialData, readOnly = false }) => {
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h3 className="mb-0">견적서 작성</h3>
           <div className="d-flex gap-2">
-          <Button
-            variant="outline-secondary"
-            className="rounded-pill d-flex align-items-center gap-2"
-            style={{
-              paddingLeft: '20px',
-              paddingRight: '20px',
-              paddingTop: '8px',
-              paddingBottom: '8px',
-              fontSize: '15px',
-              fontWeight: 'bold',         // 텍스트 굵게
-              borderWidth: '2px'
-            }}
-            onClick={() => setShowMemoModal(true)}
-          >
-            <BsPencilSquare />
-            메모하기
-          </Button>
-{/*             <Button variant="outline-success" onClick={handleLoad}> */}
-{/*               불러오기 */}
-{/*             </Button> */}
-{/*             <Button variant="outline-danger" onClick={handleDelete}> */}
-{/*               삭제하기 */}
-{/*             </Button> */}
+            <Button
+              variant="outline-secondary"
+              className="rounded-pill d-flex align-items-center gap-2"
+              style={{
+                paddingLeft: "20px",
+                paddingRight: "20px",
+                paddingTop: "8px",
+                paddingBottom: "8px",
+                fontSize: "15px",
+                fontWeight: "bold", // 텍스트 굵게
+                borderWidth: "2px",
+              }}
+              onClick={() => setShowMemoModal(true)}
+            >
+              <BsPencilSquare />
+              메모하기
+            </Button>
+            {/*             <Button variant="outline-success" onClick={handleLoad}> */}
+            {/*               불러오기 */}
+            {/*             </Button> */}
+            {/*             <Button variant="outline-danger" onClick={handleDelete}> */}
+            {/*               삭제하기 */}
+            {/*             </Button> */}
           </div>
         </div>
 
@@ -213,6 +260,39 @@ const EstimateForm = ({ estimateId, initialData, readOnly = false }) => {
             </Form.Group>
           </Col>
         </Row>
+
+        {/* 메모 목록 */}
+        <ul className="list-group">
+          {memoList.map((memo) => (
+            <li
+              key={memo.id}
+              className="list-group-item d-flex align-items-center"
+            >
+              <div>
+                <div>{memo.content}</div>
+                <small className="text-muted d-block mt-1">
+                  작성일: {new Date(memo.createdAt).toLocaleString()}
+                </small>
+              </div>
+              <div className="d-flex gap-2 ms-auto">
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  onClick={() => handleEditClick(memo)}
+                >
+                  수정
+                </Button>
+                <Button
+                  variant="outline-danger"
+                  size="sm"
+                  onClick={() => handleDeleteMemo(memo.id)}
+                >
+                  삭제
+                </Button>
+              </div>
+            </li>
+          ))}
+        </ul>
         <hr className="my-4" />
 
         <h4 className="mb-3">고객 정보</h4>
@@ -355,7 +435,7 @@ const EstimateForm = ({ estimateId, initialData, readOnly = false }) => {
       </Form>
 
       {/* 메모 모달 */}
-      <Modal show={showMemoModal} onHide={() => setShowMemoModal(false)}>
+      <Modal show={showMemoModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>메모하기</Modal.Title>
         </Modal.Header>
@@ -459,28 +539,8 @@ const EstimateForm = ({ estimateId, initialData, readOnly = false }) => {
           </Button>
         </Modal.Footer>
       </Modal>
-
-      {/* 메모 목록 */}
-      {memoList.length > 0 && (
-        <div className="mt-5">
-          <h5>작성된 메모</h5>
-          <ul className="list-group">
-            {memoList.map((memo) => (
-              <li key={memo.id} className="list-group-item">
-                <div>{memo.content}</div>
-                {memo.createdAt && (
-                  <small className="text-muted d-block mt-1">
-                    작성일: {new Date(memo.createdAt).toLocaleString()}
-                  </small>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </>
   );
 };
 
 export default EstimateForm;
-

@@ -105,8 +105,8 @@ const EstimateActions = ({ estimateId, estimateData, readOnly = false }) => {
       console.log("📦 전송할 데이터:", estimateDataForSave);
 
       await axiosInstance.post(`/estimate/${estimateId}/versions`, {
-        estimateData,
-        memo: managerNote
+        estimateData: estimateDataForSave,
+        memo: managerNote,
       });
 
       setMessage("견적서가 저장되었습니다.");
