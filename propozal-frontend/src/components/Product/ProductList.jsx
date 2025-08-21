@@ -4,12 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import ProductCard from './ProductCard';
 import axiosInstance from '../../api/axiosInstance';
 
-const ProductList = ({ products }) => {
+const ProductList = ({ products, onProductClick }) => {
   const itemsPerPage = 8;
   const [currentPage, setCurrentPage] = useState(1);
   const [favoriteIds, setFavoriteIds] = useState([]);
   const [localProducts, setLocalProducts] = useState([]);
-  const navigate = useNavigate(); // ✅ 추가
+  const navigate = useNavigate();
 
   useEffect(() => {
     setLocalProducts(products);
@@ -115,7 +115,7 @@ const ProductList = ({ products }) => {
       <Row>
         {paginatedProducts.map((product, index) => (
           <Col key={product.id || `product-${index}`} xs={12} sm={6} md={4} lg={3}>
-            <ProductCard product={product} onFavoriteRemove={handleFavoriteRemove} />
+            <ProductCard product={product} onFavoriteRemove={handleFavoriteRemove} onProductClick={onProductClick}/>
           </Col>
         ))}
       </Row>
