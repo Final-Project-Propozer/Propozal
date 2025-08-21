@@ -9,7 +9,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.thymeleaf.spring6.SpringTemplateEngine;
-
 import org.thymeleaf.context.Context;
 
 import java.util.Map;
@@ -45,7 +44,7 @@ public class EmailService {
 
     public void sendVerificationEmail(String to, String token) {
         String link = UriComponentsBuilder.fromHttpUrl(appBaseUrl)
-                .path("/api/auth/verify-email")
+                .pathSegment("api", "auth", "verify-email")
                 .queryParam("token", token)
                 .toUriString();
 
