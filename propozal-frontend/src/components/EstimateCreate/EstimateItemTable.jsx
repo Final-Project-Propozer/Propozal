@@ -27,7 +27,7 @@ const EstimateItemTable = ({
     discountRate: 0,
   });
 
-  // 🆕 인라인 편집 상태 관리
+  // 인라인 편집 상태
   const [editingItemId, setEditingItemId] = useState(null);
   const [editingValues, setEditingValues] = useState({});
 
@@ -36,7 +36,7 @@ const EstimateItemTable = ({
 
   const [adding, setAdding] = useState(false);
   const [discounting, setDiscounting] = useState(false);
-  const [updating, setUpdating] = useState(false); // 🆕 수정 로딩 상태
+  const [updating, setUpdating] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
@@ -131,7 +131,7 @@ const EstimateItemTable = ({
   };
 
   const handleDeleteItem = async (itemId) => {
-    if (readOnly) return;
+    if (readOnly || !itemId) return;
     try {
       const response = await axiosInstance.delete(
         `/estimate/${estimateId}/items/${itemId}`
@@ -155,7 +155,6 @@ const EstimateItemTable = ({
     setDiscounting(true);
     setError("");
     try {
-      // PATCH 대신 PUT 사용 (컨트롤러와 일치)
       await axiosInstance.put(
         `/estimate/${estimateId}/items/${selectedItemId}`,
         {
@@ -165,7 +164,7 @@ const EstimateItemTable = ({
       setSelectedItemId("");
       setSelectedDiscount(5);
       if (onItemsChange) {
-        onItemsChange();
+        onItemsChange(); // 부모에서 재조회
       }
     } catch (err) {
       setError("할인 적용 중 오류가 발생했습니다.");
@@ -174,17 +173,20 @@ const EstimateItemTable = ({
     }
   };
 
-  // 🆕 인라인 편집 시작 (rowId 사용)
+  // ✅ 인라인 편집 시작 (rowId 사용 + 가드)
   const handleStartEdit = (item, rowId) => {
     if (readOnly) return;
+    if (!rowId) {
+      setError("아이템 식별자가 없어 수정할 수 없습니다.");
+      return;
+    }
     setEditingItemId(rowId);
     setEditingValues({
-      quantity: item.quantity,
-      discountRate: (item.discountRate * 100).toFixed(1), // 백분율로 변환
+      quantity: String(item.quantity ?? 1),
+      discountRate: String(((item.discountRate ?? 0) * 100).toFixed(1)), // 백분율
     });
   };
 
-  // 🆕 편집 값 변경
   const handleEditChange = (field, value) => {
     setEditingValues((prev) => ({
       ...prev,
@@ -192,47 +194,36 @@ const EstimateItemTable = ({
     }));
   };
 
-  // 🆕 편집 저장
   const handleSaveEdit = async (itemId) => {
-    if (readOnly) return;
+    if (readOnly || !itemId) return;
 
     setUpdating(true);
     setError("");
 
     try {
-      console.log("품목 수정 요청:", {
-        estimateId,
-        itemId,
-        quantity: parseInt(editingValues.quantity),
-        discountRate: parseFloat(editingValues.discountRate) / 100,
-      });
+      const q = parseInt(editingValues.quantity);
+      const r = parseFloat(editingValues.discountRate);
 
       const response = await axiosInstance.put(
         `/estimate/${estimateId}/items/${itemId}`,
         {
-          quantity: parseInt(editingValues.quantity),
-          discountRate: parseFloat(editingValues.discountRate) / 100,
+          quantity: Number.isFinite(q) && q > 0 ? q : 1,
+          discountRate: Number.isFinite(r) ? r / 100 : 0,
         }
       );
-
-      console.log("품목 수정 성공:", response.data);
 
       setEditingItemId(null);
       setEditingValues({});
 
-      // 응답에서 items 배열이 있으면 사용, 없으면 전체 데이터 새로고침
       if (onItemsChange) {
         if (response.data?.items) {
           onItemsChange(response.data.items);
         } else {
-          // 전체 견적서 데이터를 다시 불러오기
-          onItemsChange();
+          onItemsChange(); // 부모 재조회
         }
       }
 
       setSuccess(true);
-
-      // 3초 후 성공 메시지 제거
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
       console.error("품목 수정 오류:", err);
@@ -241,15 +232,12 @@ const EstimateItemTable = ({
           err.response?.data?.message || err.message
         }`
       );
-
-      // 5초 후 에러 메시지 제거
       setTimeout(() => setError(""), 5000);
     } finally {
       setUpdating(false);
     }
   };
 
-  // 🆕 편집 취소
   const handleCancelEdit = () => {
     setEditingItemId(null);
     setEditingValues({});
@@ -296,18 +284,19 @@ const EstimateItemTable = ({
                   <td>{item.productName || "미입력"}</td>
                   <td>{item.productCode || "미입력"}</td>
 
-                  {/* 🆕 수량 컬럼 - 편집 가능 */}
+                  {/* 수량 */}
                   <td>
                     {!readOnly && editingItemId === rowId ? (
                       <Form.Control
                         type="number"
                         min="1"
-                        value={editingValues.quantity ?? ""}
+                        value={editingValues.quantity ?? ""} // ✅ 안전 기본값
                         onChange={(e) =>
                           handleEditChange("quantity", e.target.value)
                         }
                         size="sm"
                         style={{ width: "80px" }}
+                        disabled={updating}
                       />
                     ) : (
                       item.quantity || 0
@@ -316,7 +305,7 @@ const EstimateItemTable = ({
 
                   <td>{(item.unitPrice || 0).toLocaleString()}원</td>
 
-                  {/* 🆕 할인율 컬럼 - 편집 가능 */}
+                  {/* 할인율 */}
                   <td>
                     {!readOnly && editingItemId === rowId ? (
                       <InputGroup size="sm" style={{ width: "100px" }}>
@@ -325,10 +314,11 @@ const EstimateItemTable = ({
                           min="0"
                           max="100"
                           step="0.1"
-                          value={editingValues.discountRate ?? ""}
+                          value={editingValues.discountRate ?? ""} // ✅ 안전 기본값
                           onChange={(e) =>
                             handleEditChange("discountRate", e.target.value)
                           }
+                          disabled={updating}
                         />
                         <InputGroup.Text>%</InputGroup.Text>
                       </InputGroup>
@@ -343,7 +333,6 @@ const EstimateItemTable = ({
                     <td>
                       <div className="d-flex gap-1">
                         {editingItemId === rowId ? (
-                          // 편집 모드일 때 저장/취소 버튼
                           <>
                             <Button
                               variant="outline-success"
@@ -367,7 +356,6 @@ const EstimateItemTable = ({
                             </Button>
                           </>
                         ) : (
-                          // 일반 모드일 때 편집/삭제 버튼
                           <>
                             <Button
                               variant="outline-primary"
@@ -375,6 +363,7 @@ const EstimateItemTable = ({
                               onClick={() => handleStartEdit(item, rowId)}
                               title="수정"
                               type="button" // ✅ 폼 submit 방지
+                              disabled={!rowId}
                             >
                               <FiEdit3 />
                             </Button>
@@ -408,6 +397,7 @@ const EstimateItemTable = ({
             className="w-100 mb-4"
             onClick={handleSearchProduct}
             type="button" // ✅ 폼 submit 방지
+            disabled={adding || updating || discounting}
           >
             + 제품 검색해서 추가하기
           </Button>
@@ -423,6 +413,7 @@ const EstimateItemTable = ({
                     value={newItem.productId}
                     onChange={handleChange}
                     required
+                    disabled={adding}
                   />
                 </Form.Group>
               </Col>
@@ -436,6 +427,7 @@ const EstimateItemTable = ({
                     onChange={handleChange}
                     min={1}
                     required
+                    disabled={adding}
                   />
                 </Form.Group>
               </Col>
@@ -452,6 +444,7 @@ const EstimateItemTable = ({
                       max={100}
                       step={1}
                       required
+                      disabled={adding}
                     />
                     <InputGroup.Text>%</InputGroup.Text>
                   </InputGroup>

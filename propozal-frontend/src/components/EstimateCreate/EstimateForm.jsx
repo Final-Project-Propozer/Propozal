@@ -3,6 +3,35 @@ import { Form, Button, Row, Col, Alert, Modal, Spinner } from "react-bootstrap";
 import axiosInstance from "../../api/axiosInstance";
 import { BsPencilSquare } from "react-icons/bs";
 
+const toDateInput = (d) => {
+  if (!d) return "";
+  const s = String(d);
+  // "YYYY-MM-DD" 또는 "YYYY-MM-DDTHH:mm:ss" 모두 대응
+  return s.length >= 10 ? s.slice(0, 10) : s;
+};
+
+const normalizeFormData = (raw = {}) => ({
+  // 문자열 필드는 null → "" 강제
+  customerCompanyName: raw.customerCompanyName ?? "",
+  customerEmail: raw.customerEmail ?? "",
+  customerName: raw.customerName ?? "",
+  customerPhone: raw.customerPhone ?? "",
+  customerPosition: raw.customerPosition ?? "",
+  // 숫자/선택값은 UI와 타입 맞춰 통일(여기선 문자열 옵션 사용)
+  dealStatus: raw.dealStatus ?? "",
+  // 날짜는 input[type=date] 포맷으로
+  expirationDate: toDateInput(raw.expirationDate),
+  sentDate: toDateInput(raw.sentDate),
+  // 기타
+  id: raw.id,
+  items: Array.isArray(raw.items) ? raw.items : [],
+  totalAmount: raw.totalAmount ?? 0,
+  createdAt: raw.createdAt ?? "",
+  updatedAt: raw.updatedAt ?? "",
+  user: raw.user ?? null,
+  // 확장 필드(특약사항 등)가 있다면 여기에 추가: terms: raw.terms ?? ""
+});
+
 const EstimateForm = ({
   estimateId,
   formData,
@@ -15,17 +44,19 @@ const EstimateForm = ({
   const [isSaving, setIsSaving] = useState(false);
   const [editingMemo, setEditingMemo] = useState(null);
 
-  // 🔥 수동 저장을 위한 상태
+  // 수동 저장을 위한 상태
   const [hasChanges, setHasChanges] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
 
-  // 🔥 formData가 변경될 때마다 로그 출력
+  // ✅ formData를 항상 안전한 형태로 정규화
+  const safeFormData = normalizeFormData(formData);
+
   useEffect(() => {
     console.log("EstimateForm: formData 변경됨:", formData);
     console.log("EstimateForm: readOnly 모드:", readOnly);
   }, [formData, readOnly]);
 
-  // 🔥 readOnly 모드가 아닐 때만 메모 조회
+  // readOnly 모드가 아닐 때만 메모 조회
   useEffect(() => {
     if (readOnly || !estimateId) return;
 
@@ -46,34 +77,30 @@ const EstimateForm = ({
 
     const { name, value } = e.target;
 
-    // 🔥 즉시 UI 업데이트 (로컬 상태만)
+    // ✅ 부분 업데이트여도 부모가 "치환 세터"일 수 있으므로
+    // 항상 현재 safeFormData를 병합해서 전달(전체 상태 유지)
     if (onDataChange) {
-      onDataChange({ [name]: value });
+      onDataChange({ ...safeFormData, [name]: value });
     }
 
-    // 🔥 변경사항 플래그 설정
     setHasChanges(true);
     setSaveMessage("");
   };
 
-  // 🔥 수동 저장 함수
   const handleSaveCustomerInfo = async () => {
     if (readOnly || !hasChanges) return;
 
-    // 🔥 필수 필드 검증
-    if (!formData.customerName || formData.customerName.trim() === "") {
+    // 필수 검증(정규화된 safeFormData 기준)
+    if (!safeFormData.customerName || safeFormData.customerName.trim() === "") {
       setSaveMessage("고객명은 필수입니다.");
       return;
     }
-
-    if (!formData.customerEmail || formData.customerEmail.trim() === "") {
+    if (!safeFormData.customerEmail || safeFormData.customerEmail.trim() === "") {
       setSaveMessage("고객 이메일은 필수입니다.");
       return;
     }
-
-    // 🔥 이메일 형식 검증
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.customerEmail)) {
+    if (!emailRegex.test(safeFormData.customerEmail)) {
       setSaveMessage("올바른 이메일 형식을 입력해주세요.");
       return;
     }
@@ -83,14 +110,15 @@ const EstimateForm = ({
 
     try {
       const updateData = {
-        customerName: formData.customerName,
-        customerEmail: formData.customerEmail,
-        customerPhone: formData.customerPhone || "",
-        customerCompanyName: formData.customerCompanyName || "",
-        customerPosition: formData.customerPosition || "",
-        sentDate: formData.sentDate || null,
-        expirationDate: formData.expirationDate || null,
-        dealStatus: formData.dealStatus || "",
+        customerName: safeFormData.customerName,
+        customerEmail: safeFormData.customerEmail,
+        customerPhone: safeFormData.customerPhone || "",
+        customerCompanyName: safeFormData.customerCompanyName || "",
+        customerPosition: safeFormData.customerPosition || "",
+        sentDate: safeFormData.sentDate || null,
+        expirationDate: safeFormData.expirationDate || null,
+        // 백엔드가 숫자 기대하면 parseInt(safeFormData.dealStatus, 10) 사용
+        dealStatus: safeFormData.dealStatus || "",
       };
 
       console.log("🔄 고객 정보 저장:", updateData);
@@ -99,12 +127,9 @@ const EstimateForm = ({
 
       setHasChanges(false);
       setSaveMessage("고객 정보가 저장되었습니다.");
-
-      // 3초 후 메시지 제거
       setTimeout(() => setSaveMessage(""), 3000);
     } catch (error) {
       console.error("❌ 고객 정보 저장 실패:", error);
-
       if (error.response?.status === 500) {
         console.error("❌ 서버 오류 상세:", error.response?.data);
         setSaveMessage(
@@ -167,9 +192,6 @@ const EstimateForm = ({
     }
   };
 
-  // 🔥 formData가 없거나 null인 경우 안전하게 처리
-  const safeFormData = formData || {};
-
   return (
     <Form>
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -223,7 +245,7 @@ const EstimateForm = ({
         </Col>
       </Row>
 
-      {/* 🔥 readOnly 모드가 아닐 때만 메모 목록 표시 */}
+      {/* readOnly 모드가 아닐 때만 메모 목록 표시 */}
       {!readOnly && memoList.length > 0 && (
         <ul className="list-group mb-4">
           {memoList.map((memo) => (
@@ -265,7 +287,6 @@ const EstimateForm = ({
 
         {!readOnly && (
           <div className="d-flex align-items-center gap-2">
-            {/* 🔥 저장 상태 메시지 */}
             {saveMessage && (
               <span
                 className={`text-${
@@ -276,7 +297,6 @@ const EstimateForm = ({
               </span>
             )}
 
-            {/* 🔥 수동 저장 버튼 */}
             <Button
               variant={hasChanges ? "primary" : "outline-secondary"}
               size="sm"
@@ -442,7 +462,6 @@ const EstimateForm = ({
         </Col>
       </Row>
 
-      {/* 🔥 readOnly 모드가 아닐 때만 모달 렌더링 */}
       {!readOnly && (
         <Modal show={showMemoModal} onHide={handleCloseModal}>
           <Modal.Header closeButton>
