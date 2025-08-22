@@ -40,11 +40,27 @@ const AdminDashboard = () => {
         const industry = industryRes.data;
 
         setDashboard(summary);
-        setIndustryData(industry);
+        setIndustryData(Array.isArray(industry) ? industry : []);
 
-        // 👇 필요시 summary에서 하위 차트용 데이터 분리
-        setSalesByRep(summary?.salesByRep || []);           // 예시 키
-        setStatusDist(summary?.statusDistribution || []);    // 예시 키
+        // 영업사원별 실적 변환
+        const salesByRepSrc = Array.isArray(summary?.salesPersonPerformance)
+          ? summary.salesPersonPerformance
+          : [];
+        const salesByRepForChart = salesByRepSrc.map(d => ({
+          month: d?.userName ?? 'N/A',
+          estimateCount: Number(d?.estimateCount ?? 0),
+        }));
+        setSalesByRep(salesByRepForChart);
+
+        // 상태 분포 변환 (객체 → 배열)
+        const sdObj = summary?.statusDistribution?.statusDistribution;
+        const sdArray = sdObj && typeof sdObj === 'object'
+          ? Object.entries(sdObj).map(([status, percent]) => ({
+              industry: status,
+              customerCount: Number(percent ?? 0),
+            }))
+          : [];
+        setStatusDist(sdArray);
       } catch (e) {
         console.error(e);
         const status = e?.response?.status;
