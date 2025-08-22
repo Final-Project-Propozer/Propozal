@@ -1,35 +1,29 @@
 import React, { useEffect, useState } from "react";
-import { Form, Button, Row, Col, Alert, Modal, Spinner } from "react-bootstrap";
+import { Form, Button, Row, Col, Modal, Spinner } from "react-bootstrap";
 import axiosInstance from "../../api/axiosInstance";
 import { BsPencilSquare } from "react-icons/bs";
 
 const toDateInput = (d) => {
   if (!d) return "";
   const s = String(d);
-  // "YYYY-MM-DD" 또는 "YYYY-MM-DDTHH:mm:ss" 모두 대응
   return s.length >= 10 ? s.slice(0, 10) : s;
 };
 
 const normalizeFormData = (raw = {}) => ({
-  // 문자열 필드는 null → "" 강제
   customerCompanyName: raw.customerCompanyName ?? "",
   customerEmail: raw.customerEmail ?? "",
   customerName: raw.customerName ?? "",
   customerPhone: raw.customerPhone ?? "",
   customerPosition: raw.customerPosition ?? "",
-  // 숫자/선택값은 UI와 타입 맞춰 통일(여기선 문자열 옵션 사용)
   dealStatus: raw.dealStatus ?? "",
-  // 날짜는 input[type=date] 포맷으로
   expirationDate: toDateInput(raw.expirationDate),
   sentDate: toDateInput(raw.sentDate),
-  // 기타
   id: raw.id,
   items: Array.isArray(raw.items) ? raw.items : [],
   totalAmount: raw.totalAmount ?? 0,
   createdAt: raw.createdAt ?? "",
   updatedAt: raw.updatedAt ?? "",
   user: raw.user ?? null,
-  // 확장 필드(특약사항 등)가 있다면 여기에 추가: terms: raw.terms ?? ""
 });
 
 const EstimateForm = ({
@@ -38,50 +32,50 @@ const EstimateForm = ({
   onDataChange,
   readOnly = false,
 }) => {
+  // ✅ 로컬 상태로 항상 컨트롤드 보장
+  const [localForm, setLocalForm] = useState(() => normalizeFormData(formData));
+
+  // formData가 새로 들어오면 (특히 id가 바뀔 때) 로컬 초기화
+  useEffect(() => {
+    setLocalForm(normalizeFormData(formData));
+  }, [formData?.id]); // id 기준으로만 동기화 → 일시적 undefined에도 안정
+
   const [showMemoModal, setShowMemoModal] = useState(false);
   const [memoText, setMemoText] = useState("");
   const [memoList, setMemoList] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [editingMemo, setEditingMemo] = useState(null);
 
-  // 수동 저장을 위한 상태
   const [hasChanges, setHasChanges] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
-
-  // ✅ formData를 항상 안전한 형태로 정규화
-  const safeFormData = normalizeFormData(formData);
 
   useEffect(() => {
     console.log("EstimateForm: formData 변경됨:", formData);
     console.log("EstimateForm: readOnly 모드:", readOnly);
   }, [formData, readOnly]);
 
-  // readOnly 모드가 아닐 때만 메모 조회
   useEffect(() => {
     if (readOnly || !estimateId) return;
-
-    const fetchMemos = async () => {
+    (async () => {
       try {
         const res = await axiosInstance.get(`/estimates/${estimateId}/memos`);
         setMemoList(res.data);
       } catch (err) {
         console.error("메모 조회 실패:", err);
       }
-    };
-
-    fetchMemos();
+    })();
   }, [estimateId, readOnly]);
 
   const handleChange = (e) => {
     if (readOnly) return;
-
     const { name, value } = e.target;
 
-    // ✅ 부분 업데이트여도 부모가 "치환 세터"일 수 있으므로
-    // 항상 현재 safeFormData를 병합해서 전달(전체 상태 유지)
-    if (onDataChange) {
-      onDataChange({ ...safeFormData, [name]: value });
-    }
+    setLocalForm((prev) => {
+      const next = { ...prev, [name]: value };
+      // 부모가 치환 세터여도 안전하도록 전체 객체 전달
+      onDataChange?.(next);
+      return next;
+    });
 
     setHasChanges(true);
     setSaveMessage("");
@@ -90,17 +84,16 @@ const EstimateForm = ({
   const handleSaveCustomerInfo = async () => {
     if (readOnly || !hasChanges) return;
 
-    // 필수 검증(정규화된 safeFormData 기준)
-    if (!safeFormData.customerName || safeFormData.customerName.trim() === "") {
+    if (!localForm.customerName || localForm.customerName.trim() === "") {
       setSaveMessage("고객명은 필수입니다.");
       return;
     }
-    if (!safeFormData.customerEmail || safeFormData.customerEmail.trim() === "") {
+    if (!localForm.customerEmail || localForm.customerEmail.trim() === "") {
       setSaveMessage("고객 이메일은 필수입니다.");
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(safeFormData.customerEmail)) {
+    if (!emailRegex.test(localForm.customerEmail)) {
       setSaveMessage("올바른 이메일 형식을 입력해주세요.");
       return;
     }
@@ -110,19 +103,18 @@ const EstimateForm = ({
 
     try {
       const updateData = {
-        customerName: safeFormData.customerName,
-        customerEmail: safeFormData.customerEmail,
-        customerPhone: safeFormData.customerPhone || "",
-        customerCompanyName: safeFormData.customerCompanyName || "",
-        customerPosition: safeFormData.customerPosition || "",
-        sentDate: safeFormData.sentDate || null,
-        expirationDate: safeFormData.expirationDate || null,
-        // 백엔드가 숫자 기대하면 parseInt(safeFormData.dealStatus, 10) 사용
-        dealStatus: safeFormData.dealStatus || "",
+        customerName: localForm.customerName,
+        customerEmail: localForm.customerEmail,
+        customerPhone: localForm.customerPhone || "",
+        customerCompanyName: localForm.customerCompanyName || "",
+        customerPosition: localForm.customerPosition || "",
+        sentDate: localForm.sentDate || null,
+        expirationDate: localForm.expirationDate || null,
+        // 백엔드가 숫자 기대 시: parseInt(localForm.dealStatus, 10)
+        dealStatus: localForm.dealStatus || "",
       };
 
       console.log("🔄 고객 정보 저장:", updateData);
-
       await axiosInstance.patch(`/estimate/${estimateId}`, updateData);
 
       setHasChanges(false);
@@ -130,14 +122,9 @@ const EstimateForm = ({
       setTimeout(() => setSaveMessage(""), 3000);
     } catch (error) {
       console.error("❌ 고객 정보 저장 실패:", error);
-      if (error.response?.status === 500) {
-        console.error("❌ 서버 오류 상세:", error.response?.data);
-        setSaveMessage(
-          error.response?.data?.message || "서버 오류가 발생했습니다."
-        );
-      } else {
-        setSaveMessage("저장 중 오류가 발생했습니다.");
-      }
+      setSaveMessage(
+        error.response?.data?.message || "저장 중 오류가 발생했습니다."
+      );
     } finally {
       setIsSaving(false);
     }
@@ -226,7 +213,7 @@ const EstimateForm = ({
             <Form.Label>담당자 이름</Form.Label>
             <Form.Control
               type="text"
-              value={safeFormData.user?.username || ""}
+              value={localForm.user?.username || ""}
               readOnly
               style={{ backgroundColor: "#f1f1f1" }}
             />
@@ -237,7 +224,7 @@ const EstimateForm = ({
             <Form.Label>담당자 이메일</Form.Label>
             <Form.Control
               type="email"
-              value={safeFormData.user?.email || ""}
+              value={localForm.user?.email || ""}
               readOnly
               style={{ backgroundColor: "#f1f1f1" }}
             />
@@ -245,7 +232,6 @@ const EstimateForm = ({
         </Col>
       </Row>
 
-      {/* readOnly 모드가 아닐 때만 메모 목록 표시 */}
       {!readOnly && memoList.length > 0 && (
         <ul className="list-group mb-4">
           {memoList.map((memo) => (
@@ -296,7 +282,6 @@ const EstimateForm = ({
                 {saveMessage}
               </span>
             )}
-
             <Button
               variant={hasChanges ? "primary" : "outline-secondary"}
               size="sm"
@@ -333,44 +318,43 @@ const EstimateForm = ({
         <Col md={6}>
           <Form.Group className="mb-3">
             <Form.Label>
-              고객명 *
-              {!readOnly && <small className="text-muted">(필수)</small>}
+              고객명 * {!readOnly && <small className="text-muted">(필수)</small>}
             </Form.Label>
             <Form.Control
               name="customerName"
-              value={safeFormData.customerName || ""}
+              value={localForm.customerName || ""}
               onChange={handleChange}
               readOnly={readOnly}
               style={readOnly ? { backgroundColor: "#f8f9fa" } : {}}
               isInvalid={
                 !readOnly &&
                 hasChanges &&
-                (!safeFormData.customerName ||
-                  safeFormData.customerName.trim() === "")
+                (!localForm.customerName ||
+                  localForm.customerName.trim() === "")
               }
             />
           </Form.Group>
         </Col>
       </Row>
+
       <Row>
         <Col md={6}>
           <Form.Group className="mb-3">
             <Form.Label>
-              이메일 *
-              {!readOnly && <small className="text-muted">(필수)</small>}
+              이메일 * {!readOnly && <small className="text-muted">(필수)</small>}
             </Form.Label>
             <Form.Control
               name="customerEmail"
               type="email"
-              value={safeFormData.customerEmail || ""}
+              value={localForm.customerEmail || ""}
               onChange={handleChange}
               readOnly={readOnly}
               style={readOnly ? { backgroundColor: "#f8f9fa" } : {}}
               isInvalid={
                 !readOnly &&
                 hasChanges &&
-                (!safeFormData.customerEmail ||
-                  safeFormData.customerEmail.trim() === "")
+                (!localForm.customerEmail ||
+                  localForm.customerEmail.trim() === "")
               }
             />
           </Form.Group>
@@ -380,7 +364,7 @@ const EstimateForm = ({
             <Form.Label>전화번호</Form.Label>
             <Form.Control
               name="customerPhone"
-              value={safeFormData.customerPhone || ""}
+              value={localForm.customerPhone || ""}
               onChange={handleChange}
               readOnly={readOnly}
               style={readOnly ? { backgroundColor: "#f8f9fa" } : {}}
@@ -388,13 +372,14 @@ const EstimateForm = ({
           </Form.Group>
         </Col>
       </Row>
+
       <Row>
         <Col md={6}>
           <Form.Group className="mb-3">
             <Form.Label>회사명</Form.Label>
             <Form.Control
               name="customerCompanyName"
-              value={safeFormData.customerCompanyName || ""}
+              value={localForm.customerCompanyName || ""}
               onChange={handleChange}
               readOnly={readOnly}
               style={readOnly ? { backgroundColor: "#f8f9fa" } : {}}
@@ -406,7 +391,7 @@ const EstimateForm = ({
             <Form.Label>직책</Form.Label>
             <Form.Control
               name="customerPosition"
-              value={safeFormData.customerPosition || ""}
+              value={localForm.customerPosition || ""}
               onChange={handleChange}
               readOnly={readOnly}
               style={readOnly ? { backgroundColor: "#f8f9fa" } : {}}
@@ -414,6 +399,7 @@ const EstimateForm = ({
           </Form.Group>
         </Col>
       </Row>
+
       <Row>
         <Col md={4}>
           <Form.Group className="mb-3">
@@ -421,7 +407,7 @@ const EstimateForm = ({
             <Form.Control
               type="date"
               name="sentDate"
-              value={safeFormData.sentDate || ""}
+              value={localForm.sentDate || ""}
               onChange={handleChange}
               readOnly={readOnly}
               style={readOnly ? { backgroundColor: "#f8f9fa" } : {}}
@@ -434,7 +420,7 @@ const EstimateForm = ({
             <Form.Control
               type="date"
               name="expirationDate"
-              value={safeFormData.expirationDate || ""}
+              value={localForm.expirationDate || ""}
               onChange={handleChange}
               readOnly={readOnly}
               style={readOnly ? { backgroundColor: "#f8f9fa" } : {}}
@@ -446,7 +432,7 @@ const EstimateForm = ({
             <Form.Label>프로세스 단계</Form.Label>
             <Form.Select
               name="dealStatus"
-              value={safeFormData.dealStatus || ""}
+              value={String(localForm.dealStatus || "")}
               onChange={handleChange}
               disabled={readOnly}
               style={readOnly ? { backgroundColor: "#f8f9fa" } : {}}
