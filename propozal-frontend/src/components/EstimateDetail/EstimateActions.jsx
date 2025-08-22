@@ -21,7 +21,10 @@ const EstimateActions = ({ estimateId, readOnly = false }) => {
     setLoading(true);
     try {
       const res = await axiosInstance.get(`/estimate/${estimateId}`);
-      setItems(res.data.items || []);
+      const data = res.data || {};
+      setItems(data.items || []);
+      // 특약 사항 상태를 서버 값으로 초기화(terms / specialTerms 둘 다 대응)
+      setSpecialTerms(data.terms ?? data.specialTerms ?? '');
       setError('');
     } catch (err) {
       setError('품목 정보를 불러오지 못했습니다.');
@@ -86,6 +89,13 @@ const EstimateActions = ({ estimateId, readOnly = false }) => {
 
       console.log('📦 전송할 데이터:', estimateData);
 
+      // 특약 사항을 견적 본문에도 저장(terms / specialTerms 모두 전송해 호환 확보)
+      await axiosInstance.patch(`/estimate/${estimateId}`, {
+        terms: specialTerms,
+        specialTerms: specialTerms,
+      });
+
+      // 버전 저장
       await axiosInstance.post(`/estimate/${estimateId}/versions`, {
         estimateData,
         memo: managerNote
@@ -167,7 +177,28 @@ const EstimateActions = ({ estimateId, readOnly = false }) => {
               placeholder="예: 납품일은 계약 후 2주 이내"
             />
           </Form.Group>
+
+          {/* 저장 트리거가 이 컴포넌트 외부에 있으면 아래 버튼은 생략 가능 */}
+          <div className="d-flex gap-2">
+            <Button
+              variant="primary"
+              onClick={handleSaveVersion}
+              disabled={saving}
+            >
+              {saving ? (
+                <>
+                  <Spinner as="span" size="sm" className="me-1" />
+                  저장 중...
+                </>
+              ) : (
+                '현재 버전 저장'
+              )}
+            </Button>
+          </div>
         </Form>
       )}
+    </>
+  );
+};
 
 export default EstimateActions;
