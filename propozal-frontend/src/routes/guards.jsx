@@ -16,7 +16,7 @@ export function GuestOnly() {
   const { auth } = useAuth();
   if (auth?.accessToken) {
     const role = auth.role;
-    return <Navigate to={role === "ADMIN" ? "/admin/dashboard" : "/sales"} replace />;
+    return <Navigate to={role === "ADMIN" ? "/admin/companydataview" : "/sales"} replace />;
   }
   return <Outlet />;
 }
