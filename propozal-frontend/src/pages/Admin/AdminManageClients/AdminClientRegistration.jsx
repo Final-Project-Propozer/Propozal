@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AdminNavbar from '../../../components/Navbar/AdminNavbar.jsx';
 import Footer from '../../../components/Footer/Footer.jsx';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-import axios from 'axios';
+import axiosInstance from '../../../api/axiosInstance';
 
 const AdminClientRegistration = () => {
+  const navigate = useNavigate();
+
   const [clientType, setClientType] = useState('개인');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -20,68 +23,41 @@ const AdminClientRegistration = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    
+
     if (clientType === '법인') {
-      // 🟢 백엔드 DTO 필드명에 맞춰 객체 구성
       const companyData = {
-        adminUserId: 12, // ⚠️ 실제 관리자 ID로 교체 필요
         companyName: name,
         businessNumber: businessRegistrationNumber,
         ceoName: representativeName,
         businessType: businessType,
-        businessItem: businessCategory, // 🟢 businessCategory -> businessItem으로 변경
+        businessItem: businessCategory,
         address: address,
-        contactPhone: phone, // 🟢 phone -> contactPhone으로 변경
+        contactPhone: phone,
+        email: email,
       };
-      
-      console.log('백엔드로 전송할 회사 데이터:', companyData);
-      
-      const API_URL = '/api/company/register';
-      const accessToken = localStorage.getItem('accessToken');
-      if (!accessToken) {
-          alert("로그인이 필요합니다.");
-          return;
-      }
 
       try {
-        await axios.post(API_URL, companyData, {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
-          }
-        });
+        await axiosInstance.post('/admin/company/register', companyData);
         alert('회사 정보가 성공적으로 등록되었습니다!');
-        
-        // 폼 초기화
-        setClientType('개인');
-        setName('');
-        setPhone('');
-        setAddress('');
-        setEmail('');
-        setRepresentativeName('');
-        setBusinessType('');
-        setBusinessCategory('');
-        setBusinessRegistrationNumber('');
-
+        navigate('/admin/client-list');
       } catch (error) {
-        console.error('회사 정보 등록 실패:', error.response || error.message);
+        console.error('회사 정보 등록 실패:', error?.response || error.message);
         alert('회사 정보 등록에 실패했습니다. 상세한 오류를 콘솔에서 확인하세요.');
       }
     } else {
-        alert('개인 고객 정보는 현재 등록할 수 없습니다. 법인 고객 정보만 등록 가능합니다.');
+      alert('개인 고객 정보는 현재 등록할 수 없습니다. 법인 고객 정보만 등록 가능합니다.');
     }
   };
 
   const handleCancel = () => {
-    alert('고객 등록이 취소되었습니다.');
-    // TODO: 이전 페이지로 이동 로직 추가
+    navigate('/admin/clients');
   };
 
   return (
     <div className="d-flex flex-column min-vh-100">
       <AdminNavbar />
       <div className="container flex-grow-1" style={{ paddingTop: '100px' }}>
-      <h2 className="mb-4">고객 등록</h2>
+        <h2 className="mb-4">고객 등록</h2>
         <Form onSubmit={handleSubmit}>
           {/* 고객 유형 */}
           <Form.Group className="mb-3">
@@ -110,7 +86,7 @@ const AdminClientRegistration = () => {
             </div>
           </Form.Group>
 
-          {/* 공통 입력 칸 */}
+          {/* 공통 입력 */}
           <Form.Group className="mb-3">
             <Form.Label><b>이름</b></Form.Label>
             <Form.Control type="text" value={name} onChange={(e) => setName(e.target.value)} required style={{ border: '0.3pt solid #A3B18A' }} />
@@ -128,7 +104,7 @@ const AdminClientRegistration = () => {
             <Form.Control type="email" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ border: '0.3pt solid #A3B18A' }} />
           </Form.Group>
 
-          {/* 법인 전용 입력 칸 */}
+          {/* 법인 전용 */}
           {clientType === '법인' && (
             <>
               <hr className="my-4" />
