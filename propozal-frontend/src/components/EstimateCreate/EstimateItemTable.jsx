@@ -174,10 +174,10 @@ const EstimateItemTable = ({
     }
   };
 
-  // 🆕 인라인 편집 시작
-  const handleStartEdit = (item) => {
+  // 🆕 인라인 편집 시작 (rowId 사용)
+  const handleStartEdit = (item, rowId) => {
     if (readOnly) return;
-    setEditingItemId(item.id);
+    setEditingItemId(rowId);
     setEditingValues({
       quantity: item.quantity,
       discountRate: (item.discountRate * 100).toFixed(1), // 백분율로 변환
@@ -286,105 +286,116 @@ const EstimateItemTable = ({
               </td>
             </tr>
           ) : (
-            safeItems.map((item, index) => (
-              <tr key={item.id || `item-${index}`}>
-                <td>{item.productName || "미입력"}</td>
-                <td>{item.productCode || "미입력"}</td>
+            safeItems.map((item, index) => {
+              // ✅ rowId 안전 추출
+              const rowId =
+                item.id ?? item.itemId ?? item.estimateItemId ?? null;
 
-                {/* 🆕 수량 컬럼 - 편집 가능 */}
-                <td>
-                  {!readOnly && editingItemId === item.id ? (
-                    <Form.Control
-                      type="number"
-                      min="1"
-                      value={editingValues.quantity}
-                      onChange={(e) =>
-                        handleEditChange("quantity", e.target.value)
-                      }
-                      size="sm"
-                      style={{ width: "80px" }}
-                    />
-                  ) : (
-                    item.quantity || 0
-                  )}
-                </td>
+              return (
+                <tr key={rowId ?? `item-${index}`}>
+                  <td>{item.productName || "미입력"}</td>
+                  <td>{item.productCode || "미입력"}</td>
 
-                <td>{(item.unitPrice || 0).toLocaleString()}원</td>
-
-                {/* 🆕 할인율 컬럼 - 편집 가능 */}
-                <td>
-                  {!readOnly && editingItemId === item.id ? (
-                    <InputGroup size="sm" style={{ width: "100px" }}>
+                  {/* 🆕 수량 컬럼 - 편집 가능 */}
+                  <td>
+                    {!readOnly && editingItemId === rowId ? (
                       <Form.Control
                         type="number"
-                        min="0"
-                        max="100"
-                        step="0.1"
-                        value={editingValues.discountRate}
+                        min="1"
+                        value={editingValues.quantity ?? ""} {/* 안전 기본값 */}
                         onChange={(e) =>
-                          handleEditChange("discountRate", e.target.value)
+                          handleEditChange("quantity", e.target.value)
                         }
+                        size="sm"
+                        style={{ width: "80px" }}
                       />
-                      <InputGroup.Text>%</InputGroup.Text>
-                    </InputGroup>
-                  ) : (
-                    `${((item.discountRate || 0) * 100).toFixed(0)}%`
-                  )}
-                </td>
-
-                <td>{(item.subtotal || 0).toLocaleString()}원</td>
-
-                {!readOnly && (
-                  <td>
-                    <div className="d-flex gap-1">
-                      {editingItemId === item.id ? (
-                        // 편집 모드일 때 저장/취소 버튼
-                        <>
-                          <Button
-                            variant="outline-success"
-                            size="sm"
-                            onClick={() => handleSaveEdit(item.id)}
-                            disabled={updating}
-                            title="저장"
-                          >
-                            <FiCheck />
-                          </Button>
-                          <Button
-                            variant="outline-secondary"
-                            size="sm"
-                            onClick={handleCancelEdit}
-                            disabled={updating}
-                            title="취소"
-                          >
-                            <FiX />
-                          </Button>
-                        </>
-                      ) : (
-                        // 일반 모드일 때 편집/삭제 버튼
-                        <>
-                          <Button
-                            variant="outline-primary"
-                            size="sm"
-                            onClick={() => handleStartEdit(item)}
-                            title="수정"
-                          >
-                            <FiEdit3 />
-                          </Button>
-                          <Button
-                            variant="outline-danger"
-                            size="sm"
-                            onClick={() => handleDeleteItem(item.id)}
-                            title="삭제"
-                          >
-                            <FiTrash2 />
-                          </Button>
-                        </>
-                      )}
-                    </div>
+                    ) : (
+                      item.quantity || 0
+                    )}
                   </td>
-                )}
-              </tr>
-            ))
+
+                  <td>{(item.unitPrice || 0).toLocaleString()}원</td>
+
+                  {/* 🆕 할인율 컬럼 - 편집 가능 */}
+                  <td>
+                    {!readOnly && editingItemId === rowId ? (
+                      <InputGroup size="sm" style={{ width: "100px" }}>
+                        <Form.Control
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.1"
+                          value={editingValues.discountRate ?? ""} {/* 안전 기본값 */}
+                          onChange={(e) =>
+                            handleEditChange("discountRate", e.target.value)
+                          }
+                        />
+                        <InputGroup.Text>%</InputGroup.Text>
+                      </InputGroup>
+                    ) : (
+                      `${((item.discountRate || 0) * 100).toFixed(0)}%`
+                    )}
+                  </td>
+
+                  <td>{(item.subtotal || 0).toLocaleString()}원</td>
+
+                  {!readOnly && (
+                    <td>
+                      <div className="d-flex gap-1">
+                        {editingItemId === rowId ? (
+                          // 편집 모드일 때 저장/취소 버튼
+                          <>
+                            <Button
+                              variant="outline-success"
+                              size="sm"
+                              onClick={() => handleSaveEdit(rowId)}
+                              disabled={updating || !rowId}
+                              title="저장"
+                              type="button" // ✅ 폼 submit 방지
+                            >
+                              <FiCheck />
+                            </Button>
+                            <Button
+                              variant="outline-secondary"
+                              size="sm"
+                              onClick={handleCancelEdit}
+                              disabled={updating}
+                              title="취소"
+                              type="button" // ✅ 폼 submit 방지
+                            >
+                              <FiX />
+                            </Button>
+                          </>
+                        ) : (
+                          // 일반 모드일 때 편집/삭제 버튼
+                          <>
+                            <Button
+                              variant="outline-primary"
+                              size="sm"
+                              onClick={() => handleStartEdit(item, rowId)}
+                              title="수정"
+                              type="button" // ✅ 폼 submit 방지
+                            >
+                              <FiEdit3 />
+                            </Button>
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              onClick={() => handleDeleteItem(rowId)}
+                              title="삭제"
+                              type="button" // ✅ 폼 submit 방지
+                              disabled={!rowId}
+                            >
+                              <FiTrash2 />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  )}
+                </tr>
+              );
+            })
           )}
         </tbody>
       </Table>
@@ -396,6 +407,7 @@ const EstimateItemTable = ({
             variant="outline-success"
             className="w-100 mb-4"
             onClick={handleSearchProduct}
+            type="button" // ✅ 폼 submit 방지
           >
             + 제품 검색해서 추가하기
           </Button>
