@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AdminNavbar from '../../../components/Navbar/AdminNavbar.jsx';
 import Footer from '../../../components/Footer/Footer.jsx';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Pagination from 'react-bootstrap/Pagination';
-import axios from 'axios';
+import axiosInstance from '../../../api/axiosInstance';
 
 const AdminClientList = () => {
+  const navigate = useNavigate();
+
   const [companies, setCompanies] = useState([]);
   const [selectedCompanies, setSelectedCompanies] = useState(new Set());
   const [searchParams, setSearchParams] = useState({
@@ -20,57 +23,46 @@ const AdminClientList = () => {
   const [totalPages, setTotalPages] = useState(0);
 
   const fetchCompanies = async (page = 0) => {
-    const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) {
-      alert("로그인이 필요합니다.");
-      return;
-    }
-    
     try {
-      const response = await axios.get('/api/admin/company/search', {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
-        },
+      const response = await axiosInstance.get('/admin/company/search', {
         params: {
           ...searchParams,
-          page: page,
-          size: 10 // 페이지 당 10개 항목
-        }
+          page,
+          size: 10, // 페이지 당 10개
+        },
       });
-      setCompanies(response.data.content);
-      setTotalPages(response.data.totalPages);
-      setCurrentPage(response.data.number);
+      setCompanies(response.data.content ?? []);
+      setTotalPages(response.data.totalPages ?? 0);
+      setCurrentPage(response.data.number ?? 0);
       setSelectedCompanies(new Set()); // 데이터 갱신 시 선택 초기화
     } catch (error) {
-      console.error('회사 목록 조회 실패:', error.response?.data || error.message);
+      console.error('회사 목록 조회 실패:', error?.response?.data || error.message);
       alert('회사 목록을 불러오는 데 실패했습니다.');
     }
   };
 
   useEffect(() => {
     fetchCompanies();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSearchChange = (e) => {
-    setSearchParams({
-      ...searchParams,
+    setSearchParams((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value
-    });
+    }));
   };
 
   const handleSearch = (e) => {
     e.preventDefault();
-    fetchCompanies(0); // 검색 시 첫 페이지로 이동
+    fetchCompanies(0); // 검색 시 첫 페이지로
   };
 
   const handleCheckboxChange = (companyId) => {
     setSelectedCompanies(prevSelected => {
       const newSet = new Set(prevSelected);
-      if (newSet.has(companyId)) {
-        newSet.delete(companyId);
-      } else {
-        newSet.add(companyId);
-      }
+      if (newSet.has(companyId)) newSet.delete(companyId);
+      else newSet.add(companyId);
       return newSet;
     });
   };
@@ -85,15 +77,15 @@ const AdminClientList = () => {
   };
 
   const handleAdd = () => {
-    alert('회사 추가 페이지로 이동');
-    // TODO: 회사 등록 페이지로 라우팅 로직 추가
+    // 회사 등록 페이지로 라우팅
+    navigate('/admin/client-registration');
   };
 
   const handleModify = () => {
     if (selectedCompanies.size === 1) {
       const companyId = Array.from(selectedCompanies)[0];
-      alert(`ID ${companyId} 회사 정보 수정 페이지로 이동`);
-      // TODO: 수정 페이지로 라우팅 로직 추가 (선택된 ID를 전달)
+      // 회사 수정 페이지로 라우팅
+      navigate(`/admin/clients/${companyId}/edit`);
     } else {
       alert('수정할 회사를 하나만 선택해주세요.');
     }
@@ -102,27 +94,18 @@ const AdminClientList = () => {
   const handleDelete = async () => {
     if (selectedCompanies.size > 0) {
       const confirmDelete = window.confirm(`${selectedCompanies.size}개의 회사 정보를 정말 삭제하시겠습니까?`);
-      if (confirmDelete) {
-        try {
-          const accessToken = localStorage.getItem('accessToken');
-          if (!accessToken) {
-            alert("로그인이 필요합니다.");
-            return;
-          }
-          
-          for (const companyId of selectedCompanies) { // 🟢 선택된 회사 ID 목록을 순회
-            await axios.delete(`/api/admin/company/profile/${companyId}`, {
-              headers: {
-                'Authorization': `Bearer ${accessToken}`
-              }
-            });
-          }
-          alert('선택된 회사가 삭제되었습니다.');
-          fetchCompanies(currentPage); // 현재 페이지 목록 갱신
-        } catch (error) {
-          console.error('회사 삭제 실패:', error.response?.data || error.message);
-          alert('회사 삭제에 실패했습니다.');
+      if (!confirmDelete) return;
+
+      try {
+        // 개별 삭제 루프 (배치 엔드포인트가 있으면 거기로 교체 가능)
+        for (const companyId of selectedCompanies) {
+          await axiosInstance.delete(`/admin/company/profile/${companyId}`);
         }
+        alert('선택된 회사가 삭제되었습니다.');
+        fetchCompanies(currentPage); // 현재 페이지 갱신
+      } catch (error) {
+        console.error('회사 삭제 실패:', error?.response?.data || error.message);
+        alert('회사 삭제에 실패했습니다.');
       }
     } else {
       alert('삭제할 회사를 선택해주세요.');
@@ -141,7 +124,7 @@ const AdminClientList = () => {
             <Button variant="danger" onClick={handleDelete}>삭제</Button>
           </div>
         </div>
-        
+
         {/* 검색 폼 */}
         <Form onSubmit={handleSearch} className="mb-4">
           <div className="row">
@@ -159,11 +142,17 @@ const AdminClientList = () => {
             </div>
           </div>
         </Form>
-        
+
         <Table striped bordered hover responsive>
           <thead>
             <tr>
-              <th><Form.Check type="checkbox" onChange={handleSelectAll} checked={selectedCompanies.size === companies.length && companies.length > 0} /></th>
+              <th>
+                <Form.Check
+                  type="checkbox"
+                  onChange={handleSelectAll}
+                  checked={selectedCompanies.size === companies.length && companies.length > 0}
+                />
+              </th>
               <th>회사명</th>
               <th>사업자등록번호</th>
               <th>대표자명</th>
@@ -176,7 +165,7 @@ const AdminClientList = () => {
               companies.map(company => (
                 <tr key={company.id}>
                   <td>
-                    <Form.Check 
+                    <Form.Check
                       type="checkbox"
                       checked={selectedCompanies.has(company.id)}
                       onChange={() => handleCheckboxChange(company.id)}
@@ -204,8 +193,8 @@ const AdminClientList = () => {
               <Pagination.First onClick={() => fetchCompanies(0)} disabled={currentPage === 0} />
               <Pagination.Prev onClick={() => fetchCompanies(currentPage - 1)} disabled={currentPage === 0} />
               {[...Array(totalPages)].map((_, index) => (
-                <Pagination.Item 
-                  key={index} 
+                <Pagination.Item
+                  key={index}
                   active={index === currentPage}
                   onClick={() => fetchCompanies(index)}
                 >
