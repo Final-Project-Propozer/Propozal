@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, Row, Col, Alert, Spinner, Form, Table } from 'react-bootstrap';
 import axiosInstance from '../../api/axiosInstance';
 
-const EstimateActions = ({ estimateId, readOnly = false }) => {
+const EstimateActions = ({ estimateId, readOnly = false, forceEditTerms = false }) => {
   const [items, setItems] = useState([]);
   const [supplyAmount, setSupplyAmount] = useState(0);
   const [discountAmount, setDiscountAmount] = useState(0);
@@ -11,6 +11,7 @@ const EstimateActions = ({ estimateId, readOnly = false }) => {
 
   const [specialTerms, setSpecialTerms] = useState('');
   const [managerNote, setManagerNote] = useState('');
+  const [dealStatus, setDealStatus] = useState('');
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -22,9 +23,9 @@ const EstimateActions = ({ estimateId, readOnly = false }) => {
     try {
       const res = await axiosInstance.get(`/estimate/${estimateId}`);
       const data = res.data || {};
-      setItems(data.items || []);
-      // 특약 사항 상태를 서버 값으로 초기화(terms / specialTerms 둘 다 대응)
+      setItems(Array.isArray(data.items) ? data.items : []);
       setSpecialTerms(data.terms ?? data.specialTerms ?? '');
+      setDealStatus(data.dealStatus ?? ''); // 서버 상태 보존
       setError('');
     } catch (err) {
       setError('품목 정보를 불러오지 못했습니다.');
@@ -41,10 +42,8 @@ const EstimateActions = ({ estimateId, readOnly = false }) => {
       const unitPrice = item.unitPrice || 0;
       const quantity = item.quantity || 0;
       const rate = item.discountRate || 0;
-
       const original = unitPrice * quantity;
       const discounted = original * rate;
-
       supply += original;
       discount += discounted;
     });
@@ -68,10 +67,13 @@ const EstimateActions = ({ estimateId, readOnly = false }) => {
     }
   }, [items]);
 
-  const handleSaveVersion = async () => {
-    if (readOnly) return;
+  // 특약 사항 편집 가능 여부: 강제 허용 or 작성중(dealStatus===1) & not readOnly
+  const canEditTerms =
+    forceEditTerms ||
+    (!readOnly && (String(dealStatus) === '1' || dealStatus === 1));
 
-    console.log('✅ 저장 함수 실행됨');
+  const handleSaveVersion = async () => {
+    if (readOnly && !forceEditTerms) return;
 
     setSaving(true);
     setMessage('');
@@ -84,26 +86,22 @@ const EstimateActions = ({ estimateId, readOnly = false }) => {
         discountAmount,
         vatAmount,
         totalAmount,
-        specialTerms
+        specialTerms,
       };
 
-      console.log('📦 전송할 데이터:', estimateData);
-
-      // 특약 사항을 견적 본문에도 저장(terms / specialTerms 모두 전송해 호환 확보)
+      // 특약 사항 본문에도 반영(terms/specialTerms 둘 다 전송)
       await axiosInstance.patch(`/estimate/${estimateId}`, {
         terms: specialTerms,
         specialTerms: specialTerms,
       });
 
-      // 버전 저장
       await axiosInstance.post(`/estimate/${estimateId}/versions`, {
         estimateData,
-        memo: managerNote
+        memo: managerNote,
       });
 
       setMessage('견적서가 저장되었습니다.');
     } catch (err) {
-      console.error('❌ 저장 중 오류:', err);
       setError('저장 중 오류가 발생했습니다.');
     } finally {
       setSaving(false);
@@ -165,26 +163,25 @@ const EstimateActions = ({ estimateId, readOnly = false }) => {
         </Col>
       </Row>
 
-      {!readOnly && (
-        <Form>
-          <Form.Group className="mb-4">
+      {/* 특약 사항: 읽기전용이더라도 forceEditTerms면 편집 허용 */}
+      {canEditTerms ? (
+        <Form className="mt-4">
+          <Form.Group className="mb-3">
             <Form.Label>특약 사항</Form.Label>
             <Form.Control
               as="textarea"
-              rows={3}
+              rows={4}
               value={specialTerms}
               onChange={(e) => setSpecialTerms(e.target.value)}
               placeholder="예: 납품일은 계약 후 2주 이내"
             />
+            <div className="text-muted mt-1" style={{ fontSize: 12 }}>
+              {specialTerms.length}자
+            </div>
           </Form.Group>
 
-          {/* 저장 트리거가 이 컴포넌트 외부에 있으면 아래 버튼은 생략 가능 */}
           <div className="d-flex gap-2">
-            <Button
-              variant="primary"
-              onClick={handleSaveVersion}
-              disabled={saving}
-            >
+            <Button variant="primary" onClick={handleSaveVersion} disabled={saving}>
               {saving ? (
                 <>
                   <Spinner as="span" size="sm" className="me-1" />
@@ -194,8 +191,25 @@ const EstimateActions = ({ estimateId, readOnly = false }) => {
                 '현재 버전 저장'
               )}
             </Button>
+            <Button
+              variant="outline-secondary"
+              onClick={fetchItems}
+              disabled={loading || saving}
+            >
+              다시 계산/새로고침
+            </Button>
           </div>
         </Form>
+      ) : (
+        <>
+          <h5 className="mt-4">특약 사항</h5>
+          <div className="p-3 border rounded bg-light" style={{ whiteSpace: 'pre-wrap' }}>
+            {specialTerms || '등록된 특약 사항이 없습니다.'}
+          </div>
+          <small className="text-muted">
+            ※ 특약 사항은 고객 정보란에서 수정해주세요.
+          </small>
+        </>
       )}
     </>
   );
