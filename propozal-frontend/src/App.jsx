@@ -43,12 +43,19 @@ import KakaoCallback from "./pages/KakaoCallback/KakaoCallback";
 import AuthProvider from "./context/AuthContext";
 import { RequireAuth, RequireRole, GuestOnly } from "./routes/guards.jsx";
 
-function LandingRedirect() {
+function RootSwitch() {
   const hasToken = !!localStorage.getItem("accessToken");
   const userRaw = localStorage.getItem("user");
   const role = userRaw ? JSON.parse(userRaw).role : null;
-  if (!hasToken) return <Navigate to="/login" replace />;
-  return <Navigate to={role === "ADMIN" ? "/admin/dashboard" : "/sales"} replace />;
+
+  if (hasToken && role) {
+    return <Navigate to={role === "ADMIN" ? "/admin/AdminCompanyDataView" : "/sales"} replace />;
+  }
+  return (
+    <Layout>
+      <Home />
+    </Layout>
+  );
 }
 
 const App = () => {
@@ -56,7 +63,7 @@ const App = () => {
     <AuthProvider>
       <Routes>
         {/* 루트 → 역할 홈으로 정규화 */}
-        <Route path="/" element={<Layout><LandingRedirect /></Layout>} />
+        <Route path="/" element={<RootSwitch />} />
 
         {/* 로그인/회원가입은 게스트 전용 */}
         <Route element={<GuestOnly />}>
