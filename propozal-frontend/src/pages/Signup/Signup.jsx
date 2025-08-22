@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -8,6 +8,8 @@ const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=3fdf6a
 const SignupPage = () => {
   const navigate = useNavigate();
 
+  const [companies, setCompanies] = useState([]);
+  const [companyId, setCompanyId] = useState("");
   const [company, setCompany] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -18,6 +20,21 @@ const SignupPage = () => {
   const [showConfirmPw, setShowConfirmPw] = useState(false);
   const [jobTitle, setJobTitle] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/api/companies");
+        setCompanies(response.data);
+      } catch (error) {
+        console.error("회사 목록 조회 실패:", error);
+        // 에러 시 기본값 설정 (테스트용)
+        setCompanies([{ id: 4, companyName: "(주)멋쟁이 토마토" }]);
+      }
+    };
+
+    fetchCompanies();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,7 +53,8 @@ const SignupPage = () => {
       email,
       password,
       name,
-      role: jobTitle === "USER" ? "SALESPERSON" : jobTitle
+      role: jobTitle === "USER" ? "SALESPERSON" : jobTitle,
+      companyId: jobTitle === "USER" ? parseInt(companyId) : null,
     };
 
     setIsSubmitting(true);
@@ -57,7 +75,9 @@ const SignupPage = () => {
   const handleEmailCheck = async () => {
     try {
       // ✅ /api 제거
-      const res = await axios.get(`http://localhost:8080/auth/check-email?email=${email}`);
+      const res = await axios.get(
+        `http://localhost:8080/auth/check-email?email=${email}`
+      );
 
       if (res.data === true) {
         alert("이미 사용 중인 이메일입니다.");
@@ -82,23 +102,51 @@ const SignupPage = () => {
         maxWidth: "600px",
         margin: "30px auto",
         border: "2px solid #d6d2cb",
-        borderRadius: "12px"
+        borderRadius: "12px",
       }}
     >
-      <h2 style={{ textAlign: "center", marginBottom: "2rem", fontWeight: "700" }}>
+      <h2
+        style={{ textAlign: "center", marginBottom: "2rem", fontWeight: "700" }}
+      >
         회원가입
       </h2>
 
       <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label>회사명 *</label>
-          <input
-            type="text"
-            value={company}
-            onChange={(e) => setCompany(e.target.value)}
+        {/* 👈 영업사원일 때만 회사 선택 표시 */}
+        {jobTitle === "USER" && (
+          <div className="mb-3">
+            <label>회사 선택 *</label>
+            <select
+              value={companyId}
+              onChange={(e) => setCompanyId(e.target.value)}
+              required
+              className="form-select"
+            >
+              <option value="">회사를 선택하세요</option>
+              {companies.map((company) => (
+                <option key={company.id} value={company.id}>
+                  {company.companyName}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <div className="mb-4">
+          <label>직책 선택 *</label>
+          <select
+            value={jobTitle}
+            onChange={(e) => {
+              setJobTitle(e.target.value);
+              setCompanyId(""); // 직책 변경 시 회사 선택 초기화
+            }}
             required
-            className="form-control"
-          />
+            className="form-select"
+          >
+            <option value="">선택하세요</option>
+            <option value="ADMIN">최고 관리자</option>
+            <option value="USER">영업사원</option>
+          </select>
         </div>
 
         <div className="mb-3">
@@ -140,7 +188,7 @@ const SignupPage = () => {
                 borderRadius: "4px",
                 cursor: "pointer",
                 whiteSpace: "nowrap",
-                color: "#fff"
+                color: "#fff",
               }}
               onMouseEnter={(e) => {
                 e.target.style.backgroundColor = "#DAD7CD";
@@ -178,7 +226,7 @@ const SignupPage = () => {
               cursor: "pointer",
               fontSize: "1.2rem",
               userSelect: "none",
-              lineHeight: "1"
+              lineHeight: "1",
             }}
           >
             {showPw ? "🙈" : "👀"}
@@ -206,25 +254,11 @@ const SignupPage = () => {
               cursor: "pointer",
               fontSize: "1.2rem",
               userSelect: "none",
-              lineHeight: "1"
+              lineHeight: "1",
             }}
           >
             {showConfirmPw ? "🙈" : "👀"}
           </span>
-        </div>
-
-        <div className="mb-4">
-          <label>직책 선택 *</label>
-          <select
-            value={jobTitle}
-            onChange={(e) => setJobTitle(e.target.value)}
-            required
-            className="form-select"
-          >
-            <option value="">선택하세요</option>
-            <option value="ADMIN">최고 관리자</option>
-            <option value="USER">영업사원</option>
-          </select>
         </div>
 
         <button
@@ -242,7 +276,7 @@ const SignupPage = () => {
             boxSizing: "border-box",
             transition: "outline 0.2s ease",
             opacity: isSubmitting ? 0.6 : 1,
-            cursor: isSubmitting ? "not-allowed" : "pointer"
+            cursor: isSubmitting ? "not-allowed" : "pointer",
           }}
           onMouseEnter={(e) => {
             if (!isSubmitting) e.target.style.outline = "1px solid #000";
@@ -264,8 +298,6 @@ const SignupPage = () => {
             로그인
           </button>
         </div>
-
-
       </form>
     </div>
   );

@@ -28,7 +28,8 @@ public class UserController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody SignupRequest request) {
-        userService.signup(request.getEmail(), request.getPassword(), request.getName(), request.getRole());
+        userService.signup(request.getEmail(), request.getPassword(), request.getName(), request.getRole(),
+                request.getCompanyId());
         return ResponseEntity.ok().body("{\"message\": \"회원가입 요청이 완료되었습니다.\"}");
     }
 
@@ -51,7 +52,7 @@ public class UserController {
 
     @PostMapping("/send-verification")
     public ResponseEntity<?> sendVerificationEmail(@RequestParam Long userId,
-                                                   @RequestParam String email) {
+            @RequestParam String email) {
         userService.sendVerificationEmail(userId, email);
         return ResponseEntity.ok("{\"message\": \"인증 메일 발송 완료\"}");
     }

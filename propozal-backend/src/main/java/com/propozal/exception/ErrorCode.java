@@ -1,6 +1,7 @@
 package com.propozal.exception;
 
 import org.springframework.http.HttpStatus;
+
 import lombok.Getter;
 
 @Getter
@@ -31,9 +32,11 @@ public enum ErrorCode {
 
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S001", "서버 오류가 발생했습니다."),
 
-    //고객 관련
+    // 고객 관련
     CUSTOMER_NOT_FOUND(HttpStatus.NOT_FOUND, "CU001", "고객 정보를 찾을 수 없습니다."),
-    INVALID_REQUEST(HttpStatus.BAD_REQUEST, "CU002", "유효하지 않은 고객 정보입니다.");
+    INVALID_REQUEST(HttpStatus.BAD_REQUEST, "CU002", "유효하지 않은 고객 정보입니다."),
+
+    COMPANY_NOT_FOUND_FOR_ADMIN(HttpStatus.INTERNAL_SERVER_ERROR, "ADMIN_004", "관리자에게 연결된 회사 정보를 찾을 수 없습니다.");
 
     private final HttpStatus status;
     private final String code;

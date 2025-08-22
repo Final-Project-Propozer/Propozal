@@ -11,4 +11,5 @@ public class SignupRequest {
     private String password;
     private String name;
     private User.Role role;
+    private Long companyId;
 }

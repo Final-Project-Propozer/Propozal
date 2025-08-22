@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.Map;
 
 @Component
 public class JwtUtil {
@@ -31,6 +32,24 @@ public class JwtUtil {
 
     public String generateAccessToken(String email) {
         return generateToken(email, accessTokenValidity);
+    }
+
+    public String generateAccessToken(String email, Map<String, Object> claims) {
+        return generateTokenWithClaims(email, claims, accessTokenValidity);
+    }
+
+    // 👈 새로 추가: claims를 포함한 토큰 생성 메소드
+    private String generateTokenWithClaims(String email, Map<String, Object> claims, long validity) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + validity);
+
+        return Jwts.builder()
+                .setClaims(claims) // claims 먼저 설정
+                .setSubject(email) // subject는 나중에 설정 (claims를 덮어쓰지 않도록)
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
     }
 
     public String generateRefreshToken(String email) {
