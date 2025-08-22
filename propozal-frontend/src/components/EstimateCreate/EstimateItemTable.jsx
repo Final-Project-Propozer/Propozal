@@ -302,7 +302,7 @@ const EstimateItemTable = ({
                       <Form.Control
                         type="number"
                         min="1"
-                        value={editingValues.quantity ?? ""} {/* 안전 기본값 */}
+                        value={editingValues.quantity ?? ""}
                         onChange={(e) =>
                           handleEditChange("quantity", e.target.value)
                         }
@@ -325,7 +325,7 @@ const EstimateItemTable = ({
                           min="0"
                           max="100"
                           step="0.1"
-                          value={editingValues.discountRate ?? ""} {/* 안전 기본값 */}
+                          value={editingValues.discountRate ?? ""}
                           onChange={(e) =>
                             handleEditChange("discountRate", e.target.value)
                           }
