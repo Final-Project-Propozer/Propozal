@@ -1,175 +1,95 @@
-# Propozal (프로포잘)
+# 멋쟁이사자처럼 최종 프로젝트 - Propozal (프로포잘)
 
-이 문서는 Propozal 프로젝트를 위한 Git 및 GitHub 사용 가이드입니다.  
-브랜치 기반 워크플로우를 통해 안정적인 협업과 코드 관리를 목표로 합니다.
+## Propozal 소개
 
----
+<img width="1280" height="712" alt="image" src="https://github.com/user-attachments/assets/cd261aef-b98b-4921-b66b-2f2859cc3dcd" />
 
+**데이터 기반의 견적생성 및 관리 시스템으로 영업사원이 현장에서 즉시 견적서를 생성하고 다운로드, 이메일 전송이 가능함으로서 체계적이고 전문적인 견적서 생성을 지원합니다.**
 
-### 브랜치 전략
-- main : 배포용 브랜치 ( 절대 수정 금지 )
-- dev : 개발 통합 브랜치
-- feat/* : 기능 구현 브랜치
-- 필요 시 bugfix/*, hotfix/*, refactor/* 등 사용 가능
+-----
 
+## 조원 소개
 
+| <img src="https://github.com/HyuckJun-Kwon.png" width="120px"> | <img src="https://github.com/MINJEJEKIM.png" width="120px"> | <img src="https://github.com/sihwan0816.png" width="120px"> | <img src="https://github.com/lold2424.png" width="120px"> | <img src="https://github.com/jaehyeonsin1.png" width="120px"> | <img src="https://github.com/RE4LN4ME.png" width="120px"> | <img src="https://github.com/Ahn-dev.png" width="120px"> | <img src="https://github.com/ssong7890.png" width="120px"> |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| [**권혁준**](https://github.com/HyuckJun-Kwon) | [**김민제**](https://github.com/MINJEJEKIM) | [**김시환**](https://github.com/sihwan0816) | [**윤혜진**](https://github.com/lold2424) | [**신재현**](https://github.com/jaehyeonsin1) | [**최은수**](https://github.com/RE4LN4ME) | [**안성준**](https://github.com/Ahn-dev) | [**송지원**](https://github.com/ssong7890) |
+| **백엔드** | **백엔드** | **백엔드** | **PM & 백엔드** | **DB & 백엔드** | **배포 & 백엔드** | **프론트** | **프론트** |
 
-### 📌 1. GitHub 저장소 클론하기 (최초 1회만)
+## 기술 스택
 
-#### ✅ 방법
-- macOS: 터미널
-- Windows: Git Bash 또는 GitHub CLI 추천
+<img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=white"/> <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white"/> <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=JavaScript&logoColor=white"/>
 
-```bash
-cd ~/Dev  # 원하는 폴더로 이동
-git clone https://github.com/yeon47/CreationStack.git
-```
+ <img src="https://img.shields.io/badge/Spring%20Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white"/> <img src="https://img.shields.io/badge/Spring%20Security-6DB33F?style=for-the-badge&logo=spring-security&logoColor=white"/> <img src="https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=java&logoColor=white"/> <img src="https://img.shields.io/badge/JPA-E67E22?style=for-the-badge&logo=spring-data-jpa&logoColor=white"/> <img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white"/> <img src="https://img.shields.io/badge/Gradle-02303A?style=for-the-badge&logo=gradle&logoColor=white"/>
 
-⸻
+<img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white"/> <img src="https://img.shields.io/badge/Amazon%20RDS-527FFF?style=for-the-badge&logo=amazonaws&logoColor=white"/> <img src="https://img.shields.io/badge/Amazon%20S3-569A31?style=for-the-badge&logo=amazonaws&logoColor=white"/>
 
-## 📌 2. main에서 직접 작업하지 마세요!
+<img src="https://img.shields.io/badge/Jenkins-D24939?style=for-the-badge&logo=jenkins&logoColor=white"/> <img src="https://img.shields.io/badge/Amazon%20EC2-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white"/>
 
-❌ 금지된 방법:
-```bash
-git add .
-git commit -m "수정함"
-git push origin main   # 🚨 금지
-```
-👉 main은 항상 안정적인 상태를 유지해야 합니다.
+<img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white"/> <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white"/> <img src="https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=notion&logoColor=white"/> <img src="https://img.shields.io/badge/Slack-4A154B?style=for-the-badge&logo=slack&logoColor=white"/> <img src="https://img.shields.io/badge/IntelliJ%20IDEA-000000?style=for-the-badge&logo=intellij-idea&logoColor=white"/> <img src="https://img.shields.io/badge/Visual%20Studio%20Code-007ACC?style=for-the-badge&logo=visual-studio-code&logoColor=white"/>
 
-⸻
+## 기능
 
-## 📌 3. 새로운 브랜치에서 작업하기
+### 1. 견적 관리 (Estimate Management)
 
-### 브랜치 생성
-```bash
-git checkout -b feat/기능명
-```
+- 견적서 생성, 조회, 목록 확인 및 버전 관리 기능
+- (Estimate, EstimateCreate, EstimateList, EstimateView, EstimateVersion)
 
-### 브랜치 관련 명령어
-```bash
-git branch                  # 현재 로컬 브랜치 목록 확인
-git checkout 브랜치명        # 기존 브랜치로 이동
-git checkout -              # 이전 브랜치로 되돌아가기
-```
+### 2. 사용자 관리 (User Management)
+- 일반 로그인 및 회원가입 기능
+- (Login, Signup)
 
-### 브랜치 이름 예시
-```bash
-feat/add-login
-feat/improve-ui
-bugfix/fix-login-error
-```
+### 3. 판매 및 제품 관리 (Sales & Product Management)
+- 판매 메인 페이지 및 제품 관리 기능
+- (SalesMainPage, Product)
 
-⸻
+### 4. 고객 관리 (Customer Management)
+- 고객 정보 관리 기능
+- (Customer)
 
-## 📌 4. 변경 사항 저장 (커밋하기)
+### 5. 일정 관리 (Scheduling)
+- 일정 관련 기능
+- (Schedule)
 
-### 변경된 파일 확인
-```bash
-git status
-```
+### 6. 관리자 기능 (Admin)
+- 관리자 전용 페이지 및 기능
+- (Admin, AdminTestPage.jsx)
 
-### 스테이징
-```bash
-git add .
-```
+### 7. 홈 (Home)
+- 메인 랜딩 페이지
+- (Home)
 
-### 커밋
-```bash
-git commit -m "[Feature] 로그인 기능 추가"
-```
-✅ 커밋 컨벤션
+## 프로젝트 설정
 
-```
-[타입] 작업 내용 (간결하게)
-```
+### 프론트엔드 (Frontend)
 
-| 타입 | 설명 |
-|:----|:----|
-| feat | 새로운 기능 추가 |
-| fix | 버그 수정| 
-| refactor | 코드 리팩토링 | 
-| chore | 설정, 문서 등 작업| 
-| style | 코드 포맷, 세미콜론, 공백 등 비기능적 변경|
-| docs | 문서 작업|
+- 핵심 프레임워크: React.js
+  - 컴포넌트 기반 아키텍처를 통해 UI를 효율적으로 구축합니다.
+- 빌드 도구: Vite
+  - 빠른 개발 서버 구동과 번들링을 지원하여 개발 생산성을 높입니다.
+- 주요 라이브러리:
+  - Chart.js: 판매 데이터나 통계 등을 시각화하는 차트 기능을 위해 사용됩니다.
+- 언어: JavaScript (JSX)
 
+### 백엔드 (Backend)
 
-✅ 커밋 메시지 예시:  
-- `[fix] 로그인 오류 수정`  
-- `[feat] 판매글 업로드 기능 추가`  
-- `[chore] 폴더 구조 정리`
+- 핵심 프레임워크: Spring Boot (Java)
+  - Java 21 버전을 기반으로 안정적이고 빠른 백엔드 서버를 구축합니다.
+- 데이터베이스:
+  - MySQL을 주 데이터베이스로 사용합니다.
+  - Spring Data JPA를 통해 객체 지향적으로 데이터를 관리합니다.
+- 인증/보안:
+  - Spring Security와 JWT (JSON Web Token)를 결합하여 안전한 인증 및 인가 시스템을 구현합니다.
+- 파일 처리 및 외부 연동:
+  - AWS S3: 파일(이미지, 문서 등)을 저장하기 위한 클라우드 스토리지를 사용합니다.
+  - Spring Mail: 이메일 발송 기능을 구현합니다.
+- 개발 도구:
+  - Lombok: 반복적인 코드를 줄여 코드 가독성과 생산성을 향상시킵니다.
+- 빌드 도구: Gradle
+  - 의존성 관리 및 프로젝트 빌드를 담당합니다.
 
-⸻
+### 배포 및 운영 (DevOps)
 
-## 📌 5. 원격 저장소로 푸시하기
-
-```bash
-git push origin feat/작업이름
-```
-
-
-⸻
-
-## 📌 6. Pull Request (PR) 생성하기
-
-1. GitHub 저장소 → Pull Requests 클릭
-2. "New Pull Request" 클릭
-3. base: dev / compare: feat/작업이름 설정
-4. 작업 설명 작성, 팀원에게 리뷰 요청
-5. 승인 후 Merge
-
-✅ PR 컨벤션 (PR 생성 시 자동 생성 )
-```
-[타입] 기능 요약 (브랜치명 기반)
-
-## 💡 작업 개요
-- 게시글 등록 기능 개발
-
-## 🔧 작업 상세 내용
-- 제목, 본문, 이미지 업로드 필드 포함한 게시글 등록 폼 구현
-- DB에 post 데이터 저장 API 연동
-- 예외처리 및 필드 유효성 검사
-
-## 📌 기타 참고사항
-- 태그 기능은 다음 브랜치에서 진행 예정
-```
-
-⸻
-
-## 📌 7. 새로운 작업을 시작할 때 항상 develop 최신화!
-
-```bash
-git checkout dev          # 또는 git switch develop
-git pull origin dev       # main이 아닌 develop 기준으로 최신화!
-git checkout feat/my-task  # 또는 git switch -c feat/new-task
-
-git pull origin dev      # 최신 develop 내용 병합 (필수!)
-```
-
-
-⸻
-
-# 🚀 Git 협업 워크플로우 요약
-
-| 단계 | 명령어 | 설명 |
-|:----|:----|:----|
-| 저장소 클론 | `git clone` | 로컬에 저장소 복제 |
-| 새 브랜치 생성 | `git switch -c feature/작업이름` | 새 작업 브랜치 생성 |
-| 변경사항 확인 | `git status` | 수정 파일 확인 |
-| 변경사항 추가 | `git add .` | 스테이징 |
-| 변경사항 커밋 | `git commit -m "메시지"` | 변경 저장 |
-| 원격 저장소 푸시 | `git push origin feat/기능명` | GitHub 업로드 |
-| PR 생성 및 병합 | GitHub에서 PR 생성 후 Merge |
-| 새로운 작업 시작 전 최신화 | `git pull origin develop` | 항상 최신 develop 기준 |
-
-
-⸻
-
-# 🔥 Git 협업 시 주의할 점
-
-✅ main 브랜치 직접 수정 금지  
-✅ 작업 전 항상 최신 develop pull  
-✅ 의미 있는 커밋 메시지 작성 (`feat`, `fix`, `chore` 등)  
-✅ 브랜치 → PR → Merge 순서로 협업  
-
-⸻
+- 컨테이너화: Docker (`Dockerfile`)
+  - 애플리케이션을 컨테이너 환경에서 실행할 수 있도록 설정되어 있어 배포 일관성을 유지합니다.
+- CI/CD: Jenkins (`Jenkinsfile`)
+  - 코드 변경 시 자동으로 빌드, 테스트, 배포를 수행하는 파이프라인이 구축되어 있습니다.
