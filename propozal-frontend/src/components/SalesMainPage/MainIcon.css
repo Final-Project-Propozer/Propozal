@@ -1,0 +1,22 @@
+/* src/components/SalesMainPage/MainIcon.css */
+
+.card-custom-bg {
+  background-color: #f8f9fa; /* 밝은 회색 배경 */
+}
+
+.main-icon-green {
+  color: #198754; /* 아이콘 초록색 */
+}
+
+.btn-go-green {
+  color: #198754;
+  border: 2px solid #198754;
+  background-color: transparent;
+  transition: all 0.3s ease;
+}
+
+.btn-go-green:hover {
+  background-color: #198754;
+  color: #ffffff;
+  border-color: #198754;
+}

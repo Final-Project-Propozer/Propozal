@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>견적서</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 20mm;
+      }
+
+      /* 등록된 시스템 폰트 사용 */
+      body {
+        font-family: "Malgun Gothic", "Korean Font", "Gulim", "Batang", "Dotum",
+          Arial, sans-serif;
+        font-size: 12px;
+        line-height: 1.4;
+        color: #333;
+        margin: 0;
+        padding: 0;
+      }
+
+      * {
+        font-family: "Malgun Gothic", "Korean Font", "Gulim", "Batang", "Dotum",
+          Arial, sans-serif;
+      }
+
+      .container {
+        border: 1px solid #dee2e6;
+        padding: 20px;
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        box-sizing: border-box;
+      }
+
+      .header {
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 20px;
+        color: #343a40;
+      }
+
+      .info-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        table-layout: fixed;
+      }
+
+      .info-table td {
+        border: 1px solid #dee2e6;
+        padding: 8px;
+        line-height: 1.4;
+        vertical-align: top;
+        width: 50%;
+        font-size: 11px;
+        word-wrap: break-word;
+      }
+
+      .label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 6px;
+        font-size: 12px;
+      }
+
+      .items-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        table-layout: fixed; /* 고정 테이블 레이아웃 */
+      }
+
+      .items-table th,
+      .items-table td {
+        border: 1px solid #dee2e6;
+        padding: 6px;
+        text-align: center;
+        font-size: 10px;
+        word-wrap: break-word; /* 긴 텍스트 줄바꿈 */
+        overflow: hidden;
+      }
+
+      /* 각 컬럼 너비 지정 */
+      .items-table th:nth-child(1),
+      .items-table td:nth-child(1) {
+        width: 40%; /* 품명 */
+      }
+
+      .items-table th:nth-child(2),
+      .items-table td:nth-child(2) {
+        width: 10%; /* 수량 */
+      }
+
+      .items-table th:nth-child(3),
+      .items-table td:nth-child(3) {
+        width: 20%; /* 단가 */
+      }
+
+      .items-table th:nth-child(4),
+      .items-table td:nth-child(4) {
+        width: 10%; /* 할인율 */
+      }
+
+      .items-table th:nth-child(5),
+      .items-table td:nth-child(5) {
+        width: 20%; /* 공급가액 */
+      }
+
+      .items-table th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+      }
+
+      .items-table .left-align {
+        text-align: left;
+      }
+
+      .total-summary {
+        width: 60%;
+        margin-left: auto;
+        margin-top: 15px;
+        text-align: right;
+        font-size: 11px;
+        padding-right: 10px;
+      }
+
+      .total-summary p {
+        margin: 4px 0;
+        padding: 2px 0;
+      }
+
+      .total-summary .final-amount {
+        font-weight: bold;
+        font-size: 14px;
+        color: #d90429;
+        border-top: 2px solid #343a40;
+        padding-top: 8px;
+        margin-top: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">견 적 서</div>
+
+      <table class="info-table">
+        <tr>
+          <td width="50%">
+            <span class="label">발주처 (To.)</span>
+            회사명:
+            <span th:text="${estimate.customerCompanyName ?: '미입력'}"
+              >회사명</span
+            ><br />
+            담당자:
+            <span th:text="${estimate.customerName ?: '미입력'}">담당자명</span>
+            <span
+              th:if="${estimate.customerPosition != null and estimate.customerPosition != ''}"
+              th:text="' ' + ${estimate.customerPosition}"
+            ></span
+            ><br />
+            연락처:
+            <span th:text="${estimate.customerPhone ?: '미입력'}">연락처</span
+            ><br />
+            이메일:
+            <span th:text="${estimate.customerEmail ?: '미입력'}">이메일</span>
+          </td>
+          <td width="50%">
+            <span class="label">수주처 (From.)</span>
+            회사명:
+            <span
+              th:text="${company != null ? company.companyName : 'PropoZal'}"
+              >PropoZal</span
+            ><br />
+            담당자:
+            <span
+              th:text="${sender != null and sender.user != null ? sender.user.name : '영업담당자'}"
+              >영업담당자</span
+            >
+            <span
+              th:if="${sender != null and sender.position != null and sender.position != ''}"
+              th:text="' ' + ${sender.position}"
+            ></span
+            ><br />
+            연락처:
+            <span
+              th:text="${sender != null ? sender.phoneNumber : '010-1111-2222'}"
+              >010-1111-2222</span
+            ><br />
+            이메일:
+            <span
+              th:text="${sender != null and sender.user != null ? sender.user.email : 'sales@propozal.com'}"
+              >sales@propozal.com</span
+            >
+          </td>
+        </tr>
+      </table>
+
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>품명</th>
+            <th>수량</th>
+            <th>단가</th>
+            <th>할인율</th>
+            <th>공급가액</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 기존 EstimateItem 목록 -->
+          <th:block
+            th:if="${estimate.estimateItems != null and not #lists.isEmpty(estimate.estimateItems)}"
+          >
+            <tr th:each="item : ${estimate.estimateItems}">
+              <td class="left-align">
+                <span
+                  th:text="${item.product != null ? item.product.name : '상품명'}"
+                  >상품명</span
+                >
+              </td>
+              <td><span th:text="${item.quantity}">1</span></td>
+              <td>
+                <span
+                  th:text="${item.unitPrice != null ? #numbers.formatDecimal(item.unitPrice, 0, 'COMMA', 0, 'POINT') : '0'}"
+                  >0</span
+                >
+              </td>
+              <td>
+                <span
+                  th:text="${item.discountRate != null ? (#numbers.formatDecimal(item.discountRate * 100, 1, 'POINT', 2, 'POINT') + '%') : '0%'}"
+                  >0%</span
+                >
+              </td>
+              <td>
+                <span
+                  th:text="${item.subtotal != null ? #numbers.formatDecimal(item.subtotal, 0, 'COMMA', 0, 'POINT') : '0'}"
+                  >0</span
+                >
+              </td>
+            </tr>
+          </th:block>
+
+          <!-- EstimateVersionData의 items -->
+          <th:block
+            th:if="${estimate.estimateItems == null and estimate.items != null and not #lists.isEmpty(estimate.items)}"
+          >
+            <tr th:each="item : ${estimate.items}">
+              <td class="left-align">
+                <span
+                  th:text="${item.productName != null ? item.productName : '상품명'}"
+                  >상품명</span
+                >
+              </td>
+              <td><span th:text="${item.quantity}">1</span></td>
+              <td>
+                <span
+                  th:text="${item.unitPrice != null ? #numbers.formatDecimal(item.unitPrice, 0, 'COMMA', 0, 'POINT') : '0'}"
+                  >0</span
+                >
+              </td>
+              <td>
+                <span
+                  th:text="${item.discountRate != null ? (#numbers.formatDecimal(item.discountRate * 100, 1, 'POINT', 2, 'POINT') + '%') : '0%'}"
+                  >0%</span
+                >
+              </td>
+              <td>
+                <span
+                  th:text="${item.subtotal != null ? #numbers.formatDecimal(item.subtotal, 0, 'COMMA', 0, 'POINT') : '0'}"
+                  >0</span
+                >
+              </td>
+            </tr>
+          </th:block>
+
+          <!-- 아이템이 없는 경우 -->
+          <tr
+            th:if="${(estimate.estimateItems == null or #lists.isEmpty(estimate.estimateItems)) and (estimate.items == null or #lists.isEmpty(estimate.items))}"
+          >
+            <td colspan="5" style="text-align: center; padding: 20px">
+              등록된 품목이 없습니다.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="total-summary">
+        <p>
+          총 공급가액:
+          <span
+            th:text="${totalAmountInfo != null and totalAmountInfo.supplyAmount != null ? (#numbers.formatDecimal(totalAmountInfo.supplyAmount, 0, 'COMMA', 0, 'POINT') + '원') : '0원'}"
+            >0원</span
+          >
+        </p>
+        <p>
+          할인액:
+          <span
+            th:text="${totalAmountInfo != null and totalAmountInfo.discountAmount != null ? (#numbers.formatDecimal(totalAmountInfo.discountAmount, 0, 'COMMA', 0, 'POINT') + '원') : '0원'}"
+            >0원</span
+          >
+        </p>
+        <p>
+          부가세(VAT):
+          <span
+            th:text="${totalAmountInfo != null and totalAmountInfo.vatAmount != null ? (#numbers.formatDecimal(totalAmountInfo.vatAmount, 0, 'COMMA', 0, 'POINT') + '원') : '0원'}"
+            >0원</span
+          >
+        </p>
+        <p class="final-amount">
+          <b
+            >총 합계:
+            <span
+              th:text="${totalAmountInfo != null and totalAmountInfo.totalAmount != null ? (#numbers.formatDecimal(totalAmountInfo.totalAmount, 0, 'COMMA', 0, 'POINT') + '원') : (estimate.totalAmount != null ? (#numbers.formatDecimal(estimate.totalAmount, 0, 'COMMA', 0, 'POINT') + '원') : '0원')}"
+              >0원</span
+            >
+          </b>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

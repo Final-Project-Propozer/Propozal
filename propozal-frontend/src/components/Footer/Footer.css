@@ -1,0 +1,48 @@
+/* src/components/Footer.css */
+
+/* 푸터 전체 영역 */
+.footer-content {
+  text-align: center;
+  width: 100%;
+  background-color: #f8f8f8;
+  padding: 20px;
+  border-top: 1px solid #e7e7e7;
+  color: #555;
+}
+
+/* 링크 영역 */
+.footer-links {
+  margin-bottom: 10px;
+}
+
+.footer-links a {
+  margin: 0 10px;
+  text-decoration: none;
+  color: #555;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}
+
+/* 회사 정보 영역 */
+.footer-info p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+/* 반응형 대응 */
+@media (max-width: 768px) {
+  .footer-content {
+    padding: 15px;
+  }
+
+  .footer-links {
+    margin-bottom: 8px;
+  }
+
+  .footer-info p {
+    font-size: 13px;
+  }
+}

@@ -28,12 +28,40 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	compileOnly 'org.projectlombok:lombok'
+    implementation 'com.itextpdf:itextpdf:5.5.13.3'
+    implementation 'com.opencsv:opencsv:5.9'
+	
+	implementation 'software.amazon.awssdk:s3:2.25.26'
+	implementation 'software.amazon.awssdk:auth:2.25.26'
+
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+	implementation 'io.github.cdimascio:dotenv-java:3.0.0'
+
 	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// 이메일 발송 기능을 위한 라이브러리
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation "org.springframework.boot:spring-boot-devtools:3.5.3"
+
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate6'
+
+	// HTML을 PDF로 변환하기 위한 라이브러리
+    implementation 'com.openhtmltopdf:openhtmltopdf-pdfbox:1.0.10'
+
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate6'
+
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 }
 
 tasks.named('test') {

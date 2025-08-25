@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>견적서</title>
+    <!-- 이메일 클라이언트 호환성을 위한 스타일 -->
+    <style type="text/css">
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f2;
+        font-family: "Noto Sans KR", AppleSDGothicNeo-Regular, "Malgun Gothic",
+          "맑은 고딕", dotum, "돋움", sans-serif;
+      }
+      table {
+        border-spacing: 0;
+      }
+      td {
+        padding: 0;
+      }
+      img {
+        border: 0;
+      }
+      .wrapper {
+        width: 100%;
+        table-layout: fixed;
+        background-color: #f4f4f2;
+        padding: 40px 0;
+      }
+      .main {
+        background-color: #ffffff;
+        margin: 0 auto;
+        width: 100%;
+        max-width: 600px;
+        border-spacing: 0;
+        color: #344e41;
+        border-radius: 10px;
+        border: 1px solid #e5e7eb;
+      }
+    </style>
+  </head>
+  <body>
+    <center class="wrapper">
+      <table class="main" width="100%">
+        <!-- HEADER -->
+        <tr>
+          <td style="padding: 20px 30px">
+            <table width="100%">
+              <tr>
+                <td style="font-size: 24px; font-weight: bold; color: #344e41">
+                  견적서 승인 요청
+                </td>
+                <td
+                  style="font-size: 14px; color: #344e41; text-align: right"
+                  th:text="${#temporals.format(T(java.time.LocalDateTime).now(), 'yyyy.MM.dd HH:mm')}"
+                >
+                  2025.08.18 13:30
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- SENDER INFO & EMAIL CONTENT -->
+        <tr>
+          <td style="padding: 0 15px">
+            <table
+              width="100%"
+              style="
+                border-spacing: 0;
+                border: 1px solid #e5e7eb;
+                border-radius: 10px;
+                background-color: #ffffff;
+              "
+            >
+              <tr>
+                <td style="padding: 15px 30px">
+                  <p
+                    style="
+                      font-size: 18px;
+                      color: #344e41;
+                      margin: 0;
+                      font-weight: 500;
+                    "
+                    th:text="${sender.user.name}"
+                  >
+                    김영업
+                  </p>
+                  <p
+                    style="font-size: 14px; color: #588157; margin: 5px 0 0 0"
+                    th:text="${sender.user.email}"
+                  >
+                    sales@propozal.com
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 5px 30px 20px 30px">
+                  <p style="font-size: 14px; color: #588157; line-height: 1.6">
+                    안녕하세요,
+                    <span
+                      th:text="${estimate.customerName} + ' ' + ${estimate.customerPosition}"
+                      >고객명 직위</span
+                    >님. <br /><br />
+                    요청하신 견적서를 보내드립니다. 아래 링크를 통해 PDF
+                    파일로도 확인하실 수 있습니다.
+                    <br />
+                    검토 후 승인 여부를 알려주시면 감사하겠습니다.
+                    <br /><br />
+                    감사합니다.
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- SPACER -->
+        <tr>
+          <td height="15"></td>
+        </tr>
+
+        <!-- QUOTE INFO -->
+        <tr>
+          <td style="padding: 0 15px">
+            <table
+              width="100%"
+              style="
+                border-spacing: 0;
+                border: 1px solid #e5e7eb;
+                border-radius: 10px;
+                background-color: #ffffff;
+              "
+            >
+              <tr>
+                <td style="padding: 30px">
+                  <!-- 견적서 타이틀 -->
+                  <table width="100%" style="margin-bottom: 20px">
+                    <tr>
+                      <td
+                        style="
+                          font-size: 20px;
+                          font-weight: bold;
+                          color: #3a5a40;
+                        "
+                      >
+                        견적서
+                      </td>
+                      <td
+                        style="
+                          font-size: 12px;
+                          color: #3a5a40;
+                          text-align: right;
+                        "
+                        th:text="'견적번호: ' + ${estimate.id}"
+                      >
+                        견적번호: 0001
+                      </td>
+                    </tr>
+                  </table>
+
+                  <!-- 발주처/수주처 정보 -->
+                  <table
+                    width="100%"
+                    style="border-spacing: 0; margin-bottom: 20px"
+                  >
+                    <tr>
+                      <td
+                        width="50%"
+                        style="padding-right: 10px; vertical-align: top"
+                      >
+                        <table
+                          width="100%"
+                          style="
+                            border-spacing: 0;
+                            background-color: #f8f9fa;
+                            border-radius: 10px;
+                          "
+                        >
+                          <tr>
+                            <td style="padding: 10px; font-size: 14px">
+                              <p
+                                style="
+                                  color: #3a5a40;
+                                  margin: 0 0 10px 0;
+                                  font-weight: bold;
+                                "
+                              >
+                                발주처
+                              </p>
+                              <p
+                                style="
+                                  color: #588157;
+                                  line-height: 1.6;
+                                  margin: 0;
+                                "
+                              >
+                                <span th:text="${estimate.customerCompanyName}"
+                                  >고객사명</span
+                                ><br />
+                                담당자:
+                                <span
+                                  th:text="${estimate.customerName} + ' ' + ${estimate.customerPosition}"
+                                  >고객명 직위</span
+                                ><br />
+                                연락처:
+                                <span th:text="${estimate.customerPhone}"
+                                  >고객 연락처</span
+                                >
+                              </p>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                      <td
+                        width="50%"
+                        style="padding-left: 10px; vertical-align: top"
+                      >
+                        <table
+                          width="100%"
+                          style="
+                            border-spacing: 0;
+                            background-color: #f8f9fa;
+                            border-radius: 10px;
+                          "
+                        >
+                          <tr>
+                            <td style="padding: 10px; font-size: 14px">
+                              <p
+                                style="
+                                  color: #3a5a40;
+                                  margin: 0 0 10px 0;
+                                  font-weight: bold;
+                                "
+                              >
+                                수주처
+                              </p>
+                              <p
+                                style="
+                                  color: #588157;
+                                  line-height: 1.6;
+                                  margin: 0;
+                                "
+                              >
+                                <span th:text="${company.companyName}"
+                                  >우리 회사명</span
+                                ><br />
+                                담당자:
+                                <span
+                                  th:text="${sender.user.name} + ' ' + ${sender.position}"
+                                  >담당자명 직위</span
+                                ><br />
+                                연락처:
+                                <span th:text="${sender.phoneNumber}"
+                                  >담당자 연락처</span
+                                >
+                              </p>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+
+                  <!-- 품목 테이블 -->
+                  <table
+                    width="100%"
+                    style="
+                      border-spacing: 0;
+                      border: 1px solid #f4f4f2;
+                      border-radius: 10px;
+                      overflow: hidden;
+                      font-size: 14px;
+                    "
+                  >
+                    <thead>
+                      <tr>
+                        <th
+                          style="
+                            background-color: #f8f9fa;
+                            color: #3a5a40;
+                            padding: 10px;
+                            text-align: center;
+                            font-weight: 500;
+                          "
+                        >
+                          품목
+                        </th>
+                        <th
+                          style="
+                            background-color: #f8f9fa;
+                            color: #3a5a40;
+                            padding: 10px;
+                            text-align: center;
+                            font-weight: 500;
+                          "
+                        >
+                          수량
+                        </th>
+                        <th
+                          style="
+                            background-color: #f8f9fa;
+                            color: #3a5a40;
+                            padding: 10px;
+                            text-align: center;
+                            font-weight: 500;
+                          "
+                        >
+                          단가
+                        </th>
+                        <th
+                          style="
+                            background-color: #f8f9fa;
+                            color: #3a5a40;
+                            padding: 10px;
+                            text-align: center;
+                            font-weight: 500;
+                          "
+                        >
+                          공급가액
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr th:each="item : ${estimate.estimateItems}">
+                        <td
+                          style="
+                            padding: 10px;
+                            text-align: center;
+                            border-top: 1px solid #f4f4f2;
+                          "
+                          th:text="${item.product.name}"
+                        >
+                          멋쟁이 사자 인형
+                        </td>
+                        <td
+                          style="
+                            padding: 10px;
+                            text-align: center;
+                            border-top: 1px solid #f4f4f2;
+                          "
+                          th:text="${item.quantity}"
+                        >
+                          3
+                        </td>
+                        <td
+                          style="
+                            padding: 10px;
+                            text-align: center;
+                            border-top: 1px solid #f4f4f2;
+                          "
+                          th:text="${#numbers.formatDecimal(item.unitPrice, 0, 'COMMA', 0, 'POINT')}"
+                        >
+                          4,000
+                        </td>
+                        <td
+                          style="
+                            padding: 10px;
+                            text-align: center;
+                            border-top: 1px solid #f4f4f2;
+                          "
+                          th:text="${#numbers.formatDecimal(item.subtotal, 0, 'COMMA', 0, 'POINT')}"
+                        >
+                          12,000
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- SPACER -->
+        <tr>
+          <td height="15"></td>
+        </tr>
+
+        <!-- DOWNLOAD LINK SECTION -->
+        <tr>
+          <td style="padding: 0 15px">
+            <table
+              width="100%"
+              style="
+                border-spacing: 0;
+                border: 1px solid #e5e7eb;
+                border-radius: 10px;
+                background-color: #ffffff;
+              "
+            >
+              <tr>
+                <td style="padding: 20px 30px">
+                  <p
+                    style="
+                      font-size: 16px;
+                      color: #3a5a40;
+                      margin: 0 0 10px 0;
+                      font-weight: 500;
+                    "
+                  >
+                    견적서 PDF 다운로드
+                  </p>
+                  <a
+                    th:href="${downloadUrl}"
+                    style="font-size: 12px; color: #007bff"
+                  >
+                    여기를 클릭하여 견적서를 다운로드하세요. (링크는 7일간
+                    유효합니다)
+                  </a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- SPACER -->
+        <tr>
+          <td height="15"></td>
+        </tr>
+
+        <!-- APPROVAL BUTTONS -->
+        <tr>
+          <td style="padding: 0 15px">
+            <table
+              width="100%"
+              style="
+                border-spacing: 0;
+                border: 1px solid #e5e7eb;
+                border-radius: 10px;
+                background-color: #ffffff;
+              "
+            >
+              <tr>
+                <td style="padding: 16px; text-align: center">
+                  <p style="font-size: 14px; color: black; margin: 0 0 16px 0">
+                    견적서 검토 결과
+                  </p>
+                  <a
+                    th:href="${approveUrl}"
+                    style="
+                      background-color: #588157;
+                      color: white;
+                      padding: 10px 20px;
+                      text-decoration: none;
+                      border-radius: 5px;
+                      font-size: 14px;
+                      margin-right: 10px;
+                    "
+                    >견적서 승인</a
+                  >
+                  <a
+                    th:href="${rejectUrl}"
+                    style="
+                      background-color: #ffffff;
+                      color: #588157;
+                      padding: 8px 18px;
+                      text-decoration: none;
+                      border-radius: 5px;
+                      font-size: 14px;
+                      border: 1px solid #588157;
+                    "
+                    >견적서 거절</a
+                  >
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </center>
+  </body>
+</html>
